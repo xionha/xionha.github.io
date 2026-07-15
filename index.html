@@ -601,7 +601,7 @@
 
   .stat-tooltip{
     position: fixed;
-    z-index: 100;
+    z-index: 200;
     max-width: 280px;
     background: var(--surface-3);
     border: 1px solid var(--border-bright);
@@ -753,16 +753,8 @@
     color: var(--bronze-bright);
     filter: drop-shadow(0 0 6px rgba(232,177,104,0.5));
   }
-  .equip-tile-select{
-    position:absolute; inset:0;
-    width:100%; height:100%;
-    opacity:0;
-    cursor:pointer;
-    border:none;
-    background:transparent;
-  }
-  .equip-tile-select:disabled{ cursor:not-allowed; }
-  .equip-tile-box:focus-within{ outline: 2px solid var(--bronze-bright); outline-offset: 2px; }
+  .equip-tile-box{ cursor: pointer; }
+  .equip-tile-box:focus-visible{ outline: 2px solid var(--bronze-bright); outline-offset: 2px; }
   .equip-tile-slotname{
     font-family: var(--font-display);
     font-size: 10.5px;
@@ -779,6 +771,46 @@
     min-height: 15px;
   }
   .equip-tile-itemname.equipped{ color: var(--bronze-bright); font-style: normal; }
+
+  /* ---- Menu déroulant personnalisé pour le choix d'équipement ---- */
+  .equip-dropdown{
+    position: fixed;
+    z-index: 110;
+    min-width: 200px;
+    max-width: 300px;
+    max-height: 320px;
+    overflow-y: auto;
+    background: var(--surface-3);
+    border: 1px solid var(--border-bright);
+    box-shadow: 0 12px 34px var(--shadow-deep);
+    padding: 4px;
+    display: none;
+  }
+  .equip-dropdown.visible{ display: block; }
+  .equip-dropdown-item{
+    padding: 8px 10px;
+    font-size: 13.5px;
+    color: var(--text);
+    cursor: pointer;
+    border-left: 2px solid transparent;
+    transition: background 0.12s ease, border-color 0.12s ease;
+  }
+  .equip-dropdown-item:hover{
+    background: rgba(189,125,63,0.14);
+    border-left-color: var(--bronze-bright);
+  }
+  .equip-dropdown-item.active{
+    color: var(--bronze-bright);
+    background: rgba(189,125,63,0.1);
+    border-left-color: var(--bronze);
+  }
+  .equip-dropdown-item.none-option{
+    color: var(--text-faint);
+    font-style: italic;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 3px;
+    padding-bottom: 9px;
+  }
 
   .paperdoll-descriptions{ margin-top: 18px; }
   .equip-desc-block{
@@ -2563,6 +2595,18 @@ const SLOT_ICONS = {
 // Disposition façon paperdoll MMO : arme / torse / bouclier au centre, accessoires autour
 const PAPERDOLL_LAYOUT = ['troupe', 'amulette', 'cape', 'arme', 'armure', 'deuxH', 'gants', 'ceinture', 'bottes'];
 
+// Résumé en texte brut (pour l'attribut title, infobulle native du navigateur sur les options du menu déroulant)
+function buildEquipPlainSummary(slot, itemName){
+  const item = EQUIPMENT[slot] && EQUIPMENT[slot][itemName];
+  if (!item) return '';
+  const lines = [];
+  Object.entries(item.flatStats || {}).forEach(([k, v]) => lines.push(`${TALENT_STAT_LABELS[k] || k} ${v > 0 ? '+' : ''}${v}`));
+  Object.entries(item.extraStats || {}).forEach(([k, v]) => lines.push(`${EXTRA_STATS[k] || k} ${v > 0 ? '+' : ''}${v}`));
+  Object.entries(item.elemental || {}).forEach(([k, v]) => lines.push(`${ELEMENTAL_STATS[k] || k} ${v > 0 ? '+' : ''}${v}`));
+  (item.notes || []).forEach(n => lines.push(n));
+  return lines.length ? lines.join('\n') : 'Aucun effet particulier';
+}
+
 const equipmentSlots = document.createElement('div');
 equipmentSlots.className = 'paperdoll-panel';
 equipmentSlots.innerHTML = `
@@ -2580,27 +2624,21 @@ PAPERDOLL_LAYOUT.forEach(slot => {
   const tile = document.createElement('div');
   tile.className = 'equip-tile';
   tile.innerHTML = `
-    <div class="equip-tile-box" data-slot="${slot}">
+    <div class="equip-tile-box" data-slot="${slot}" tabindex="0" role="button" aria-label="${SLOT_LABELS[slot]}">
       <span class="equip-tile-icon">${SLOT_ICONS[slot] || ''}</span>
-      <select class="equip-tile-select" data-slot="${slot}" aria-label="${SLOT_LABELS[slot]}"></select>
     </div>
     <div class="equip-tile-slotname">${SLOT_LABELS[slot]}</div>
     <div class="equip-tile-itemname" id="equiptilename-${slot}">Vide</div>
   `;
-  const select = tile.querySelector('select');
-  const noneOpt = document.createElement('option');
-  noneOpt.value = '';
-  noneOpt.textContent = 'Aucun';
-  select.appendChild(noneOpt);
-  Object.keys(EQUIPMENT[slot]).forEach(itemName => {
-    const opt = document.createElement('option');
-    opt.value = itemName;
-    opt.textContent = itemName;
-    select.appendChild(opt);
-  });
   paperdollGrid.appendChild(tile);
-  equipTileBoxEls[slot] = tile.querySelector('.equip-tile-box');
+  const box = tile.querySelector('.equip-tile-box');
+  equipTileBoxEls[slot] = box;
   equipTileNameEls[slot] = tile.querySelector(`#equiptilename-${slot}`);
+
+  box.addEventListener('click', () => openEquipDropdown(slot, box));
+  box.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openEquipDropdown(slot, box); }
+  });
 
   const descBlock = document.createElement('div');
   descBlock.className = 'equip-desc-block';
@@ -2611,9 +2649,76 @@ PAPERDOLL_LAYOUT.forEach(slot => {
   `;
   paperdollDescriptions.appendChild(descBlock);
   equipDescEls[slot] = descBlock.querySelector(`#equipdesc-${slot}`);
-
-  select.addEventListener('change', e => applyEquipment(slot, e.target.value));
 });
+
+// ---- Menu déroulant personnalisé pour le choix d'équipement (avec infobulle riche par objet) ----
+const equipDropdown = document.createElement('div');
+equipDropdown.className = 'equip-dropdown';
+document.body.appendChild(equipDropdown);
+let equipDropdownSlot = null;
+
+function buildEquipTooltipHTML(slot, itemName){
+  if (!itemName) return `<div class="stat-tooltip-title">Aucun</div><div class="stat-tooltip-empty">Retire l'objet équipé dans cet emplacement.</div>`;
+  const content = buildEquipDescriptionHTML(slot, itemName);
+  return `<div class="stat-tooltip-title">${itemName}</div>${content || '<div class="stat-tooltip-empty">Aucun effet particulier.</div>'}`;
+}
+
+function openEquipDropdown(slot, anchorEl){
+  equipDropdownSlot = slot;
+  const currentItem = equippedItems[slot];
+
+  let html = `<div class="equip-dropdown-item none-option ${!currentItem ? 'active' : ''}" data-value="">Aucun</div>`;
+  Object.keys(EQUIPMENT[slot]).forEach(itemName => {
+    html += `<div class="equip-dropdown-item ${currentItem === itemName ? 'active' : ''}" data-value="${itemName}">${itemName}</div>`;
+  });
+  equipDropdown.innerHTML = html;
+
+  const rect = anchorEl.getBoundingClientRect();
+  const margin = 6;
+  equipDropdown.style.left = `${Math.max(8, rect.left)}px`;
+  equipDropdown.style.top = `${rect.bottom + margin}px`;
+  equipDropdown.classList.add('visible');
+
+  // Repositionne si ça dépasse en bas de l'écran
+  const ddRect = equipDropdown.getBoundingClientRect();
+  if (ddRect.bottom > window.innerHeight - 8) {
+    equipDropdown.style.top = `${Math.max(8, rect.top - ddRect.height - margin)}px`;
+  }
+  if (ddRect.right > window.innerWidth - 8) {
+    equipDropdown.style.left = `${Math.max(8, window.innerWidth - ddRect.width - 8)}px`;
+  }
+
+  equipDropdown.querySelectorAll('.equip-dropdown-item').forEach(row => {
+    row.addEventListener('mouseenter', e => {
+      statTooltip.innerHTML = buildEquipTooltipHTML(slot, row.dataset.value || null);
+      statTooltip.classList.add('visible');
+      positionStatTooltip(e);
+    });
+    row.addEventListener('mousemove', e => positionStatTooltip(e));
+    row.addEventListener('mouseleave', hideStatTooltip);
+    row.addEventListener('click', () => {
+      applyEquipment(slot, row.dataset.value || '');
+      closeEquipDropdown();
+    });
+  });
+
+  document.addEventListener('mousedown', handleEquipDropdownOutsideClick, true);
+  document.addEventListener('keydown', handleEquipDropdownEscape, true);
+}
+
+function closeEquipDropdown(){
+  equipDropdown.classList.remove('visible');
+  equipDropdownSlot = null;
+  hideStatTooltip();
+  document.removeEventListener('mousedown', handleEquipDropdownOutsideClick, true);
+  document.removeEventListener('keydown', handleEquipDropdownEscape, true);
+}
+function handleEquipDropdownOutsideClick(e){
+  if (!equipDropdown.contains(e.target) && !e.target.closest('.equip-tile-box')) closeEquipDropdown();
+}
+function handleEquipDropdownEscape(e){
+  if (e.key === 'Escape') closeEquipDropdown();
+}
 
 function buildEquipDescriptionHTML(slot, itemName){
   if (!itemName) return '';
@@ -2655,6 +2760,7 @@ function refreshEquipmentDescriptions(){
     equipTileBoxEls[slot].classList.toggle('filled', !!itemName);
     equipTileNameEls[slot].textContent = itemName || 'Vide';
     equipTileNameEls[slot].classList.toggle('equipped', !!itemName);
+    equipTileBoxEls[slot].title = itemName ? `${itemName}\n${buildEquipPlainSummary(slot, itemName)}` : '';
   });
 }
 
@@ -3054,11 +3160,21 @@ function compute(){
   const bronzeCoins = 50 + (commerceTotal * 2);
   document.getElementById('economyValue').textContent = bronzeCoins;
 
-  // Déterminer une échelle dynamique pour les jauges (bases + bonus fixes inclus)
-  let globalMax = 1;
-  Object.entries(totals).forEach(([k, t]) => {
-    const withExtras = t.max + (flatStatBonus[k] || 0) + (BASE_STATS[k] || 0);
-    if (withExtras > globalMax) globalMax = withExtras;
+  // Échelle des jauges : fixe à 30 pour mieux voir l'évolution (au-delà, la barre est juste pleine),
+  // sauf pour Vitales (PV/Mana) qui garde une échelle dynamique basée sur les valeurs réelles
+  const groupMax = {};
+  GROUPS.forEach(g => {
+    if (g.name === 'Vitales') {
+      let m = 1;
+      g.stats.forEach(k => {
+        const t = totals[k];
+        const withExtras = t.max + (flatStatBonus[k] || 0) + (BASE_STATS[k] || 0);
+        if (withExtras > m) m = withExtras;
+      });
+      g.stats.forEach(k => { groupMax[k] = m; });
+    } else {
+      g.stats.forEach(k => { groupMax[k] = 30; });
+    }
   });
 
   Object.keys(STATS).forEach(sKey => {
@@ -3086,8 +3202,9 @@ function compute(){
       }
     }
 
-    const minPct = Math.max(0, (dispMin / globalMax) * 100);
-    const maxPct = Math.max(0, (dispMax / globalMax) * 100);
+    const scaleMax = groupMax[sKey] || 1;
+    const minPct = Math.max(0, Math.min(100, (dispMin / scaleMax) * 100));
+    const maxPct = Math.max(0, Math.min(100, (dispMax / scaleMax) * 100));
     fillMin.style.width = minPct + '%';
     fillRange.style.left = minPct + '%';
     fillRange.style.width = Math.max(0, maxPct - minPct) + '%';
@@ -3218,7 +3335,6 @@ function resetAllState(){
   recalcInjuries();
   Object.keys(equippedItems).forEach(slot => {
     equippedItems[slot] = null;
-    equipmentSlots.querySelector(`select[data-slot="${slot}"]`).value = '';
   });
   refreshEquipmentDescriptions();
   recalcEquipment();
@@ -3308,8 +3424,6 @@ function loadBuildData(data){
   Object.keys(equippedItems).forEach(slot => {
     const itemName = data.equippedItems && data.equippedItems[slot];
     equippedItems[slot] = itemName || null;
-    const sel = equipmentSlots.querySelector(`select[data-slot="${slot}"]`);
-    if (sel) sel.value = itemName || '';
   });
   refreshEquipmentDescriptions();
   recalcEquipment();

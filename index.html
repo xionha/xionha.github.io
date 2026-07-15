@@ -303,7 +303,39 @@
 
   .talent-info{ display:flex; flex-direction: column; min-width:0; }
   .talent-name{ font-size: 15.5px; color: var(--text); }
-  .talent-effect{ font-size: 13.5px; color: var(--text-dim); font-style: italic; }
+  .talent-effect{
+    display:flex; flex-wrap:wrap; gap: 4px 6px;
+    margin-top: 3px;
+  }
+  .stat-chip{
+    display:inline-flex; align-items:center; gap: 4px;
+    font-size: 13px;
+    font-family: var(--font-body);
+    line-height: 1.6;
+    padding: 2px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+    margin: 2px 4px 2px 0;
+  }
+  .stat-chip.pos{
+    color: #bdeb9b;
+    background: rgba(140,191,106,0.16);
+    border: 1px solid rgba(140,191,106,0.5);
+  }
+  .stat-chip.neg{
+    color: #ff9c8f;
+    background: rgba(156,50,37,0.18);
+    border: 1px solid rgba(156,50,37,0.55);
+  }
+  .stat-chip.neutral{
+    color: var(--text-dim);
+    background: rgba(122,107,78,0.14);
+    border: 1px solid rgba(122,107,78,0.4);
+    font-family: var(--font-body);
+    font-weight: normal;
+    font-style: italic;
+  }
+  .talent-effect .stat-chip{ margin: 0; }
 
   .talent-toggle{
     flex-shrink:0;
@@ -347,7 +379,8 @@
     color: var(--bronze-bright);
     margin-top: 4px;
   }
-  .age-desc .flat.negative{ color: var(--vitales); }
+  .age-desc .flat.positive{ color: #bdeb9b; font-weight: 600; }
+  .age-desc .flat.negative{ color: #ff9c8f; font-weight: 600; }
   .age-desc .ability{
     display:block;
     color: var(--magie);
@@ -491,31 +524,38 @@
     background: linear-gradient(135deg, rgba(189,125,63,0.16), rgba(189,125,63,0.02));
     border: 1px solid var(--bronze);
     border-radius: 2px;
-    padding: 22px 20px;
+    padding: 9px 16px;
     text-align: center;
     position: relative;
+    display:flex;
+    align-items:baseline;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap: 6px 8px;
   }
   .economy-label{
     font-family: var(--font-display);
-    font-size: 13px;
-    letter-spacing: 2px;
+    font-size: 11px;
+    letter-spacing: 1px;
     text-transform: uppercase;
     color: var(--text-dim);
-    margin-bottom: 8px;
   }
   .economy-value{
     font-family: var(--font-deco);
-    font-size: 50px;
+    font-size: 20px;
     font-weight: 700;
     color: var(--bronze-bright);
-    line-height: 1.1;
-    text-shadow: 0 0 22px rgba(232,177,104,0.4);
+    text-shadow: 0 0 14px rgba(232,177,104,0.4);
   }
   .economy-sub{
-    font-size: 14px;
+    font-size: 12px;
     color: var(--text-dim);
     font-style: italic;
-    margin-top: 4px;
+  }
+  .economy-note{
+    font-size: 11px;
+    color: var(--text-faint);
+    font-style: italic;
   }
 
   .stats-panel{ display:flex; flex-direction:column; gap: 18px; }
@@ -872,14 +912,6 @@
     <div class="hero-rule"><span class="diamond"></span></div>
   </header>
 
-  <div class="toolbar">
-    <div class="points-group">
-      <div class="total-points">Points investis&nbsp; <b id="totalPoints">0</b></div>
-      <div class="total-points">Points investis (Parents)&nbsp; <b id="parentPoints">0</b></div>
-    </div>
-    <button class="reset" id="resetBtn">Réinitialiser</button>
-  </div>
-
   <details class="panel io-panel">
     <summary class="panel-title io-summary">Exporter / Importer un Build</summary>
 
@@ -901,7 +933,16 @@
       <button class="reset io-btn" id="ioImportBtn">Importer ce code</button>
       <div id="ioImportMsg" class="io-msg"></div>
     </div>
+
   </details>
+
+  <div class="toolbar">
+    <div class="points-group">
+      <div class="total-points">Points investis&nbsp; <b id="totalPoints">0</b></div>
+      <div class="total-points">Points investis (Parents)&nbsp; <b id="parentPoints">0</b></div>
+    </div>
+    <button class="reset" id="resetBtn">Réinitialiser</button>
+  </div>
 
   <div class="layout">
     <aside class="panel" id="attrPanel">
@@ -910,11 +951,9 @@
       <!-- attribute tree injected here -->
       <div class="attr-legend"><span class="rp-star">*</span>Sans effet sur les caractéristiques calculées — utile uniquement pour les jets de rôle-play.</div>
 
-      <div class="panel-title">Âge</div>
-      <div class="age-selector" id="ageSelector">
-        <!-- boutons d'âge injectés ici -->
-      </div>
-      <div class="age-desc" id="ageDesc"></div>
+      <div class="panel-title">Espèce</div>
+      <select class="species-select" id="speciesSelect"></select>
+      <div class="age-desc" id="speciesDesc"></div>
 
       <div class="panel-title">Morphologie</div>
       <div class="age-selector" id="morphSelector">
@@ -922,9 +961,11 @@
       </div>
       <div class="age-desc" id="morphDesc"></div>
 
-      <div class="panel-title">Espèce</div>
-      <select class="species-select" id="speciesSelect"></select>
-      <div class="age-desc" id="speciesDesc"></div>
+      <div class="panel-title">Âge</div>
+      <div class="age-selector" id="ageSelector">
+        <!-- boutons d'âge injectés ici -->
+      </div>
+      <div class="age-desc" id="ageDesc"></div>
 
       <div class="panel-title">Malédiction</div>
       <div class="age-selector" id="curseSelector">
@@ -936,26 +977,26 @@
       <div class="age-selector" id="esclaveSelector"></div>
       <div class="age-desc" id="esclaveDesc"></div>
 
-      <div class="panel-title">Buff Ténériffe</div>
-      <div class="age-selector" id="teneriffeSelector"></div>
-      <div class="age-desc" id="teneriffeDesc"></div>
-
-      <div class="panel-title">Voie Jumelle</div>
-      <div class="age-selector" id="voieJumelleSelector"></div>
-      <div class="age-desc" id="voieJumelleDesc"></div>
-
-      <div class="panel-title">Transformation</div>
-      <select class="species-select" id="transformSelect"></select>
-      <div class="age-desc" id="transformLocked" style="opacity:0.6; font-style: italic;"></div>
-      <div class="age-desc" id="transformDesc"></div>
+      <div class="panel-title">Talents <span id="talentCounter" class="talent-counter">(0/3)</span></div>
+      <div class="talent-list" id="talentList"></div>
 
       <div class="panel-title">Transformation Changeforme</div>
       <select class="species-select" id="transformChangeformeSelect"></select>
       <div class="age-desc" id="transformChangeformeLocked" style="opacity:0.6; font-style: italic;"></div>
       <div class="age-desc" id="transformChangeformeDesc"></div>
 
-      <div class="panel-title">Talents <span id="talentCounter" class="talent-counter">(0/3)</span></div>
-      <div class="talent-list" id="talentList"></div>
+      <div class="panel-title">Transformation</div>
+      <select class="species-select" id="transformSelect"></select>
+      <div class="age-desc" id="transformLocked" style="opacity:0.6; font-style: italic;"></div>
+      <div class="age-desc" id="transformDesc"></div>
+
+      <div class="panel-title">Voie Jumelle</div>
+      <div class="age-selector" id="voieJumelleSelector"></div>
+      <div class="age-desc" id="voieJumelleDesc"></div>
+
+      <div class="panel-title">Buff Ténériffe</div>
+      <div class="age-selector" id="teneriffeSelector"></div>
+      <div class="age-desc" id="teneriffeDesc"></div>
     </aside>
 
     <main class="stats-panel" id="statsPanel">
@@ -1238,11 +1279,21 @@ const ENVIRONMENTS = {
   "Extérieur": { flatStats: {}, elemental: { terre: 5 }, notes: ['Octroie le Perk : Extérieur'] },
 };
 
+// Rendu de puces colorées (bonus en vert ▲, malus en rouge ▼) pour les résumés compacts d'effets
+function statChipsHTML(entries){
+  if (!entries.length) return '';
+  return entries.map(([label, v]) => {
+    const cls = v > 0 ? 'pos' : (v < 0 ? 'neg' : 'neutral');
+    const arrow = v > 0 ? '▲' : (v < 0 ? '▼' : '•');
+    return `<span class="stat-chip ${cls}">${arrow} ${label} ${v > 0 ? '+' : ''}${v}</span>`;
+  }).join('');
+}
+
 function statusEffectText(data){
-  const parts = [];
-  Object.entries(data.flatStats).forEach(([k, v]) => parts.push(`${TALENT_STAT_LABELS[k] || k} ${v > 0 ? '+' : ''}${v}`));
-  Object.entries(data.elemental).forEach(([k, v]) => parts.push(`${ELEMENTAL_STATS[k] || k} ${v > 0 ? '+' : ''}${v}`));
-  return parts.join(' · ');
+  const entries = [];
+  Object.entries(data.flatStats).forEach(([k, v]) => entries.push([TALENT_STAT_LABELS[k] || k, v]));
+  Object.entries(data.elemental).forEach(([k, v]) => entries.push([ELEMENTAL_STATS[k] || k, v]));
+  return statChipsHTML(entries);
 }
 
 // ---- Stats élémentaires : suivies séparément des caractéristiques de combat ----
@@ -1373,6 +1424,7 @@ const TALENT_STAT_LABELS = {
   defenseMagique: 'Défense Magique', deplacement: 'Déplacement', defense: 'Défense', pv: 'Points de Vie'
 };
 const TALENTS = [
+  { name: 'ChangeForme', cost: 1, effects: {} },
   { name: 'Anomalie Magique', cost: 1, effects: { degatsMagique: 2 } },
   { name: 'Bagarreur', cost: 1, effects: { capCombat: 1, parade: 1 } },
   { name: "Œil d'aigle", cost: 1, effects: { capTir: 2 } },
@@ -1388,11 +1440,10 @@ const TALENTS = [
   { name: 'Robuste', cost: 1, effects: { pv: 10 } },
   { name: 'Vif', cost: 1, effects: { initiative: 2 } },
   { name: "Mental d'acier", cost: 1, effects: { forceMentale: 2 } },
-  { name: 'ChangeForme', cost: 1, effects: {} },
 ];
 
 function talentEffectText(effects){
-  return Object.entries(effects).map(([k, v]) => `${TALENT_STAT_LABELS[k] || k} +${v}`).join(' · ');
+  return statChipsHTML(Object.entries(effects).map(([k, v]) => [TALENT_STAT_LABELS[k] || k, v]));
 }
 
 // Valeurs de base avant tout bonus d'attribut, d'âge, de morphologie ou d'espèce
@@ -1650,10 +1701,8 @@ function applyParentBonuses(sourceName, parentValues){
 
 function describeParentBonuses(parentValues, extraNoteIfSavoirFaire){
   const labels = { conditionPhysique: 'Condition Physique', esprit: 'Esprit', reflexes: 'Réflexes', presence: 'Présence', savoirFaire: 'Savoir Faire' };
-  const parts = Object.entries(parentValues)
-    .filter(([, v]) => v !== 0)
-    .map(([k, v]) => `${labels[k]} ${v > 0 ? '+' : ''}${v}`);
-  let html = parts.join(' · ');
+  const entries = Object.entries(parentValues).filter(([, v]) => v !== 0).map(([k, v]) => [labels[k], v]);
+  let html = statChipsHTML(entries);
   if (extraNoteIfSavoirFaire && parentValues.savoirFaire) {
     html += `<span class="note">Savoir Faire n'affecte aucune caractéristique de ce simulateur.</span>`;
   }
@@ -1677,6 +1726,13 @@ noneAgeBtn.textContent = 'Aucun';
 noneAgeBtn.dataset.age = '';
 ageSelector.appendChild(noneAgeBtn);
 
+// Rendu d'une ligne de bonus/malus sous forme de puce (▲ vert = bonus, ▼ rouge = malus), identique aux autres listes
+function flatSpanHTML(label, v, forceClass){
+  const cls = forceClass || (v > 0 ? 'pos' : (v < 0 ? 'neg' : 'neutral'));
+  const arrow = cls === 'pos' ? '▲' : (cls === 'neg' ? '▼' : '•');
+  return `<span class="stat-chip ${cls}">${arrow} ${label} ${v > 0 ? '+' : ''}${v}</span>`;
+}
+
 function applyAge(ageName){
   currentAge = ageName || null;
   applyParentBonuses('age', currentAge ? AGES[currentAge] : null);
@@ -1685,7 +1741,7 @@ function applyAge(ageName){
     b.classList.toggle('active', b.dataset.age === (currentAge || ''));
   });
 
-  ageDesc.innerHTML = currentAge ? describeParentBonuses(AGES[currentAge], true) : '';
+  ageDesc.innerHTML = currentAge ? describeParentBonuses(AGES[currentAge], false) : '';
   renderParentRows();
   compute();
 }
@@ -1776,18 +1832,18 @@ function applyCurse(name){
 
   if (data) {
     let html = '';
-    const attrParts = Object.entries(data.attrDelta || {})
+    const attrEntries = Object.entries(data.attrDelta || {})
       .filter(([, v]) => v !== 0)
-      .map(([k, v]) => `${ATTR_LABELS[k] || k} ${v > 0 ? '+' : ''}${v}`);
-    if (attrParts.length) html += attrParts.join(' · ');
+      .map(([k, v]) => [ATTR_LABELS[k] || k, v]);
+    html += statChipsHTML(attrEntries);
     if (data.flatStats && Object.keys(data.flatStats).length) {
       Object.entries(data.flatStats).forEach(([k, v]) => {
-        html += `<span class="flat ${v < 0 ? 'negative' : ''}">${TALENT_STAT_LABELS[k] || k} ${v > 0 ? '+' : ''}${v}</span>`;
+        html += flatSpanHTML(TALENT_STAT_LABELS[k] || k, v);
       });
     }
     if (data.elemental && Object.keys(data.elemental).length) {
       Object.entries(data.elemental).forEach(([k, v]) => {
-        html += `<span class="flat ${v < 0 ? 'negative' : ''}">${ELEMENTAL_STATS[k] || k} ${v > 0 ? '+' : ''}${v}</span>`;
+        html += flatSpanHTML(ELEMENTAL_STATS[k] || k, v);
       });
     }
     if (data.notes && data.notes.length) {
@@ -1831,10 +1887,10 @@ function applyEsclave(value){
   });
 
   if (isEsclave) {
-    const attrParts = Object.entries(ESCLAVE.attrDelta)
+    const attrEntries = Object.entries(ESCLAVE.attrDelta)
       .filter(([, v]) => v !== 0)
-      .map(([k, v]) => `${ATTR_LABELS[k] || k} ${v > 0 ? '+' : ''}${v}`);
-    let html = attrParts.join(' · ');
+      .map(([k, v]) => [ATTR_LABELS[k] || k, v]);
+    let html = statChipsHTML(attrEntries);
     ESCLAVE.notes.forEach(n => { html += `<span class="ability">${n}</span>`; });
     esclaveDesc.innerHTML = html;
   } else {
@@ -1874,12 +1930,12 @@ function applyTeneriffe(value){
 
   if (isTeneriffe) {
     let html = '';
-    const attrParts = Object.entries(TENERIFFE.attrDelta)
+    const attrEntries = Object.entries(TENERIFFE.attrDelta)
       .filter(([, v]) => v !== 0)
-      .map(([k, v]) => `${ATTR_LABELS[k] || k} ${v > 0 ? '+' : ''}${v}`);
-    if (attrParts.length) html += attrParts.join(' · ');
+      .map(([k, v]) => [ATTR_LABELS[k] || k, v]);
+    html += statChipsHTML(attrEntries);
     Object.entries(TENERIFFE.flatStats).forEach(([k, v]) => {
-      html += `<span class="flat ${v < 0 ? 'negative' : ''}">${TALENT_STAT_LABELS[k] || k} ${v > 0 ? '+' : ''}${v}</span>`;
+      html += flatSpanHTML(TALENT_STAT_LABELS[k] || k, v);
     });
     TENERIFFE.notes.forEach(n => { html += `<span class="ability">${n}</span>`; });
     teneriffeDesc.innerHTML = html;
@@ -1919,7 +1975,7 @@ function applyVoieJumelle(value){
   if (isVoieJumelle) {
     let html = '';
     Object.entries(VOIE_JUMELLE.flatStats).forEach(([k, v]) => {
-      html += `<span class="flat ${v < 0 ? 'negative' : ''}">${TALENT_STAT_LABELS[k] || k} ${v > 0 ? '+' : ''}${v}</span>`;
+      html += flatSpanHTML(TALENT_STAT_LABELS[k] || k, v);
     });
     voieJumelleDesc.innerHTML = html;
   } else {
@@ -1963,16 +2019,16 @@ function applyTransformation(name){
 
   if (data) {
     let html = '';
-    const flatParts = Object.entries(data.flatStats)
+    const flatEntries = Object.entries(data.flatStats)
       .filter(([, v]) => v !== 0)
-      .map(([k, v]) => `${TALENT_STAT_LABELS[k] || k} ${v > 0 ? '+' : ''}${v}`);
-    const extraParts = Object.entries(data.extraStats || {})
+      .map(([k, v]) => [TALENT_STAT_LABELS[k] || k, v]);
+    const extraEntries = Object.entries(data.extraStats || {})
       .filter(([, v]) => v !== 0)
-      .map(([k, v]) => `${EXTRA_STATS[k] || k} ${v > 0 ? '+' : ''}${v}`);
-    const elemParts = Object.entries(data.elemental)
+      .map(([k, v]) => [EXTRA_STATS[k] || k, v]);
+    const elemEntries = Object.entries(data.elemental)
       .filter(([, v]) => v !== 0)
-      .map(([k, v]) => `${ELEMENTAL_STATS[k] || k} ${v > 0 ? '+' : ''}${v}`);
-    [...flatParts, ...extraParts, ...elemParts].forEach(p => { html += `<span class="flat">${p}</span>`; });
+      .map(([k, v]) => [ELEMENTAL_STATS[k] || k, v]);
+    html += statChipsHTML([...flatEntries, ...extraEntries, ...elemEntries]);
     data.notes.forEach(n => { html += `<span class="ability">${n}</span>`; });
     transformDesc.innerHTML = html;
   } else {
@@ -2038,16 +2094,16 @@ function applyTransformationChangeforme(name){
 
   if (data) {
     let html = '';
-    const flatParts = Object.entries(data.flatStats)
+    const flatEntries = Object.entries(data.flatStats)
       .filter(([, v]) => v !== 0)
-      .map(([k, v]) => `${TALENT_STAT_LABELS[k] || k} ${v > 0 ? '+' : ''}${v}`);
-    const extraParts = Object.entries(data.extraStats || {})
+      .map(([k, v]) => [TALENT_STAT_LABELS[k] || k, v]);
+    const extraEntries = Object.entries(data.extraStats || {})
       .filter(([, v]) => v !== 0)
-      .map(([k, v]) => `${EXTRA_STATS[k] || k} ${v > 0 ? '+' : ''}${v}`);
-    const elemParts = Object.entries(data.elemental)
+      .map(([k, v]) => [EXTRA_STATS[k] || k, v]);
+    const elemEntries = Object.entries(data.elemental)
       .filter(([, v]) => v !== 0)
-      .map(([k, v]) => `${ELEMENTAL_STATS[k] || k} ${v > 0 ? '+' : ''}${v}`);
-    [...flatParts, ...extraParts, ...elemParts].forEach(p => { html += `<span class="flat">${p}</span>`; });
+      .map(([k, v]) => [ELEMENTAL_STATS[k] || k, v]);
+    html += statChipsHTML([...flatEntries, ...extraEntries, ...elemEntries]);
     data.notes.forEach(n => { html += `<span class="ability">${n}</span>`; });
     transformChangeformeDesc.innerHTML = html;
   } else {
@@ -2103,7 +2159,7 @@ function applyPosture(name){
     Object.entries(data.flatStats)
       .filter(([, v]) => v !== 0)
       .forEach(([k, v]) => {
-        html += `<span class="flat ${v < 0 ? 'negative' : ''}">${TALENT_STAT_LABELS[k] || k} ${v > 0 ? '+' : ''}${v}</span>`;
+        html += flatSpanHTML(TALENT_STAT_LABELS[k] || k, v);
       });
     postureDesc.innerHTML = html;
   } else {
@@ -2150,12 +2206,12 @@ function applySpecies(name){
     let html = describeParentBonuses(data.parents, false);
     if (data.flatStats && Object.keys(data.flatStats).length) {
       Object.entries(data.flatStats).forEach(([k, v]) => {
-        html += `<span class="flat ${v < 0 ? 'negative' : ''}">${STAT_LABELS_SHORT[k] || k} ${v > 0 ? '+' : ''}${v}</span>`;
+        html += flatSpanHTML(STAT_LABELS_SHORT[k] || k, v);
       });
     }
     if (data.elemental && Object.keys(data.elemental).length) {
       Object.entries(data.elemental).forEach(([k, v]) => {
-        html += `<span class="flat ${v < 0 ? 'negative' : ''}">${ELEMENTAL_STATS[k] || k} ${v > 0 ? '+' : ''}${v}</span>`;
+        html += flatSpanHTML(ELEMENTAL_STATS[k] || k, v);
       });
     }
     if (data.notes && data.notes.length) {
@@ -2344,12 +2400,12 @@ environmentList.addEventListener('click', e => {
 const PARENT_LABELS_SHORT = { conditionPhysique: 'Condition Physique', esprit: 'Esprit', reflexes: 'Réflexes', presence: 'Présence', savoirFaire: 'Savoir Faire' };
 
 function consumableEffectText(c){
-  const parts = [];
-  Object.entries(c.parentDelta || {}).forEach(([k, v]) => parts.push(`${PARENT_LABELS_SHORT[k] || k} ${v > 0 ? '+' : ''}${v}`));
-  Object.entries(c.attrDelta || {}).forEach(([k, v]) => parts.push(`${ATTR_LABELS[k] || k} ${v > 0 ? '+' : ''}${v}`));
-  Object.entries(c.flatStats || {}).forEach(([k, v]) => parts.push(`${TALENT_STAT_LABELS[k] || k} ${v > 0 ? '+' : ''}${v}`));
-  Object.entries(c.otherStats || {}).forEach(([k, v]) => parts.push(`${OTHER_STATS[k] || k} ${v > 0 ? '+' : ''}${v}`));
-  return parts.length ? parts.join(' · ') : 'Aucune donnée pour le moment';
+  const entries = [];
+  Object.entries(c.parentDelta || {}).forEach(([k, v]) => entries.push([PARENT_LABELS_SHORT[k] || k, v]));
+  Object.entries(c.attrDelta || {}).forEach(([k, v]) => entries.push([ATTR_LABELS[k] || k, v]));
+  Object.entries(c.flatStats || {}).forEach(([k, v]) => entries.push([TALENT_STAT_LABELS[k] || k, v]));
+  Object.entries(c.otherStats || {}).forEach(([k, v]) => entries.push([OTHER_STATS[k] || k, v]));
+  return entries.length ? statChipsHTML(entries) : '<span class="stat-chip neutral">Aucune donnée pour le moment</span>';
 }
 
 const consumableList = document.getElementById('consumableList');
@@ -2416,14 +2472,12 @@ function injuryEffectHTML(loc, severity){
   const data = INJURIES[loc] && INJURIES[loc][severity];
   if (!data) return '';
   let html = '';
-  const parentParts = Object.entries(data.parentDelta || {})
+  Object.entries(data.parentDelta || {})
     .filter(([, v]) => v !== 0)
-    .map(([k, v]) => `${PARENT_LABELS_SHORT[k] || k} ${v > 0 ? '+' : ''}${v}`);
-  parentParts.forEach(p => { html += `<span class="flat negative">${p}</span>`; });
-  const flatParts = Object.entries(data.flatStats || {})
+    .forEach(([k, v]) => { html += flatSpanHTML(PARENT_LABELS_SHORT[k] || k, v, 'neg'); });
+  Object.entries(data.flatStats || {})
     .filter(([, v]) => v !== 0)
-    .map(([k, v]) => `${STATS[k] || TALENT_STAT_LABELS[k] || k} ${v > 0 ? '+' : ''}${v}`);
-  flatParts.forEach(p => { html += `<span class="flat negative">${p}</span>`; });
+    .forEach(([k, v]) => { html += flatSpanHTML(STATS[k] || TALENT_STAT_LABELS[k] || k, v, 'neg'); });
   (data.notes || []).forEach(n => { html += `<span class="ability">${n}</span>`; });
   return html;
 }
@@ -2571,11 +2625,11 @@ function buildEquipDescriptionHTML(slot, itemName){
     html += `<span class="ability" style="color:var(--vitales);">⚠ Sans effet : nécessite une arme à une main (l'arme équipée est à deux mains)</span>`;
   }
 
-  const flatParts = Object.entries(item.flatStats || {}).map(([k, v]) => `${TALENT_STAT_LABELS[k] || k} ${v > 0 ? '+' : ''}${v}`);
-  const extraParts = Object.entries(item.extraStats || {}).map(([k, v]) => `${EXTRA_STATS[k] || k} ${v > 0 ? '+' : ''}${v}`);
-  const elemParts = Object.entries(item.elemental || {}).map(([k, v]) => `${ELEMENTAL_STATS[k] || k} ${v > 0 ? '+' : ''}${v}`);
-  [...flatParts, ...extraParts, ...elemParts].forEach(p => {
-    html += `<span class="flat ${blocked ? 'negative' : ''}">${p}</span>`;
+  const flatEntries = Object.entries(item.flatStats || {}).map(([k, v]) => [TALENT_STAT_LABELS[k] || k, v]);
+  const extraEntries = Object.entries(item.extraStats || {}).map(([k, v]) => [EXTRA_STATS[k] || k, v]);
+  const elemEntries = Object.entries(item.elemental || {}).map(([k, v]) => [ELEMENTAL_STATS[k] || k, v]);
+  [...flatEntries, ...extraEntries, ...elemEntries].forEach(([label, v]) => {
+    html += flatSpanHTML(label, v, blocked ? 'neg' : undefined);
   });
 
   (item.notes || []).forEach(n => { html += `<span class="ability">${n}</span>`; });
@@ -2947,9 +3001,10 @@ statsPanel.appendChild(otherGroup);
 const economyBox = document.createElement('div');
 economyBox.className = 'economy-box';
 economyBox.innerHTML = `
-  <div class="economy-label">Échange de 5 points de projet</div>
-  <div class="economy-value" id="economyValue">50</div>
-  <div class="economy-sub">pièces de bronze</div>
+  <span class="economy-label">Échange de 5 points de projet</span>
+  <span class="economy-value" id="economyValue">50</span>
+  <span class="economy-sub">pièces de bronze</span>
+  <span class="economy-note">(1 Commerce = +2 pièces)</span>
 `;
 statsPanel.appendChild(economyBox);
 statsPanel.appendChild(equipmentSlots);

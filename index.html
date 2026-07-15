@@ -1275,6 +1275,8 @@ const INJURY_SEVERITY_LABELS = { normale: 'Normale', grave: 'Grave', critique: '
 // ---- Environnement : effets cumulables selon le lieu/contexte, sans limite de sélection ----
 const ENVIRONMENTS = {
   "Jour": { flatStats: {}, elemental: { lumiere: 5, sang: -5 }, notes: [] },
+  "Nuit": { flatStats: {}, elemental: { sang: 5, lumiere: -5 }, notes: [] },
+  "Chaud": { flatStats: {}, elemental: { feu: 5, eau: -5 }, notes: ['Octroie le Perk : Chaleur Insupportable'] },
   "Eau": { flatStats: { capCombat: -3 }, elemental: { eau: 20, air: -20 }, notes: ['Octroie le Perk : Baignade'] },
   "Extérieur": { flatStats: {}, elemental: { terre: 5 }, notes: ['Octroie le Perk : Extérieur'] },
 };

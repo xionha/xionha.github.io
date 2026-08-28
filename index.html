@@ -89,6 +89,131 @@
     background: var(--bronze-bright);
     transform: rotate(45deg);
     box-shadow: 0 0 8px rgba(232,177,104,0.55);
+    cursor: pointer;
+    position: relative;
+  }
+  .hero-rule .diamond::after{
+    content:"";
+    position:absolute;
+    top:-14px; left:-14px; right:-14px; bottom:-14px;
+  }
+  .hero-rule .diamond:hover{
+    box-shadow: 0 0 14px rgba(232,177,104,0.9);
+  }
+
+
+
+  .hitcalc-menu{
+    position: fixed;
+    top: 24px; left: 24px;
+    width: 400px;
+    max-width: calc(100vw - 32px);
+    max-height: calc(100vh - 48px);
+    overflow-y: auto;
+    background: var(--surface);
+    border: 1px solid var(--border-bright);
+    border-radius: 2px;
+    box-shadow: 0 20px 60px var(--shadow-deep);
+    z-index: 201;
+    padding: 18px 20px 20px;
+    transform: translateX(-16px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  .hitcalc-menu.open{
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .hitcalc-header{
+    display:flex; align-items:center; justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid var(--border);
+  }
+  .hitcalc-title{
+    font-family: var(--font-display);
+    font-size: 13.5px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: var(--bronze-bright);
+  }
+  .hitcalc-close{
+    background: none; border: none;
+    color: var(--text-faint);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 2px 6px;
+  }
+  .hitcalc-close:hover{ color: var(--bronze-bright); }
+  .hitcalc-rule{
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.55;
+    margin: 0 0 14px;
+  }
+  .hitcalc-rule b{ color: var(--text); }
+  .hitcalc-section-title{
+    font-family: var(--font-display);
+    font-size: 11.5px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin: 14px 0 8px;
+  }
+  .hitcalc-row{
+    display:flex; align-items:center; gap: 6px;
+    margin-bottom: 8px;
+    font-size: 13px;
+  }
+  .hitcalc-stat{
+    display:flex; flex-direction:column; gap: 2px;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+  .hitcalc-stat label{
+    font-size: 10.5px;
+    color: var(--text-faint);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .hitcalc-stat input{
+    width: 100%;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 4px 6px;
+    border-radius: 2px;
+  }
+  .hitcalc-stat input:disabled{
+    color: var(--text-dim);
+    opacity: 0.85;
+  }
+  .hitcalc-stat input:not(:disabled):focus{
+    outline: none;
+    border-color: var(--bronze-bright);
+  }
+  .hitcalc-vs{
+    color: var(--text-faint);
+    font-size: 11px;
+    flex-shrink: 0;
+    padding-top: 14px;
+  }
+  .hitcalc-result{
+    flex-shrink: 0;
+    width: 54px;
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--bronze-bright);
+    padding-top: 14px;
   }
   h1{
     font-family: var(--font-deco);
@@ -947,8 +1072,95 @@
     </svg>
     <h1>Simulateur d'Attributs</h1>
     <p>Répartissez vos points et observez la fourchette de chaque caractéristique</p>
-    <div class="hero-rule"><span class="diamond"></span></div>
+    <div class="hero-rule"><span class="diamond" id="hitcalcTrigger"></span></div>
   </header>
+
+  <div class="hitcalc-menu" id="hitcalcMenu">
+    <div class="hitcalc-header">
+      <span class="hitcalc-title">Chances de Toucher</span>
+      <button class="hitcalc-close" id="hitcalcClose">✕</button>
+    </div>
+    <p class="hitcalc-rule">
+      Pour toucher ou esquiver : <b>3d8 + Stat</b> Vs <b>3d8 + Stat</b>.<br>
+      En cas d'égalité, c'est l'attaque qui gagne.
+    </p>
+
+    <div class="hitcalc-section-title">Chance de toucher</div>
+    <div class="hitcalc-row" data-row="toucher1">
+      <div class="hitcalc-stat">
+        <label>Capacité de combat</label>
+        <input type="number" data-field="toucher1-left" disabled>
+      </div>
+      <span class="hitcalc-vs">Vs</span>
+      <div class="hitcalc-stat">
+        <label>Esquive</label>
+        <input type="number" data-field="toucher1-right">
+      </div>
+      <span class="hitcalc-result" data-result="toucher1">–</span>
+    </div>
+    <div class="hitcalc-row" data-row="toucher2">
+      <div class="hitcalc-stat">
+        <label>Force mentale</label>
+        <input type="number" data-field="toucher2-left" disabled>
+      </div>
+      <span class="hitcalc-vs">Vs</span>
+      <div class="hitcalc-stat">
+        <label>Esquive</label>
+        <input type="number" data-field="toucher2-right">
+      </div>
+      <span class="hitcalc-result" data-result="toucher2">–</span>
+    </div>
+    <div class="hitcalc-row" data-row="toucher3">
+      <div class="hitcalc-stat">
+        <label>Force mentale</label>
+        <input type="number" data-field="toucher3-left" disabled>
+      </div>
+      <span class="hitcalc-vs">Vs</span>
+      <div class="hitcalc-stat">
+        <label>Force Mentale</label>
+        <input type="number" data-field="toucher3-right">
+      </div>
+      <span class="hitcalc-result" data-result="toucher3">–</span>
+    </div>
+
+    <div class="hitcalc-section-title">Chance d'esquiver</div>
+    <div class="hitcalc-row" data-row="esquive1">
+      <div class="hitcalc-stat">
+        <label>Capacité de combat</label>
+        <input type="number" data-field="esquive1-left">
+      </div>
+      <span class="hitcalc-vs">Vs</span>
+      <div class="hitcalc-stat">
+        <label>Esquive</label>
+        <input type="number" data-field="esquive1-right" disabled>
+      </div>
+      <span class="hitcalc-result" data-result="esquive1">–</span>
+    </div>
+    <div class="hitcalc-row" data-row="esquive2">
+      <div class="hitcalc-stat">
+        <label>Force mentale</label>
+        <input type="number" data-field="esquive2-left">
+      </div>
+      <span class="hitcalc-vs">Vs</span>
+      <div class="hitcalc-stat">
+        <label>Esquive</label>
+        <input type="number" data-field="esquive2-right" disabled>
+      </div>
+      <span class="hitcalc-result" data-result="esquive2">–</span>
+    </div>
+    <div class="hitcalc-row" data-row="esquive3">
+      <div class="hitcalc-stat">
+        <label>Force mentale</label>
+        <input type="number" data-field="esquive3-left">
+      </div>
+      <span class="hitcalc-vs">Vs</span>
+      <div class="hitcalc-stat">
+        <label>Force Mentale</label>
+        <input type="number" data-field="esquive3-right" disabled>
+      </div>
+      <span class="hitcalc-result" data-result="esquive3">–</span>
+    </div>
+  </div>
 
   <details class="panel io-panel">
     <summary class="panel-title io-summary">Exporter / Importer un Build</summary>
@@ -1081,7 +1293,7 @@ const ATTRIBUTES = [
   }},
   { key: 'resilience', label: 'Résilience', effects: {
       pv: [2, 2], defense: [0.45, 0.45]
-  }},
+  }, desc: 'Diminue les dégâts pris en début de tour des statuts Saignement et Brûlure.' },
   { key: 'volonte', label: 'Volonté', effects: {
       pv: [0.5, 0.5], mana: [1.25, 1.25], initiative: [0.355, 0.355], forceMentale: [0.71, 0.71], defenseMagique: [0.45, 0.45], degatsMagique: [1.25, 1.25]
   }},
@@ -1095,7 +1307,7 @@ const ATTRIBUTES = [
       initiative: [0.142, 0.142], capCombat: [0, 0], capTir: [0.355, 0.355]
   }},
   // Sous-attributs sans effet sur les caractéristiques calculées : utiles uniquement pour les jets de rôle-play
-  { key: 'metabolisme', label: 'Métabolisme', effects: {}, rp: true },
+  { key: 'metabolisme', label: 'Métabolisme', effects: {}, rp: true, desc: 'Diminue les dégâts pris en début de tour du statut Poison.' },
   { key: 'enseignement', label: 'Enseignement', effects: {}, rp: true },
   { key: 'discretion', label: 'Discrétion', effects: {}, rp: true },
   { key: 'convaincre', label: 'Convaincre', effects: {}, rp: true },
@@ -1183,7 +1395,7 @@ const STAT_LABELS_SHORT = { pv: 'PV', defense: 'Défense', deplacement: 'Déplac
 const CURSES = {
   "Vampire": { attrDelta: {}, flatStats: { forceMentale: 1, capCombat: 1 }, elemental: { sang: 10, lumiere: -10, feu: -20 }, notes: ['Octroie : Présence Hypnotisante', 'Octroie : Charme', 'Octroie : Sucer le Sang'] },
   "Lycan": { attrDelta: {}, flatStats: {}, elemental: { lumiere: -20, sang: 10 }, notes: ['Octroie : Transformation Lycanthrope I'] },
-  "Mort Vivant": { attrDelta: {}, flatStats: {}, elemental: { lumiere: -30, feu: -30 }, notes: [] },
+  "Mort Vivant": { attrDelta: {}, flatStats: {}, elemental: { lumiere: -30, feu: -30 }, notes: ['Immunisé au Saignement', 'Immunisé au Poison'] },
 };
 
 // ---- Statut Esclave : bascule Oui/Non, effets directs sur les attributs ----
@@ -1197,7 +1409,7 @@ const TRANSFORMATIONS = {
 const TRANSFORMATIONS_CHANGEFORME = {
   "Aquatique": { flatStats: {}, elemental: { air: -5, eau: 5 }, notes: ['Octroie : Coup de Caudale', 'Octroie : Reprendre Forme Humaine', 'Octroie : Crachat Puissant'] },
   "Araignée": { flatStats: { deplacement: 1 }, elemental: {}, notes: ['Octroie : Reprendre Forme Humaine', 'Octroie : Coup Venimeux', 'Octroie : Produire Toxine', 'Octroie : Tisser Toile'] },
-  "Aviaire": { flatStats: { deplacement: 1 }, elemental: {}, notes: ['Octroie : Bond Puissant', 'Octroie : Coup de Griffes', 'Octroie : Reprendre Forme Humaine'] },
+  "Aviaire": { flatStats: {}, elemental: {}, notes: ['Octroie : Coup de griffes', 'Octroie : Reprendre forme Humaine', 'Octroie : Bond Ailé'] },
   "Dragon": { flatStats: {}, elemental: {}, notes: ['Octroie : Bond', 'Octroie : Reprendre Forme Humaine', 'Octroie : Souffle Enflammé'] },
   "Canidé": { flatStats: { capCombat: 1 }, elemental: {}, notes: ['Octroie : Bond', 'Octroie : Morsure', 'Octroie : Reprendre Forme Humaine'] },
   "Cervidé": { flatStats: { esquive: 1 }, elemental: {}, notes: ['Octroie : Bond', 'Octroie : Reprendre Forme Humaine', 'Octroie : Empaler'] },
@@ -1217,10 +1429,11 @@ const POSTURES = {
 };
 
 const ESCLAVE = {
-  attrDelta: { addresse: -3, vitesse: -3, force: -3, endurance: 1, resilience: 1 },
+  attrDelta: { addresse: -3, vitesse: -3, force: -3, endurance: 1, resilience: 1, metabolisme: 1 },
+  parentDelta: { savoirFaire: 3 },
   flatStats: {},
   elemental: {},
-  notes: ['Octroie le statut : Esclave', 'Savoir Faire +3 et Métabolisme +1 (sans effet dans ce simulateur)'],
+  notes: ['Octroie le statut : Esclave'],
 };
 
 // ---- Buff Ténériffe : bascule Oui/Non ----
@@ -1245,10 +1458,11 @@ const CONSUMABLES = {
   "Jus": { parentDelta: {}, attrDelta: {}, flatStats: { pv: 5, mana: 5 }, notes: [], category: 'boisson' },
   "Alcool doux": { parentDelta: {}, attrDelta: {}, flatStats: { pv: 5, mana: 5, defense: 1, degats: 1, initiative: -1, esquive: -1 }, notes: [], category: 'boisson' },
   "Spiritueux (Alcool Fort)": { parentDelta: {}, attrDelta: {}, flatStats: { pv: 10, mana: 10, defense: 2, degats: 2, esquive: -3, initiative: -3 }, notes: [], category: 'boisson' },
-  "Dopant Physique (Stimulant Physique)": { parentDelta: { conditionPhysique: 2, reflexes: 2 }, attrDelta: {}, flatStats: {}, notes: [], category: 'dopant' },
-  "Dopant Mystique (Stimulant Mental)": { parentDelta: {}, attrDelta: {}, flatStats: { forceMentale: 2 }, notes: [], category: 'dopant' },
+  "Dopant Physique (Stimulant Physique)": { parentDelta: { conditionPhysique: 2, reflexes: 2 }, attrDelta: {}, flatStats: {}, notes: [], category: null },
+  "Dopant Mystique (Stimulant Mental)": { parentDelta: {}, attrDelta: {}, flatStats: { forceMentale: 2 }, notes: [], category: null },
   "Récréatif": { parentDelta: {}, attrDelta: { metabolisme: -2, resilience: 2, analyse: -2, perceptionMagique: 2, perception: 2, vitesse: -2, volonte: -2 }, flatStats: {}, notes: [] },
-  "Aphrodisiaque (Erection Surnaturelle)": { parentDelta: {}, attrDelta: { analyse: -5 }, flatStats: { pv: 15, capCombat: 1, defense: 2, degats: 2, parade: 1, mana: 15 }, notes: ['Octroie : Impact de Virilité', 'Octroie : Abreuver de Semence', 'Octroie : Musc Déconcertant'] },
+  "Aphrodisiaque (Erection Surnaturelle)": { parentDelta: {}, attrDelta: { analyse: -5 }, flatStats: { pv: 15, capCombat: 1, defense: 2, degats: 2, parade: 1, mana: 15 }, notes: ['Octroie : Impact de Virilité', 'Octroie : Abreuver de Semence'] },
+  "Aphrosidiaque (Désir Accru)": { parentDelta: {}, attrDelta: { volonte: -3 }, flatStats: { capCombat: -1, capTir: -1 }, notes: ['Octroie : Musc Déconcertant'] },
 };
 
 const VOIE_JUMELLE = {
@@ -1259,11 +1473,12 @@ const VOIE_JUMELLE = {
 const STATUSES = {
   "Ralenti": { flatStats: { deplacement: -2, esquive: -3 }, elemental: {}, notes: ['Octroie : Couper les Liens'] },
   "Immobile": { flatStats: { deplacement: -1, esquive: -10 }, elemental: {}, notes: [] },
-  "Brûlure": { flatStats: { esquive: -3, deplacement: -2, parade: -3, defense: -5 }, elemental: {}, notes: [] },
-  "Poison": { flatStats: { capCombat: -3, forceMentale: -3, esquive: -3, parade: -3, capTir: -3 }, elemental: {}, notes: [] },
+  "Brûlure": { flatStats: { esquive: -1, deplacement: -1, parade: -1, defense: -5 }, elemental: {}, notes: [] },
+  "Poison": { flatStats: { capCombat: -1, forceMentale: -1, esquive: -1, parade: -1, capTir: -1 }, elemental: {}, notes: [] },
   "Poison de Mana": { flatStats: { defenseMagique: -3, degatsMagique: -3, forceMentale: -3 }, elemental: {}, notes: [] },
-  "Saignement": { flatStats: { parade: -3, capCombat: -3, capTir: -3, esquive: -3 }, elemental: { sang: 10 }, notes: [] },
+  "Saignement": { flatStats: { parade: -1, capCombat: -1, capTir: -1, esquive: -1 }, elemental: { sang: 10 }, notes: [] },
   "Vulnérable": { flatStats: { defenseMagique: -6, defense: -10 }, elemental: {}, notes: [] },
+  "Controle": { flatStats: { pointsAction: -2, pointsMouvement: -2, actionSpeciale: -2, esquive: -10, parade: -10 }, elemental: {}, notes: ['Octroie : Terminer tour (Controle)'] },
 };
 
 // ---- Blessures : par emplacement du corps, sévérité Normale ou Critique ----
@@ -1333,7 +1548,9 @@ function statusEffectText(data){
   const entries = [];
   Object.entries(data.flatStats).forEach(([k, v]) => entries.push([TALENT_STAT_LABELS[k] || k, v]));
   Object.entries(data.elemental).forEach(([k, v]) => entries.push([ELEMENTAL_STATS[k] || k, v]));
-  return statChipsHTML(entries);
+  let html = statChipsHTML(entries);
+  (data.notes || []).forEach(n => { html += `<span class="stat-chip neutral">${n}</span>`; });
+  return html;
 }
 
 // ---- Stats élémentaires : suivies séparément des caractéristiques de combat ----
@@ -1461,7 +1678,8 @@ const TALENT_STAT_LABELS = {
   degatsMagique: 'Dégâts Magiques', capCombat: 'Capacité de Combat', parade: 'Parade',
   capTir: 'Capacité de Tir', initiative: 'Initiative', esquive: 'Esquive',
   forceMentale: 'Force Mentale', degats: 'Dégâts', mana: 'Mana',
-  defenseMagique: 'Défense Magique', deplacement: 'Déplacement', defense: 'Défense', pv: 'Points de Vie'
+  defenseMagique: 'Défense Magique', deplacement: 'Déplacement', defense: 'Défense', pv: 'Points de Vie',
+  pointsAction: "Points d'Action", pointsMouvement: 'Points de Mouvement', actionSpeciale: 'Action Spéciale'
 };
 const TALENTS = [
   { name: 'ChangeForme', cost: 1, effects: {} },
@@ -1567,6 +1785,7 @@ function parentNarrativeBonus(parentKey){
   if (currentAge && AGES[currentAge][parentKey] !== undefined) v += AGES[currentAge][parentKey];
   if (currentMorphology && MORPHOLOGIES[currentMorphology][parentKey] !== undefined) v += MORPHOLOGIES[currentMorphology][parentKey];
   if (currentSpecies && SPECIES[currentSpecies].parents[parentKey] !== undefined) v += SPECIES[currentSpecies].parents[parentKey];
+  if (isEsclave && ESCLAVE.parentDelta && ESCLAVE.parentDelta[parentKey] !== undefined) v += ESCLAVE.parentDelta[parentKey];
   return v;
 }
 
@@ -1930,13 +2149,17 @@ function applyEsclave(value){
     const attrEntries = Object.entries(ESCLAVE.attrDelta)
       .filter(([, v]) => v !== 0)
       .map(([k, v]) => [ATTR_LABELS[k] || k, v]);
-    let html = statChipsHTML(attrEntries);
+    const parentEntries = Object.entries(ESCLAVE.parentDelta || {})
+      .filter(([, v]) => v !== 0)
+      .map(([k, v]) => [PARENT_LABELS_SHORT[k] || k, v]);
+    let html = statChipsHTML([...attrEntries, ...parentEntries]);
     ESCLAVE.notes.forEach(n => { html += `<span class="ability">${n}</span>`; });
     esclaveDesc.innerHTML = html;
   } else {
     esclaveDesc.innerHTML = '';
   }
 
+  renderParentRows();
   compute();
 }
 
@@ -2445,7 +2668,9 @@ function consumableEffectText(c){
   Object.entries(c.attrDelta || {}).forEach(([k, v]) => entries.push([ATTR_LABELS[k] || k, v]));
   Object.entries(c.flatStats || {}).forEach(([k, v]) => entries.push([TALENT_STAT_LABELS[k] || k, v]));
   Object.entries(c.otherStats || {}).forEach(([k, v]) => entries.push([OTHER_STATS[k] || k, v]));
-  return entries.length ? statChipsHTML(entries) : '<span class="stat-chip neutral">Aucune donnée pour le moment</span>';
+  let html = entries.length ? statChipsHTML(entries) : '';
+  (c.notes || []).forEach(n => { html += `<span class="stat-chip neutral">${n}</span>`; });
+  return html || '<span class="stat-chip neutral">Aucune donnée pour le moment</span>';
 }
 
 const consumableList = document.getElementById('consumableList');
@@ -2791,7 +3016,11 @@ function buildAttrTooltipHTML(attrKey){
   let html = `<div class="stat-tooltip-title">${attr.label}</div>`;
   const entries = Object.entries(attr.effects || {}).filter(([, range]) => range && !(range[0] === 0 && range[1] === 0));
   if (!entries.length) {
-    html += `<div class="stat-tooltip-empty">Aucun effet direct sur les caractéristiques calculées${attr.rp ? ' — utile uniquement pour les jets de rôle-play' : ''}.</div>`;
+    if (attr.desc) {
+      html += `<div class="stat-tooltip-empty">${attr.desc}</div>`;
+    } else {
+      html += `<div class="stat-tooltip-empty">Aucun effet direct sur les caractéristiques calculées${attr.rp ? ' — utile uniquement pour les jets de rôle-play' : ''}.</div>`;
+    }
     return html;
   }
   entries.sort((a, b) => b[1][1] - a[1][1]);
@@ -2800,6 +3029,9 @@ function buildAttrTooltipHTML(attrKey){
     const val = (range[0] === range[1]) ? `+${fmtPrecise(range[0])}` : `+${fmtPrecise(range[0])} → +${fmtPrecise(range[1])}`;
     html += `<div class="stat-tooltip-row"><span class="attr-name">${label}</span><span class="attr-range">${val}</span></div>`;
   });
+  if (attr.desc) {
+    html += `<div class="stat-tooltip-empty">${attr.desc}</div>`;
+  }
   return html;
 }
 function showAttrTooltip(attrKey, evt){
@@ -3135,6 +3367,112 @@ function fmtPrecise(n){
   return r.toFixed(3).replace(/\.?0+$/,'').replace(/^$/, '0') || '0';
 }
 
+// =====================================================================
+// ---- Calculateur de chances (3d8 + Stat Vs 3d8 + Stat, égalité = attaque gagne) ----
+// =====================================================================
+const sheetStatsForCalc = { capCombat: 0, forceMentale: 0, esquive: 0 };
+
+// distribution de probabilité de la somme de 3d8 (valeurs 3 à 24)
+const DICE_3D8_DIST = (() => {
+  const dist = {};
+  for (let a = 1; a <= 8; a++) {
+    for (let b = 1; b <= 8; b++) {
+      for (let c = 1; c <= 8; c++) {
+        const s = a + b + c;
+        dist[s] = (dist[s] || 0) + 1;
+      }
+    }
+  }
+  const total = 8 * 8 * 8;
+  Object.keys(dist).forEach(s => { dist[s] = dist[s] / total; });
+  return dist;
+})();
+
+// Probabilité que (3d8 + leftStat) >= (3d8 + rightStat) — égalité comprise (l'attaque, à gauche, gagne)
+function chanceLeftWins(leftStat, rightStat){
+  let p = 0;
+  for (const sL in DICE_3D8_DIST) {
+    const rollL = Number(sL) + leftStat;
+    for (const sR in DICE_3D8_DIST) {
+      const rollR = Number(sR) + rightStat;
+      if (rollL >= rollR) p += DICE_3D8_DIST[sL] * DICE_3D8_DIST[sR];
+    }
+  }
+  return p * 100;
+}
+
+const HITCALC_ROWS = [
+  // section 'toucher' : le résultat affiché EST la chance de toucher (gauche = attaque)
+  { id: 'toucher1', leftKey: 'capCombat', rightKey: 'esquive', mode: 'hit' },
+  { id: 'toucher2', leftKey: 'forceMentale', rightKey: 'esquive', mode: 'hit' },
+  { id: 'toucher3', leftKey: 'forceMentale', rightKey: 'forceMentale', mode: 'hit' },
+  // section 'esquiver' : le résultat affiché est la chance d'esquiver = 100 - chance que la gauche (l'attaque adverse) gagne
+  { id: 'esquive1', leftKey: 'capCombat', rightKey: 'esquive', mode: 'dodge' },
+  { id: 'esquive2', leftKey: 'forceMentale', rightKey: 'esquive', mode: 'dodge' },
+  { id: 'esquive3', leftKey: 'forceMentale', rightKey: 'forceMentale', mode: 'dodge' },
+];
+
+const hitcalcFields = {};
+const hitcalcDirty = {};
+HITCALC_ROWS.forEach(row => {
+  hitcalcFields[row.id] = {
+    left: document.querySelector(`[data-field="${row.id}-left"]`),
+    right: document.querySelector(`[data-field="${row.id}-right"]`),
+    result: document.querySelector(`[data-result="${row.id}"]`),
+  };
+});
+
+function recalcHitcalcRow(row){
+  const fields = hitcalcFields[row.id];
+  const leftVal = Number(fields.left.value) || 0;
+  const rightVal = Number(fields.right.value) || 0;
+  const hitChance = chanceLeftWins(leftVal, rightVal);
+  const shown = row.mode === 'hit' ? hitChance : (100 - hitChance);
+  fields.result.textContent = (Math.round(shown * 10) / 10) + '%';
+}
+
+function updateHitCalc(){
+  HITCALC_ROWS.forEach(row => {
+    const fields = hitcalcFields[row.id];
+    if (!fields.left || !fields.right) return;
+    // le champ non-modifiable (disabled) suit toujours la fiche
+    if (fields.left.disabled) fields.left.value = sheetStatsForCalc[row.leftKey];
+    if (fields.right.disabled) fields.right.value = sheetStatsForCalc[row.rightKey];
+    // le champ modifiable est pré-rempli avec la fiche tant que l'utilisateur ne l'a pas modifié
+    if (!fields.left.disabled && !hitcalcDirty[row.id + '-left']) fields.left.value = sheetStatsForCalc[row.leftKey];
+    if (!fields.right.disabled && !hitcalcDirty[row.id + '-right']) fields.right.value = sheetStatsForCalc[row.rightKey];
+    recalcHitcalcRow(row);
+  });
+}
+
+HITCALC_ROWS.forEach(row => {
+  const fields = hitcalcFields[row.id];
+  [['left', fields.left], ['right', fields.right]].forEach(([side, el]) => {
+    if (!el || el.disabled) return;
+    el.addEventListener('input', () => {
+      hitcalcDirty[row.id + '-' + side] = true;
+      recalcHitcalcRow(row);
+    });
+  });
+});
+
+// ---- Ouverture / fermeture du menu (clic sur le diamant sous le titre) ----
+const hitcalcTrigger = document.getElementById('hitcalcTrigger');
+const hitcalcMenu = document.getElementById('hitcalcMenu');
+const hitcalcClose = document.getElementById('hitcalcClose');
+
+function openHitcalc(){
+  hitcalcMenu.classList.add('open');
+  updateHitCalc();
+}
+function closeHitcalc(){
+  hitcalcMenu.classList.remove('open');
+}
+hitcalcTrigger.addEventListener('click', () => {
+  hitcalcMenu.classList.contains('open') ? closeHitcalc() : openHitcalc();
+});
+hitcalcClose.addEventListener('click', closeHitcalc);
+
 function compute(){
   const totals = {};
   Object.keys(STATS).forEach(k => totals[k] = { min: 0, max: 0 });
@@ -3189,6 +3527,9 @@ function compute(){
     const flat = flatStatBonus[sKey] || 0;
     const dispMin = min + flat + base;
     const dispMax = max + flat + base;
+    if (sKey === 'capCombat' || sKey === 'forceMentale' || sKey === 'esquive') {
+      sheetStatsForCalc[sKey] = Math.round(dispMax);
+    }
     const valueEl = statValueEls[sKey];
     const fillMin = statFillMinEls[sKey];
     const fillRange = statFillRangeEls[sKey];
@@ -3293,6 +3634,8 @@ function compute(){
       fillEl.style.background = 'var(--vitales)';
     }
   });
+
+  updateHitCalc();
 }
 
 // ---- Interactions ----

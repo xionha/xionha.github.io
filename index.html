@@ -1081,7 +1081,7 @@
       <button class="hitcalc-close" id="hitcalcClose">✕</button>
     </div>
     <p class="hitcalc-rule">
-      Pour toucher ou esquiver : <b>3d8 + Stat</b> Vs <b>3d8 + Stat</b>.<br>
+      Pour toucher ou esquiver : <b>3d6 + Stat</b> Vs <b>3d6 + Stat</b>.<br>
       En cas d'égalité, c'est l'attaque qui gagne.
     </p>
 
@@ -3368,34 +3368,34 @@ function fmtPrecise(n){
 }
 
 // =====================================================================
-// ---- Calculateur de chances (3d8 + Stat Vs 3d8 + Stat, égalité = attaque gagne) ----
+// ---- Calculateur de chances (3d6 + Stat Vs 3d6 + Stat, égalité = attaque gagne) ----
 // =====================================================================
 const sheetStatsForCalc = { capCombat: 0, forceMentale: 0, esquive: 0 };
 
-// distribution de probabilité de la somme de 3d8 (valeurs 3 à 24)
-const DICE_3D8_DIST = (() => {
+// distribution de probabilité de la somme de 3d6 (valeurs 3 à 18)
+const DICE_3D6_DIST = (() => {
   const dist = {};
-  for (let a = 1; a <= 8; a++) {
-    for (let b = 1; b <= 8; b++) {
-      for (let c = 1; c <= 8; c++) {
+  for (let a = 1; a <= 6; a++) {
+    for (let b = 1; b <= 6; b++) {
+      for (let c = 1; c <= 6; c++) {
         const s = a + b + c;
         dist[s] = (dist[s] || 0) + 1;
       }
     }
   }
-  const total = 8 * 8 * 8;
+  const total = 6 * 6 * 6;
   Object.keys(dist).forEach(s => { dist[s] = dist[s] / total; });
   return dist;
 })();
 
-// Probabilité que (3d8 + leftStat) >= (3d8 + rightStat) — égalité comprise (l'attaque, à gauche, gagne)
+// Probabilité que (3d6 + leftStat) >= (3d6 + rightStat) — égalité comprise (l'attaque, à gauche, gagne)
 function chanceLeftWins(leftStat, rightStat){
   let p = 0;
-  for (const sL in DICE_3D8_DIST) {
+  for (const sL in DICE_3D6_DIST) {
     const rollL = Number(sL) + leftStat;
-    for (const sR in DICE_3D8_DIST) {
+    for (const sR in DICE_3D6_DIST) {
       const rollR = Number(sR) + rightStat;
-      if (rollL >= rollR) p += DICE_3D8_DIST[sL] * DICE_3D8_DIST[sR];
+      if (rollL >= rollR) p += DICE_3D6_DIST[sL] * DICE_3D6_DIST[sR];
     }
   }
   return p * 100;

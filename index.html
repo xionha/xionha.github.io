@@ -1100,7 +1100,7 @@
     </div>
     <div class="hitcalc-row" data-row="toucher2">
       <div class="hitcalc-stat">
-        <label>Force mentale</label>
+        <label>Incantation</label>
         <input type="number" data-field="toucher2-left" disabled>
       </div>
       <span class="hitcalc-vs">Vs</span>
@@ -1112,7 +1112,7 @@
     </div>
     <div class="hitcalc-row" data-row="toucher3">
       <div class="hitcalc-stat">
-        <label>Force mentale</label>
+        <label>Incantation</label>
         <input type="number" data-field="toucher3-left" disabled>
       </div>
       <span class="hitcalc-vs">Vs</span>
@@ -1138,7 +1138,7 @@
     </div>
     <div class="hitcalc-row" data-row="esquive2">
       <div class="hitcalc-stat">
-        <label>Force mentale</label>
+        <label>Incantation</label>
         <input type="number" data-field="esquive2-left">
       </div>
       <span class="hitcalc-vs">Vs</span>
@@ -1150,7 +1150,7 @@
     </div>
     <div class="hitcalc-row" data-row="esquive3">
       <div class="hitcalc-stat">
-        <label>Force mentale</label>
+        <label>Incantation</label>
         <input type="number" data-field="esquive3-left">
       </div>
       <span class="hitcalc-vs">Vs</span>
@@ -1211,11 +1211,11 @@
       </div>
       <div class="age-desc" id="morphDesc"></div>
 
-      <div class="panel-title">Âge</div>
-      <div class="age-selector" id="ageSelector">
-        <!-- boutons d'âge injectés ici -->
+      <div class="panel-title">Tempérament</div>
+      <div class="age-selector" id="temperamentSelector">
+        <!-- boutons de tempérament injectés ici -->
       </div>
-      <div class="age-desc" id="ageDesc"></div>
+      <div class="age-desc" id="temperamentDesc"></div>
 
       <div class="panel-title">Malédiction</div>
       <div class="age-selector" id="curseSelector">
@@ -1239,6 +1239,12 @@
       <select class="species-select" id="transformSelect"></select>
       <div class="age-desc" id="transformLocked" style="opacity:0.6; font-style: italic;"></div>
       <div class="age-desc" id="transformDesc"></div>
+
+      <div class="panel-title">Elementaires</div>
+      <div class="age-selector" id="elementaireSelector">
+        <!-- boutons d'élémentaire injectés ici -->
+      </div>
+      <div class="age-desc" id="elementaireDesc"></div>
 
       <div class="panel-title">Voie Jumelle</div>
       <div class="age-selector" id="voieJumelleSelector"></div>
@@ -1283,7 +1289,7 @@ const ATTRIBUTES = [
       capCombat: [0.355, 0.355], parade: [0.497, 0.497], degats: [2, 2]
   }},
   { key: 'analyse', label: 'Analyse', effects: {
-      capTir: [0.213, 0.213], forceMentale: [0.142, 0.142], degats: [0.5, 0.5], degatsMagique: [0.5, 0.5]
+      capTir: [0.213, 0.213], forceMentale: [0.142, 0.142], degats: [0.5, 0.5], degatsMagique: [0.5, 0.5], puissanceTroupe: [0.8, 0.8]
   }},
   { key: 'addresse', label: 'Adresse', effects: {
       capCombat: [0.355, 0.355], capTir: [0.497, 0.497], esquive: [0.142, 0.142], parade: [0.213, 0.213], defense: [0.15, 0.15], degats: [0.25, 0.25]
@@ -1295,10 +1301,10 @@ const ATTRIBUTES = [
       pv: [2, 2], defense: [0.45, 0.45]
   }, desc: 'Diminue les dégâts pris en début de tour des statuts Saignement et Brûlure.' },
   { key: 'volonte', label: 'Volonté', effects: {
-      pv: [0.5, 0.5], mana: [1.25, 1.25], initiative: [0.355, 0.355], forceMentale: [0.71, 0.71], defenseMagique: [0.45, 0.45], degatsMagique: [1.25, 1.25]
+      pv: [0.5, 0.5], mana: [1.25, 1.25], initiative: [0.355, 0.355], forceMentale: [0.71, 0.71], defenseMagique: [0.45, 0.45], degatsMagique: [1.25, 1.25], incantation: [0.142, 0.142]
   }},
   { key: 'perceptionMagique', label: 'Perception Magique', effects: {
-      mana: [1.25, 1.25], forceMentale: [0.142, 0.142], defenseMagique: [0.3, 0.3], degatsMagique: [1, 1]
+      mana: [1.25, 1.25], defenseMagique: [0.3, 0.3], degatsMagique: [1, 1], incantation: [0.142, 0.142]
   }},
   { key: 'vitesse', label: 'Vitesse', effects: {
       initiative: [0.497, 0.497], deplacement: [0.21, 0.21], capCombat: [0.284, 0.284], esquive: [0.994, 0.994]
@@ -1308,15 +1314,22 @@ const ATTRIBUTES = [
   }},
   // Sous-attributs sans effet sur les caractéristiques calculées : utiles uniquement pour les jets de rôle-play
   { key: 'metabolisme', label: 'Métabolisme', effects: {}, rp: true, desc: 'Diminue les dégâts pris en début de tour du statut Poison.' },
-  { key: 'enseignement', label: 'Enseignement', effects: {}, rp: true },
+  { key: 'enseignement', label: 'Esoterisme', effects: {
+      incantation: [0.71, 0.71]
+  } },
   { key: 'discretion', label: 'Discrétion', effects: {}, rp: true },
   { key: 'convaincre', label: 'Convaincre', effects: {}, rp: true },
   { key: 'commerce', label: 'Commerce', effects: {}, rp: true },
+  { key: 'commandement', label: 'Commandement', effects: {
+      forceMentale: [0.142, 0.142], puissanceTroupe: [1.2, 1.2]
+  }},
+  { key: 'deguisement', label: 'Déguisement', effects: {}, rp: true },
 ];
 
 const STATS = {
   pv: 'PV', mana: 'Mana', initiative: 'Initiative', deplacement: 'Déplacement',
   capCombat: 'Capacité de Combat', capTir: 'Capacité de Tir', forceMentale: 'Force Mentale',
+  incantation: 'Incantation',
   esquive: 'Esquive', parade: 'Parade', defense: 'Défense', degats: 'Dégâts',
   defenseMagique: 'Défense Magique', degatsMagique: 'Dégâts Magique'
 };
@@ -1333,32 +1346,32 @@ ATTRIBUTES.forEach(attr => {
 });
 Object.values(STAT_ATTRIBUTE_SOURCES).forEach(list => list.sort((a, b) => b.max - a.max));
 
-// ---- Âges : bonus/malus sur les stats parentes ----
+// ---- Tempéraments : bonus/malus sur les stats parentes ----
 // Une stat parente donne son plein montant à CHACUNE de ses sous-stats (pas de répartition)
-const AGES = {
-  "Jeune":          { conditionPhysique: 1, esprit: 0, reflexes: 1, presence: 2, savoirFaire: 1 },
-  "Fleur de l'âge": { conditionPhysique: 2, esprit: 0, reflexes: 0, presence: 0, savoirFaire: 3 },
-  "Vieux":          { conditionPhysique: 0, esprit: 1, reflexes: 0, presence: 0, savoirFaire: 4 },
-  "Ancien":         { conditionPhysique: -1, esprit: 2, reflexes: 0, presence: 0, savoirFaire: 4 },
+const TEMPERAMENTS = {
+  "Impetueux": { conditionPhysique: 1, presence: 2, savoirFaire: 1, reflexes: 1 },
+  "Physique":  { conditionPhysique: 2, savoirFaire: 3 },
+  "Ingenieux": { esprit: 1, savoirFaire: 4 },
+  "Savant":    { conditionPhysique: -1, esprit: 2, savoirFaire: 4 },
 };
 
 // Sous-stats de chaque stat parente qui existent dans ce simulateur
-// (Métabolisme, Enseignement, Discrétion, Convaincre, Commerce et Savoir Faire
+// (Métabolisme, Discrétion, Convaincre, Commerce, Déguisement et Savoir Faire
 // n'affectent aucune caractéristique dérivée du tableau et ne sont donc pas calculés ici)
 const PARENT_TO_ATTR = {
   conditionPhysique: ['endurance', 'force', 'metabolisme', 'resilience'],
-  esprit: ['analyse', 'enseignement', 'perceptionMagique'],
+  esprit: ['analyse', 'enseignement', 'perceptionMagique', 'volonte'],
   reflexes: ['addresse', 'discretion', 'perception', 'vitesse'],
-  presence: ['convaincre', 'volonte', 'commerce'],
+  presence: ['convaincre', 'commerce', 'commandement', 'deguisement'],
 };
 
 // Structure d'affichage : stat parente -> sous-attributs correspondants dans ce simulateur
 const PARENT_GROUPS = [
   { key: 'savoirFaire', label: 'Savoir Faire', children: [] },
   { key: 'conditionPhysique', label: 'Condition Physique', children: ['endurance', 'force', 'metabolisme', 'resilience'] },
-  { key: 'esprit', label: 'Esprit', children: ['analyse', 'enseignement', 'perceptionMagique'] },
+  { key: 'esprit', label: 'Esprit', children: ['analyse', 'enseignement', 'perceptionMagique', 'volonte'] },
   { key: 'reflexes', label: 'Réflexes', children: ['addresse', 'discretion', 'perception', 'vitesse'] },
-  { key: 'presence', label: 'Présence', children: ['convaincre', 'volonte', 'commerce'] },
+  { key: 'presence', label: 'Présence', children: ['convaincre', 'commerce', 'commandement', 'deguisement'] },
 ];
 
 // ---- Morphologie : bonus fixes sur les stats parentes ----
@@ -1374,7 +1387,6 @@ const MORPHOLOGIES = {
 const SPECIES = {
   "Humain": { parents: { savoirFaire: 2, conditionPhysique: 2, esprit: 2, reflexes: 2, presence: 2 }, flatStats: {}, elemental: {}, notes: [] },
   "Géant": { parents: { savoirFaire: 0, conditionPhysique: 4, esprit: 0, reflexes: 1, presence: 1 }, flatStats: { defense: 2, deplacement: -1 }, elemental: {}, notes: ['Octroie : Frappe de Géant'] },
-  "Démon": { parents: { conditionPhysique: 2, esprit: 1, reflexes: 2, presence: 3, savoirFaire: 1 }, flatStats: {}, elemental: { lumiere: -10 }, notes: ['Octroie : Charme', 'Octroie : Pacte Démoniaque', 'Octroie : Transformation Démoniaque'] },
   "Diable": { parents: { conditionPhysique: 2, esprit: 2, reflexes: 2, presence: 3, savoirFaire: 1 }, flatStats: {}, elemental: { lumiere: -10 }, notes: ['Octroie : Pacte Démoniaque'] },
   "Drow": { parents: { conditionPhysique: 3, reflexes: 2, esprit: 2, presence: 2, savoirFaire: 1 }, flatStats: {}, elemental: {}, notes: [] },
   "Céleste": { parents: { esprit: 3, reflexes: 2, presence: 2, savoirFaire: 1, conditionPhysique: 2 }, flatStats: {}, elemental: { sang: -10 }, notes: [] },
@@ -1389,13 +1401,23 @@ const SPECIES = {
 };
 
 const STAT_LABELS_SHORT = { pv: 'PV', defense: 'Défense', deplacement: 'Déplacement' };
+const PARENT_LABELS_SHORT = { conditionPhysique: 'Condition Physique', esprit: 'Esprit', reflexes: 'Réflexes', presence: 'Présence', savoirFaire: 'Savoir Faire' };
 
 // ---- Malédiction : effets directs sur les attributs de base + bonus fixes sur certaines caractéristiques ----
-// attrDelta agit DIRECTEMENT sur les attributs (pas via les stats parentes, contrairement à Âge/Morphologie/Espèce)
+// attrDelta agit DIRECTEMENT sur les attributs (pas via les stats parentes, contrairement à Tempérament/Morphologie/Espèce)
 const CURSES = {
+  "Démon": { attrDelta: {}, flatStats: {}, elemental: { lumiere: -10 }, notes: ['Octroie : Charme', 'Octroie : Pacte Démoniaque', 'Octroie : Transformation Démoniaque'] },
   "Vampire": { attrDelta: {}, flatStats: { forceMentale: 1, capCombat: 1 }, elemental: { sang: 10, lumiere: -10, feu: -20 }, notes: ['Octroie : Présence Hypnotisante', 'Octroie : Charme', 'Octroie : Sucer le Sang'] },
   "Lycan": { attrDelta: {}, flatStats: {}, elemental: { lumiere: -20, sang: 10 }, notes: ['Octroie : Transformation Lycanthrope I'] },
   "Mort Vivant": { attrDelta: {}, flatStats: {}, elemental: { lumiere: -30, feu: -30 }, notes: ['Immunisé au Saignement', 'Immunisé au Poison'] },
+};
+
+// ---- Élémentaires : bascule unique, effets directs sur les stats élémentaires ----
+const ELEMENTAIRES = {
+  "Elementaire de feu":  { elemental: { feu: 15, eau: -15 } },
+  "Elementaire d'eau":   { elemental: { eau: 15, air: -15 } },
+  "Elementaire de terre": { elemental: { terre: 15, feu: -15 } },
+  "Elementaire d'air":   { elemental: { air: 15, terre: -15 } },
 };
 
 // ---- Statut Esclave : bascule Oui/Non, effets directs sur les attributs ----
@@ -1446,7 +1468,7 @@ const TENERIFFE = {
 
 // ---- Voie Jumelle : bascule Oui/Non ----
 // ---- Buffs de consommation : cumulables, sans limite de sélection ----
-// parentDelta -> cascade sur les sous-attributs via PARENT_TO_ATTR (comme l'Âge/l'Espèce)
+// parentDelta -> cascade sur les sous-attributs via PARENT_TO_ATTR (comme le Tempérament/l'Espèce)
 // attrDelta -> effet direct sur un attribut précis
 // flatStats -> effet direct sur une caractéristique finale déjà calculée
 const CONSUMABLES = {
@@ -1461,8 +1483,6 @@ const CONSUMABLES = {
   "Dopant Physique (Stimulant Physique)": { parentDelta: { conditionPhysique: 2, reflexes: 2 }, attrDelta: {}, flatStats: {}, notes: [], category: null },
   "Dopant Mystique (Stimulant Mental)": { parentDelta: {}, attrDelta: {}, flatStats: { forceMentale: 2 }, notes: [], category: null },
   "Récréatif": { parentDelta: {}, attrDelta: { metabolisme: -2, resilience: 2, analyse: -2, perceptionMagique: 2, perception: 2, vitesse: -2, volonte: -2 }, flatStats: {}, notes: [] },
-  "Aphrodisiaque (Erection Surnaturelle)": { parentDelta: {}, attrDelta: { analyse: -5 }, flatStats: { pv: 15, capCombat: 1, defense: 2, degats: 2, parade: 1, mana: 15 }, notes: ['Octroie : Impact de Virilité', 'Octroie : Abreuver de Semence'] },
-  "Aphrosidiaque (Désir Accru)": { parentDelta: {}, attrDelta: { volonte: -3 }, flatStats: { capCombat: -1, capTir: -1 }, notes: ['Octroie : Musc Déconcertant'] },
 };
 
 const VOIE_JUMELLE = {
@@ -1532,6 +1552,7 @@ const ENVIRONMENTS = {
   "Chaud": { flatStats: {}, elemental: { feu: 5, eau: -5 }, notes: ['Octroie le Perk : Chaleur Insupportable'] },
   "Eau": { flatStats: { capCombat: -3 }, elemental: { eau: 20, air: -20 }, notes: ['Octroie le Perk : Baignade'] },
   "Extérieur": { flatStats: {}, elemental: { terre: 5 }, notes: ['Octroie le Perk : Extérieur'] },
+  "Vampire (Jour)": { parentDelta: { conditionPhysique: -2 }, flatStats: {}, elemental: {}, notes: [] },
 };
 
 // Rendu de puces colorées (bonus en vert ▲, malus en rouge ▼) pour les résumés compacts d'effets
@@ -1546,6 +1567,7 @@ function statChipsHTML(entries){
 
 function statusEffectText(data){
   const entries = [];
+  Object.entries(data.parentDelta || {}).forEach(([k, v]) => entries.push([PARENT_LABELS_SHORT[k] || k, v]));
   Object.entries(data.flatStats).forEach(([k, v]) => entries.push([TALENT_STAT_LABELS[k] || k, v]));
   Object.entries(data.elemental).forEach(([k, v]) => entries.push([ELEMENTAL_STATS[k] || k, v]));
   let html = statChipsHTML(entries);
@@ -1589,6 +1611,7 @@ const EQUIPMENT = {
   amulette: {
     "Amulette de Vigueur": { flatStats: { pv: 20 }, extraStats: {}, notes: [] },
     "Joyau de Réserve": { flatStats: { mana: 20 }, extraStats: {}, notes: [] },
+    "Amulette de concentration": { flatStats: { forceMentale: 3 }, extraStats: {}, notes: [] },
   },
   armure: {
     "Armure Légère": { flatStats: { defenseMagique: 17 }, extraStats: { defTranchante: 12, defPerforante: 12, defContondante: 12 }, notes: ['Octroie le Perk : Armure', 'Octroie le statut : Armure Légère'] },
@@ -1602,7 +1625,7 @@ const EQUIPMENT = {
   },
   gants: {
     "Bracelets de Force": { flatStats: { capCombat: 3 }, extraStats: {}, notes: [] },
-    "Gant de Lanceur de Sorts": { flatStats: { forceMentale: 3 }, extraStats: {}, notes: [] },
+    "Gant de Lanceur de Sorts": { flatStats: { incantation: 3 }, extraStats: {}, notes: [] },
     "Gants de Visée": { flatStats: { capTir: 3 }, extraStats: {}, notes: [] },
   },
   ceinture: {
@@ -1694,7 +1717,7 @@ const TALENTS = [
   { name: 'Sens aiguisés', cost: 1, effects: { capTir: 1, initiative: 1 } },
   { name: 'Pied agile', cost: 1, effects: { deplacement: 1 } },
   { name: 'Résistance à la magie', cost: 1, effects: { defenseMagique: 2 } },
-  { name: 'Masochiste', cost: 1, effects: { defense: 2 } },
+  { name: 'Peau dure', cost: 1, effects: { defense: 2 } },
   { name: 'Robuste', cost: 1, effects: { pv: 10 } },
   { name: 'Vif', cost: 1, effects: { initiative: 2 } },
   { name: "Mental d'acier", cost: 1, effects: { forceMentale: 2 } },
@@ -1704,7 +1727,7 @@ function talentEffectText(effects){
   return statChipsHTML(Object.entries(effects).map(([k, v]) => [TALENT_STAT_LABELS[k] || k, v]));
 }
 
-// Valeurs de base avant tout bonus d'attribut, d'âge, de morphologie ou d'espèce
+// Valeurs de base avant tout bonus d'attribut, de tempérament, de morphologie ou d'espèce
 const BASE_STATS = { pv: 75, mana: 75 };
 
 const GROUPS = [
@@ -1712,7 +1735,7 @@ const GROUPS = [
   { name: 'Mobilité', color: 'var(--mobilite)', stats: ['initiative', 'deplacement', 'esquive'] },
   { name: 'Combat', color: 'var(--combat)', stats: ['capCombat', 'capTir', 'degats'] },
   { name: 'Défense', color: 'var(--defense)', stats: ['defense', 'parade', 'defenseMagique'] },
-  { name: 'Magie', color: 'var(--magie)', stats: ['forceMentale', 'degatsMagique'] },
+  { name: 'Magie', color: 'var(--magie)', stats: ['incantation', 'forceMentale', 'degatsMagique'] },
 ];
 
 // ---- Icônes ornementales (glyphes géométriques originaux) pour chaque groupe de stats ----
@@ -1730,12 +1753,13 @@ const GROUP_ICONS = {
 
 // ---- État ----
 const state = {};          // points alloués manuellement par l'utilisateur
-const bonusSources = { age: {}, morphology: {}, species: {}, curse: {}, esclave: {}, teneriffe: {}, parentAlloc: {}, consumables: {}, injuries: {} }; // bonus/malus dérivés de chaque source
+const bonusSources = { temperament: {}, morphology: {}, species: {}, curse: {}, esclave: {}, teneriffe: {}, parentAlloc: {}, consumables: {}, injuries: {}, environments: {} }; // bonus/malus dérivés de chaque source
 let flatStatBonus = {};    // bonus fixes combinés (espèce + malédiction + talents) directement sur les caractéristiques
 let speciesFlatStats = {}; // bonus fixes de l'espèce actuelle uniquement
 let curseFlatStats = {};   // bonus fixes de la malédiction actuelle uniquement
 let speciesElemental = {}; // stats élémentaires de l'espèce actuelle
 let curseElemental = {};   // stats élémentaires de la malédiction actuelle
+let elementaireElemental = {}; // stats élémentaires de l'élémentaire actuel
 let elementalBonus = {};   // stats élémentaires combinées (Lumière, Feu, Sang, Air, Eau)
 Object.keys(ELEMENTAL_STATS).forEach(k => elementalBonus[k] = 0);
 const selectedTalents = new Set();
@@ -1747,12 +1771,14 @@ let equipmentExtraStats = {}; // stats supplémentaires (Puissance de Troupe, d�
 let equipmentElemental = {}; // stats élémentaires apportées par l'équipement
 let extraStatBonus = {};
 Object.keys(EXTRA_STATS).forEach(k => extraStatBonus[k] = 0);
+let attrExtraStatBonus = {}; // stats supplémentaires apportées par les attributs (ex: Commandement/Analyse -> Puissance de Troupe)
+Object.keys(EXTRA_STATS).forEach(k => attrExtraStatBonus[k] = 0);
 let otherStatBonus = {};
 Object.keys(OTHER_STATS).forEach(k => otherStatBonus[k] = 0);
 const parentState = { savoirFaire: 0, conditionPhysique: 0, esprit: 0, reflexes: 0, presence: 0 };
 ATTRIBUTES.forEach(a => {
   state[a.key] = 0;
-  bonusSources.age[a.key] = 0;
+  bonusSources.temperament[a.key] = 0;
   bonusSources.morphology[a.key] = 0;
   bonusSources.species[a.key] = 0;
   bonusSources.curse[a.key] = 0;
@@ -1761,6 +1787,7 @@ ATTRIBUTES.forEach(a => {
   bonusSources.parentAlloc[a.key] = 0;
   bonusSources.consumables[a.key] = 0;
   bonusSources.injuries[a.key] = 0;
+  bonusSources.environments[a.key] = 0;
 });
 Object.keys(STATS).forEach(k => flatStatBonus[k] = 0);
 const selectedConsumables = new Set();
@@ -1768,10 +1795,11 @@ let consumablesFlatStats = {};
 let consumablesOtherStats = {};
 const selectedInjuries = { tete: null, torse: null, brasGauche: null, brasDroit: null, jambeGauche: null, jambeDroite: null };
 let injuriesFlatStats = {};
-let currentAge = null;
+let currentTemperament = null;
 let currentMorphology = null;
 let currentSpecies = null;
 let currentCurse = null;
+let currentElementaire = null;
 let isEsclave = false;
 let isTeneriffe = false;
 let isVoieJumelle = false;
@@ -1779,10 +1807,10 @@ let currentTransformation = null;
 let currentTransformationChangeforme = null;
 let currentPosture = null;
 
-// Bonus "narratif" venant de l'Âge / la Morphologie / l'Espèce, affiché sur la ligne de la stat parente
+// Bonus "narratif" venant du Tempérament / la Morphologie / l'Espèce, affiché sur la ligne de la stat parente
 function parentNarrativeBonus(parentKey){
   let v = 0;
-  if (currentAge && AGES[currentAge][parentKey] !== undefined) v += AGES[currentAge][parentKey];
+  if (currentTemperament && TEMPERAMENTS[currentTemperament][parentKey] !== undefined) v += TEMPERAMENTS[currentTemperament][parentKey];
   if (currentMorphology && MORPHOLOGIES[currentMorphology][parentKey] !== undefined) v += MORPHOLOGIES[currentMorphology][parentKey];
   if (currentSpecies && SPECIES[currentSpecies].parents[parentKey] !== undefined) v += SPECIES[currentSpecies].parents[parentKey];
   if (isEsclave && ESCLAVE.parentDelta && ESCLAVE.parentDelta[parentKey] !== undefined) v += ESCLAVE.parentDelta[parentKey];
@@ -1871,6 +1899,18 @@ function recalcInjuries(){
   recalcFlatStats();
 }
 
+function recalcEnvironments(){
+  ATTRIBUTES.forEach(a => bonusSources.environments[a.key] = 0);
+  selectedEnvironments.forEach(name => {
+    const e = ENVIRONMENTS[name];
+    if (!e) return;
+    Object.entries(e.parentDelta || {}).forEach(([parentKey, val]) => {
+      const children = PARENT_TO_ATTR[parentKey];
+      if (children) children.forEach(attrKey => { bonusSources.environments[attrKey] += val; });
+    });
+  });
+}
+
 function recalcOtherStats(){
   Object.keys(OTHER_STATS).forEach(k => otherStatBonus[k] = 0);
   Object.entries(consumablesOtherStats).forEach(([k, v]) => { otherStatBonus[k] = (otherStatBonus[k] || 0) + v; });
@@ -1880,6 +1920,7 @@ function recalcElementalStats(){
   Object.keys(ELEMENTAL_STATS).forEach(k => elementalBonus[k] = 0);
   Object.entries(speciesElemental).forEach(([k, v]) => { elementalBonus[k] = (elementalBonus[k] || 0) + v; });
   Object.entries(curseElemental).forEach(([k, v]) => { elementalBonus[k] = (elementalBonus[k] || 0) + v; });
+  Object.entries(elementaireElemental).forEach(([k, v]) => { elementalBonus[k] = (elementalBonus[k] || 0) + v; });
   if (currentTransformation && TRANSFORMATIONS[currentTransformation]) {
     Object.entries(TRANSFORMATIONS[currentTransformation].elemental).forEach(([k, v]) => { elementalBonus[k] = (elementalBonus[k] || 0) + v; });
   }
@@ -1940,11 +1981,11 @@ function recalcEquipment(){
 }
 
 function totalBonusFor(attrKey){
-  return (bonusSources.age[attrKey] || 0) + (bonusSources.morphology[attrKey] || 0)
+  return (bonusSources.temperament[attrKey] || 0) + (bonusSources.morphology[attrKey] || 0)
        + (bonusSources.species[attrKey] || 0) + (bonusSources.curse[attrKey] || 0)
        + (bonusSources.esclave[attrKey] || 0) + (bonusSources.teneriffe[attrKey] || 0)
        + (bonusSources.parentAlloc[attrKey] || 0) + (bonusSources.consumables[attrKey] || 0)
-       + (bonusSources.injuries[attrKey] || 0);
+       + (bonusSources.injuries[attrKey] || 0) + (bonusSources.environments[attrKey] || 0);
 }
 
 function applyParentBonuses(sourceName, parentValues){
@@ -1968,22 +2009,22 @@ function describeParentBonuses(parentValues, extraNoteIfSavoirFaire){
   return html;
 }
 
-// ---- Construction du sélecteur d'âge ----
-const ageSelector = document.getElementById('ageSelector');
-const ageDesc = document.getElementById('ageDesc');
+// ---- Construction du sélecteur de tempérament ----
+const temperamentSelector = document.getElementById('temperamentSelector');
+const temperamentDesc = document.getElementById('temperamentDesc');
 
-Object.keys(AGES).forEach(ageName => {
+Object.keys(TEMPERAMENTS).forEach(temperamentName => {
   const btn = document.createElement('button');
   btn.className = 'age-btn';
-  btn.textContent = ageName;
-  btn.dataset.age = ageName;
-  ageSelector.appendChild(btn);
+  btn.textContent = temperamentName;
+  btn.dataset.age = temperamentName;
+  temperamentSelector.appendChild(btn);
 });
-const noneAgeBtn = document.createElement('button');
-noneAgeBtn.className = 'age-btn active';
-noneAgeBtn.textContent = 'Aucun';
-noneAgeBtn.dataset.age = '';
-ageSelector.appendChild(noneAgeBtn);
+const noneTemperamentBtn = document.createElement('button');
+noneTemperamentBtn.className = 'age-btn active';
+noneTemperamentBtn.textContent = 'Aucun';
+noneTemperamentBtn.dataset.age = '';
+temperamentSelector.appendChild(noneTemperamentBtn);
 
 // Rendu d'une ligne de bonus/malus sous forme de puce (▲ vert = bonus, ▼ rouge = malus), identique aux autres listes
 function flatSpanHTML(label, v, forceClass){
@@ -1992,23 +2033,23 @@ function flatSpanHTML(label, v, forceClass){
   return `<span class="stat-chip ${cls}">${arrow} ${label} ${v > 0 ? '+' : ''}${v}</span>`;
 }
 
-function applyAge(ageName){
-  currentAge = ageName || null;
-  applyParentBonuses('age', currentAge ? AGES[currentAge] : null);
+function applyTemperament(temperamentName){
+  currentTemperament = temperamentName || null;
+  applyParentBonuses('temperament', currentTemperament ? TEMPERAMENTS[currentTemperament] : null);
 
-  ageSelector.querySelectorAll('.age-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.age === (currentAge || ''));
+  temperamentSelector.querySelectorAll('.age-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.age === (currentTemperament || ''));
   });
 
-  ageDesc.innerHTML = currentAge ? describeParentBonuses(AGES[currentAge], false) : '';
+  temperamentDesc.innerHTML = currentTemperament ? describeParentBonuses(TEMPERAMENTS[currentTemperament], false) : '';
   renderParentRows();
   compute();
 }
 
-ageSelector.addEventListener('click', e => {
+temperamentSelector.addEventListener('click', e => {
   const btn = e.target.closest('.age-btn');
   if (!btn) return;
-  applyAge(btn.dataset.age);
+  applyTemperament(btn.dataset.age);
 });
 
 // ---- Construction du sélecteur de morphologie ----
@@ -2121,6 +2162,55 @@ curseSelector.addEventListener('click', e => {
   const btn = e.target.closest('.age-btn');
   if (!btn) return;
   applyCurse(btn.dataset.curse);
+});
+
+// ---- Construction du sélecteur d'élémentaire ----
+const elementaireSelector = document.getElementById('elementaireSelector');
+const elementaireDesc = document.getElementById('elementaireDesc');
+
+Object.keys(ELEMENTAIRES).forEach(name => {
+  const btn = document.createElement('button');
+  btn.className = 'age-btn';
+  btn.textContent = name;
+  btn.dataset.elementaire = name;
+  elementaireSelector.appendChild(btn);
+});
+const noneElementaireBtn = document.createElement('button');
+noneElementaireBtn.className = 'age-btn active';
+noneElementaireBtn.textContent = 'Aucun';
+noneElementaireBtn.dataset.elementaire = '';
+elementaireSelector.appendChild(noneElementaireBtn);
+
+function applyElementaire(name){
+  currentElementaire = name || null;
+  const data = currentElementaire ? ELEMENTAIRES[currentElementaire] : null;
+
+  elementaireElemental = (data && data.elemental) ? data.elemental : {};
+  recalcElementalStats();
+
+  elementaireSelector.querySelectorAll('.age-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.elementaire === (currentElementaire || ''));
+  });
+
+  if (data) {
+    let html = '';
+    if (data.elemental && Object.keys(data.elemental).length) {
+      Object.entries(data.elemental).forEach(([k, v]) => {
+        html += flatSpanHTML(ELEMENTAL_STATS[k] || k, v);
+      });
+    }
+    elementaireDesc.innerHTML = html;
+  } else {
+    elementaireDesc.innerHTML = '';
+  }
+
+  compute();
+}
+
+elementaireSelector.addEventListener('click', e => {
+  const btn = e.target.closest('.age-btn');
+  if (!btn) return;
+  applyElementaire(btn.dataset.elementaire);
 });
 
 // ---- Construction du statut Esclave (Oui/Non) ----
@@ -2303,10 +2393,10 @@ function applyTransformation(name){
 
 transformSelect.addEventListener('change', e => applyTransformation(e.target.value));
 
-// La Transformation Démoniaque nécessite l'espèce "Démon" ; Lycanthrope I nécessite la malédiction "Lycan"
+// La Transformation Démoniaque nécessite la malédiction "Démon" ; Lycanthrope I nécessite la malédiction "Lycan"
 const transformLocked = document.getElementById('transformLocked');
 function updateTransformLocks(){
-  const demonAllowed = currentSpecies === 'Démon';
+  const demonAllowed = currentCurse === 'Démon';
   const lycanAllowed = currentCurse === 'Lycan';
 
   const demonOpt = document.getElementById('transformOpt-demoniaque');
@@ -2316,7 +2406,7 @@ function updateTransformLocks(){
 
   if (transformLocked) {
     const missing = [];
-    if (!demonAllowed) missing.push('Démoniaque nécessite l\'espèce "Démon"');
+    if (!demonAllowed) missing.push('Démoniaque nécessite la malédiction "Démon"');
     if (!lycanAllowed) missing.push('Lycanthrope I nécessite la malédiction "Lycan"');
     transformLocked.innerHTML = missing.map(m => `<span class="note">${m}</span>`).join('');
   }
@@ -2648,6 +2738,7 @@ function toggleEnvironment(name){
     selectedEnvironments.add(name);
   }
   renderEnvironmentStates();
+  recalcEnvironments();
   recalcFlatStats();
   recalcElementalStats();
   compute();
@@ -2660,8 +2751,6 @@ environmentList.addEventListener('click', e => {
 });
 
 // ---- Construction de la liste de buffs de consommation (cumulables, sans limite) ----
-const PARENT_LABELS_SHORT = { conditionPhysique: 'Condition Physique', esprit: 'Esprit', reflexes: 'Réflexes', presence: 'Présence', savoirFaire: 'Savoir Faire' };
-
 function consumableEffectText(c){
   const entries = [];
   Object.entries(c.parentDelta || {}).forEach(([k, v]) => entries.push([PARENT_LABELS_SHORT[k] || k, v]));
@@ -3025,7 +3114,7 @@ function buildAttrTooltipHTML(attrKey){
   }
   entries.sort((a, b) => b[1][1] - a[1][1]);
   entries.forEach(([statKey, range]) => {
-    const label = STATS[statKey] || statKey;
+    const label = STATS[statKey] || EXTRA_STATS[statKey] || statKey;
     const val = (range[0] === range[1]) ? `+${fmtPrecise(range[0])}` : `+${fmtPrecise(range[0])} → +${fmtPrecise(range[1])}`;
     html += `<div class="stat-tooltip-row"><span class="attr-name">${label}</span><span class="attr-range">${val}</span></div>`;
   });
@@ -3370,7 +3459,7 @@ function fmtPrecise(n){
 // =====================================================================
 // ---- Calculateur de chances (3d6 + Stat Vs 3d6 + Stat, égalité = attaque gagne) ----
 // =====================================================================
-const sheetStatsForCalc = { capCombat: 0, forceMentale: 0, esquive: 0 };
+const sheetStatsForCalc = { capCombat: 0, forceMentale: 0, incantation: 0, esquive: 0 };
 
 // distribution de probabilité de la somme de 3d6 (valeurs 3 à 18)
 const DICE_3D6_DIST = (() => {
@@ -3404,12 +3493,12 @@ function chanceLeftWins(leftStat, rightStat){
 const HITCALC_ROWS = [
   // section 'toucher' : le résultat affiché EST la chance de toucher (gauche = attaque)
   { id: 'toucher1', leftKey: 'capCombat', rightKey: 'esquive', mode: 'hit' },
-  { id: 'toucher2', leftKey: 'forceMentale', rightKey: 'esquive', mode: 'hit' },
-  { id: 'toucher3', leftKey: 'forceMentale', rightKey: 'forceMentale', mode: 'hit' },
+  { id: 'toucher2', leftKey: 'incantation', rightKey: 'esquive', mode: 'hit' },
+  { id: 'toucher3', leftKey: 'incantation', rightKey: 'forceMentale', mode: 'hit' },
   // section 'esquiver' : le résultat affiché est la chance d'esquiver = 100 - chance que la gauche (l'attaque adverse) gagne
   { id: 'esquive1', leftKey: 'capCombat', rightKey: 'esquive', mode: 'dodge' },
-  { id: 'esquive2', leftKey: 'forceMentale', rightKey: 'esquive', mode: 'dodge' },
-  { id: 'esquive3', leftKey: 'forceMentale', rightKey: 'forceMentale', mode: 'dodge' },
+  { id: 'esquive2', leftKey: 'incantation', rightKey: 'esquive', mode: 'dodge' },
+  { id: 'esquive3', leftKey: 'incantation', rightKey: 'forceMentale', mode: 'dodge' },
 ];
 
 const hitcalcFields = {};
@@ -3476,6 +3565,8 @@ hitcalcClose.addEventListener('click', closeHitcalc);
 function compute(){
   const totals = {};
   Object.keys(STATS).forEach(k => totals[k] = { min: 0, max: 0 });
+  const extraFromAttrs = {};
+  Object.keys(EXTRA_STATS).forEach(k => extraFromAttrs[k] = 0);
   let commerceTotal = 0;
 
   ATTRIBUTES.forEach(a => {
@@ -3495,14 +3586,21 @@ function compute(){
 
     if (!total) return;
     Object.entries(a.effects).forEach(([statKey, [min, max]]) => {
-      totals[statKey].min += total * min;
-      totals[statKey].max += total * max;
+      if (totals[statKey]) {
+        totals[statKey].min += total * min;
+        totals[statKey].max += total * max;
+      } else if (extraFromAttrs[statKey] !== undefined) {
+        // ex: Commandement/Analyse -> Puissance de Troupe (stat de l'équipement, pas une caractéristique calculée)
+        extraFromAttrs[statKey] += total * max;
+      }
     });
   });
 
   // Échange de 5 points de projet contre des pièces de bronze : 50 + (Commerce * 2)
   const bronzeCoins = 50 + (commerceTotal * 2);
   document.getElementById('economyValue').textContent = bronzeCoins;
+
+  attrExtraStatBonus = extraFromAttrs;
 
   // Échelle des jauges : fixe à 30 pour mieux voir l'évolution (au-delà, la barre est juste pleine),
   // sauf pour Vitales (PV/Mana) qui garde une échelle dynamique basée sur les valeurs réelles
@@ -3527,7 +3625,7 @@ function compute(){
     const flat = flatStatBonus[sKey] || 0;
     const dispMin = min + flat + base;
     const dispMax = max + flat + base;
-    if (sKey === 'capCombat' || sKey === 'forceMentale' || sKey === 'esquive') {
+    if (sKey === 'capCombat' || sKey === 'forceMentale' || sKey === 'incantation' || sKey === 'esquive') {
       sheetStatsForCalc[sKey] = Math.round(dispMax);
     }
     const valueEl = statValueEls[sKey];
@@ -3587,12 +3685,16 @@ function compute(){
     }
   });
 
-  // ---- Affichage des stats supplémentaires de l'équipement ----
+  // ---- Affichage des stats supplémentaires (équipement + attributs) ----
+  const combinedExtraStats = {};
+  Object.keys(EXTRA_STATS).forEach(k => {
+    combinedExtraStats[k] = Math.round(((extraStatBonus[k] || 0) + (attrExtraStatBonus[k] || 0)) * 100) / 100;
+  });
   let extraScale = 10;
-  Object.values(extraStatBonus).forEach(v => { if (Math.abs(v) > extraScale) extraScale = Math.abs(v); });
+  Object.values(combinedExtraStats).forEach(v => { if (Math.abs(v) > extraScale) extraScale = Math.abs(v); });
 
   Object.keys(EXTRA_STATS).forEach(k => {
-    const v = extraStatBonus[k] || 0;
+    const v = combinedExtraStats[k];
     const valueEl = extraValueEls[k];
     const fillEl = extraFillEls[k];
 
@@ -3649,11 +3751,12 @@ function resetAllState(){
     attrTree.querySelector(`input[data-parent="${k}"]`).value = 0;
   });
   applyParentBonuses('parentAlloc', parentState);
-  applyAge('');
+  applyTemperament('');
   applyMorphology('');
   speciesSelect.value = '';
   applySpecies('');
   applyCurse('');
+  applyElementaire('');
   applyEsclave('Non');
   applyTeneriffe('Non');
   applyVoieJumelle('Non');
@@ -3669,6 +3772,7 @@ function resetAllState(){
   renderStatusStates();
   selectedEnvironments.clear();
   renderEnvironmentStates();
+  recalcEnvironments();
   selectedConsumables.clear();
   renderConsumableStates();
   recalcConsumables();
@@ -3703,7 +3807,7 @@ function serializeBuild(){
     v: 1,
     state: { ...state },
     parentState: { ...parentState },
-    currentAge, currentMorphology, currentSpecies, currentCurse,
+    currentTemperament, currentMorphology, currentSpecies, currentCurse, currentElementaire,
     isEsclave, isTeneriffe, isVoieJumelle,
     currentTransformation, currentTransformationChangeforme,
     currentPosture,
@@ -3731,11 +3835,12 @@ function loadBuildData(data){
   });
   applyParentBonuses('parentAlloc', parentState);
 
-  applyAge(data.currentAge || '');
+  applyTemperament(data.currentTemperament || '');
   applyMorphology(data.currentMorphology || '');
   speciesSelect.value = data.currentSpecies || '';
   applySpecies(data.currentSpecies || '');
   applyCurse(data.currentCurse || '');
+  applyElementaire(data.currentElementaire || '');
   applyEsclave(data.isEsclave ? 'Oui' : 'Non');
   applyTeneriffe(data.isTeneriffe ? 'Oui' : 'Non');
   applyVoieJumelle(data.isVoieJumelle ? 'Oui' : 'Non');
@@ -3754,6 +3859,7 @@ function loadBuildData(data){
   renderStatusStates();
   (data.selectedEnvironments || []).forEach(name => { if (ENVIRONMENTS[name]) selectedEnvironments.add(name); });
   renderEnvironmentStates();
+  recalcEnvironments();
   (data.selectedConsumables || []).forEach(name => { if (CONSUMABLES[name]) selectedConsumables.add(name); });
   renderConsumableStates();
   recalcConsumables();
@@ -3848,10 +3954,11 @@ document.getElementById('ioImportBtn').addEventListener('click', () => {
   ioImportMsg.className = 'io-msg';
 });
 
-applyAge('');
+applyTemperament('');
 applyMorphology('');
 applySpecies('');
 applyCurse('');
+applyElementaire('');
 applyEsclave('Non');
 applyTeneriffe('Non');
 applyVoieJumelle('Non');

@@ -1412,6 +1412,46 @@ const CURSES = {
   "Mort Vivant": { attrDelta: {}, flatStats: {}, elemental: { lumiere: -30, feu: -30 }, notes: ['Immunisé au Saignement', 'Immunisé au Poison'] },
 };
 
+// ---- Corruption : un seul niveau actif à la fois (paliers non cumulables) ----
+// attrDelta agit DIRECTEMENT sur les attributs, comme la Malédiction
+const CORRUPTION = {
+  "Niveau I – Souillure": {
+    description: "Les premiers stigmates apparaissent. La peau se décolore, les yeux deviennent anormalement brillants et une sensation de froid accompagne désormais le personnage.",
+    attrDelta: { endurance: -1 },
+    flatStats: { degatsMagique: 2 },
+    elemental: { lumiere: -1 },
+    notes: [],
+  },
+  "Niveau II – Altération": {
+    description: "Les veines s'assombrissent et une aura malsaine devient perceptible. Le corps commence à peiner à suivre la puissance qu'il canalise.",
+    attrDelta: { endurance: -1, resilience: -1 },
+    flatStats: { degatsMagique: 4 },
+    elemental: { lumiere: -2 },
+    notes: [],
+  },
+  "Niveau III – Déchéance": {
+    description: "Les traits se déforment, le sommeil devient agité et le personnage inspire instinctivement la méfiance. Son esprit s'élève tandis que son corps s'affaiblit.",
+    attrDelta: { endurance: -1, resilience: -1, force: -1 },
+    flatStats: { incantation: 1, degatsMagique: 6 },
+    elemental: { lumiere: -3 },
+    notes: [],
+  },
+  "Niveau IV – Dégradation": {
+    description: "La corruption est visible au premier regard. La chair porte les marques de la magie noire et le corps commence à céder sous son propre pouvoir.",
+    attrDelta: { endurance: -1, resilience: -1, force: -1, addresse: -1 },
+    flatStats: { incantation: 2, degatsMagique: 8 },
+    elemental: { lumiere: -4 },
+    notes: [],
+  },
+  "Niveau V – Transcendance profane": {
+    description: "Le personnage n'est plus tout à fait mortel. Sa puissance magique atteint son apogée, mais son corps est devenu un simple réceptacle sur le point de céder sous les forces qui le traversent.",
+    attrDelta: { endurance: -1, resilience: -1, force: -1, addresse: -1, vitesse: -1 },
+    flatStats: { incantation: 3, degatsMagique: 10 },
+    elemental: { lumiere: -5 },
+    notes: [],
+  },
+};
+
 // ---- Élémentaires : bascule unique, effets directs sur les stats élémentaires ----
 const ELEMENTAIRES = {
   "Elementaire de feu":  { elemental: { feu: 15, eau: -15 } },
@@ -1481,7 +1521,7 @@ const CONSUMABLES = {
   "Alcool doux": { parentDelta: {}, attrDelta: {}, flatStats: { pv: 5, mana: 5, defense: 1, degats: 1, initiative: -1, esquive: -1 }, notes: [], category: 'boisson' },
   "Spiritueux (Alcool Fort)": { parentDelta: {}, attrDelta: {}, flatStats: { pv: 10, mana: 10, defense: 2, degats: 2, esquive: -3, initiative: -3 }, notes: [], category: 'boisson' },
   "Dopant Physique (Stimulant Physique)": { parentDelta: { conditionPhysique: 2, reflexes: 2 }, attrDelta: {}, flatStats: {}, notes: [], category: null },
-  "Dopant Mystique (Stimulant Mental)": { parentDelta: {}, attrDelta: {}, flatStats: { forceMentale: 2 }, notes: [], category: null },
+  "Dopant Mystique (Stimulant Mental)": { parentDelta: { esprit: 2 }, attrDelta: {}, flatStats: {}, notes: [], category: null },
   "Récréatif": { parentDelta: {}, attrDelta: { metabolisme: -2, resilience: 2, analyse: -2, perceptionMagique: 2, perception: 2, vitesse: -2, volonte: -2 }, flatStats: {}, notes: [] },
 };
 
@@ -1698,6 +1738,7 @@ const EQUIPMENT = {
 // ---- Talents : bonus fixes directs sur les caractéristiques, jusqu'à 3 choisis ----
 const MAX_TALENT_POINTS = 3;
 const TALENT_STAT_LABELS = {
+  incantation: 'Incantation',
   degatsMagique: 'Dégâts Magiques', capCombat: 'Capacité de Combat', parade: 'Parade',
   capTir: 'Capacité de Tir', initiative: 'Initiative', esquive: 'Esquive',
   forceMentale: 'Force Mentale', degats: 'Dégâts', mana: 'Mana',
@@ -1753,12 +1794,14 @@ const GROUP_ICONS = {
 
 // ---- État ----
 const state = {};          // points alloués manuellement par l'utilisateur
-const bonusSources = { temperament: {}, morphology: {}, species: {}, curse: {}, esclave: {}, teneriffe: {}, parentAlloc: {}, consumables: {}, injuries: {}, environments: {} }; // bonus/malus dérivés de chaque source
+const bonusSources = { temperament: {}, morphology: {}, species: {}, curse: {}, corruption: {}, esclave: {}, teneriffe: {}, parentAlloc: {}, consumables: {}, injuries: {}, environments: {} }; // bonus/malus dérivés de chaque source
 let flatStatBonus = {};    // bonus fixes combinés (espèce + malédiction + talents) directement sur les caractéristiques
 let speciesFlatStats = {}; // bonus fixes de l'espèce actuelle uniquement
 let curseFlatStats = {};   // bonus fixes de la malédiction actuelle uniquement
+let corruptionFlatStats = {}; // bonus fixes du niveau de corruption actuel uniquement
 let speciesElemental = {}; // stats élémentaires de l'espèce actuelle
 let curseElemental = {};   // stats élémentaires de la malédiction actuelle
+let corruptionElemental = {}; // stats élémentaires du niveau de corruption actuel
 let elementaireElemental = {}; // stats élémentaires de l'élémentaire actuel
 let elementalBonus = {};   // stats élémentaires combinées (Lumière, Feu, Sang, Air, Eau)
 Object.keys(ELEMENTAL_STATS).forEach(k => elementalBonus[k] = 0);
@@ -1782,6 +1825,7 @@ ATTRIBUTES.forEach(a => {
   bonusSources.morphology[a.key] = 0;
   bonusSources.species[a.key] = 0;
   bonusSources.curse[a.key] = 0;
+  bonusSources.corruption[a.key] = 0;
   bonusSources.esclave[a.key] = 0;
   bonusSources.teneriffe[a.key] = 0;
   bonusSources.parentAlloc[a.key] = 0;
@@ -1799,6 +1843,7 @@ let currentTemperament = null;
 let currentMorphology = null;
 let currentSpecies = null;
 let currentCurse = null;
+let currentCorruption = null;
 let currentElementaire = null;
 let isEsclave = false;
 let isTeneriffe = false;
@@ -1821,6 +1866,7 @@ function recalcFlatStats(){
   Object.keys(STATS).forEach(k => flatStatBonus[k] = 0);
   Object.entries(speciesFlatStats).forEach(([k, v]) => { flatStatBonus[k] = (flatStatBonus[k] || 0) + v; });
   Object.entries(curseFlatStats).forEach(([k, v]) => { flatStatBonus[k] = (flatStatBonus[k] || 0) + v; });
+  Object.entries(corruptionFlatStats).forEach(([k, v]) => { flatStatBonus[k] = (flatStatBonus[k] || 0) + v; });
   if (isEsclave) {
     Object.entries(ESCLAVE.flatStats).forEach(([k, v]) => { flatStatBonus[k] = (flatStatBonus[k] || 0) + v; });
   }
@@ -1920,6 +1966,7 @@ function recalcElementalStats(){
   Object.keys(ELEMENTAL_STATS).forEach(k => elementalBonus[k] = 0);
   Object.entries(speciesElemental).forEach(([k, v]) => { elementalBonus[k] = (elementalBonus[k] || 0) + v; });
   Object.entries(curseElemental).forEach(([k, v]) => { elementalBonus[k] = (elementalBonus[k] || 0) + v; });
+  Object.entries(corruptionElemental).forEach(([k, v]) => { elementalBonus[k] = (elementalBonus[k] || 0) + v; });
   Object.entries(elementaireElemental).forEach(([k, v]) => { elementalBonus[k] = (elementalBonus[k] || 0) + v; });
   if (currentTransformation && TRANSFORMATIONS[currentTransformation]) {
     Object.entries(TRANSFORMATIONS[currentTransformation].elemental).forEach(([k, v]) => { elementalBonus[k] = (elementalBonus[k] || 0) + v; });
@@ -3444,6 +3491,79 @@ economyBox.innerHTML = `
 statsPanel.appendChild(economyBox);
 statsPanel.appendChild(equipmentSlots);
 
+// ---- Corruption : sélecteur placé au centre, sous l'Équipement — un seul niveau actif à la fois ----
+const corruptionPanel = document.createElement('div');
+corruptionPanel.className = 'paperdoll-panel';
+corruptionPanel.innerHTML = `
+  <div class="paperdoll-header">Corruption</div>
+  <div class="age-selector" id="corruptionSelector"></div>
+  <div class="age-desc" id="corruptionDesc"></div>
+`;
+statsPanel.appendChild(corruptionPanel);
+
+const corruptionSelector = corruptionPanel.querySelector('#corruptionSelector');
+const corruptionDesc = corruptionPanel.querySelector('#corruptionDesc');
+
+Object.keys(CORRUPTION).forEach(name => {
+  const btn = document.createElement('button');
+  btn.className = 'age-btn';
+  btn.textContent = name;
+  btn.dataset.corruption = name;
+  corruptionSelector.appendChild(btn);
+});
+const noneCorruptionBtn = document.createElement('button');
+noneCorruptionBtn.className = 'age-btn active';
+noneCorruptionBtn.textContent = 'Aucune';
+noneCorruptionBtn.dataset.corruption = '';
+corruptionSelector.appendChild(noneCorruptionBtn);
+
+function applyCorruption(name){
+  currentCorruption = name || null;
+  const data = currentCorruption ? CORRUPTION[currentCorruption] : null;
+
+  applyDirectAttrBonuses('corruption', data ? data.attrDelta : null);
+  corruptionFlatStats = (data && data.flatStats) ? data.flatStats : {};
+  corruptionElemental = (data && data.elemental) ? data.elemental : {};
+  recalcFlatStats();
+  recalcElementalStats();
+
+  corruptionSelector.querySelectorAll('.age-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.corruption === (currentCorruption || ''));
+  });
+
+  if (data) {
+    let html = `<span style="display:block; margin-bottom:8px;">${data.description}</span>`;
+    const attrEntries = Object.entries(data.attrDelta || {})
+      .filter(([, v]) => v !== 0)
+      .map(([k, v]) => [ATTR_LABELS[k] || k, v]);
+    html += statChipsHTML(attrEntries);
+    if (data.flatStats && Object.keys(data.flatStats).length) {
+      Object.entries(data.flatStats).forEach(([k, v]) => {
+        html += flatSpanHTML(TALENT_STAT_LABELS[k] || k, v);
+      });
+    }
+    if (data.elemental && Object.keys(data.elemental).length) {
+      Object.entries(data.elemental).forEach(([k, v]) => {
+        html += flatSpanHTML(ELEMENTAL_STATS[k] || k, v);
+      });
+    }
+    if (data.notes && data.notes.length) {
+      data.notes.forEach(n => { html += `<span class="ability">${n}</span>`; });
+    }
+    corruptionDesc.innerHTML = html;
+  } else {
+    corruptionDesc.innerHTML = '';
+  }
+
+  compute();
+}
+
+corruptionSelector.addEventListener('click', e => {
+  const btn = e.target.closest('.age-btn');
+  if (!btn) return;
+  applyCorruption(btn.dataset.corruption);
+});
+
 // ---- Calcul ----
 function fmt(n){
   let r = Math.round(n * 100) / 100;
@@ -3756,6 +3876,7 @@ function resetAllState(){
   speciesSelect.value = '';
   applySpecies('');
   applyCurse('');
+  applyCorruption('');
   applyElementaire('');
   applyEsclave('Non');
   applyTeneriffe('Non');
@@ -3807,7 +3928,7 @@ function serializeBuild(){
     v: 1,
     state: { ...state },
     parentState: { ...parentState },
-    currentTemperament, currentMorphology, currentSpecies, currentCurse, currentElementaire,
+    currentTemperament, currentMorphology, currentSpecies, currentCurse, currentCorruption, currentElementaire,
     isEsclave, isTeneriffe, isVoieJumelle,
     currentTransformation, currentTransformationChangeforme,
     currentPosture,
@@ -3840,6 +3961,7 @@ function loadBuildData(data){
   speciesSelect.value = data.currentSpecies || '';
   applySpecies(data.currentSpecies || '');
   applyCurse(data.currentCurse || '');
+  applyCorruption(data.currentCorruption || '');
   applyElementaire(data.currentElementaire || '');
   applyEsclave(data.isEsclave ? 'Oui' : 'Non');
   applyTeneriffe(data.isTeneriffe ? 'Oui' : 'Non');

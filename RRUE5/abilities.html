@@ -348,6 +348,10 @@
     padding: 1px 8px;
     white-space: nowrap;
   }
+  .cost.filt{ cursor: pointer; transition: box-shadow 0.15s ease; }
+  .cost.filt:hover{ background: color-mix(in srgb, var(--c) 28%, transparent); }
+  .cost.filt.hl{ background: color-mix(in srgb, var(--c) 32%, transparent); box-shadow: 0 0 10px color-mix(in srgb, var(--c) 55%, transparent); }
+  .s-chip.cost-chip::before{ content: "● "; font-size: 9px; }
   .cost-row{ display:inline-flex; flex-wrap: wrap; gap: 4px; padding-top: 1px; }
   .conditions{ margin: 0; padding-left: 16px; }
   .conditions li{ margin: 1px 0; }
@@ -389,8 +393,10 @@
     padding: 0 7px;
     margin: 2px 4px 2px 0;
   }
-  .pill.status{ --c: var(--vitales-bright); }
-  .pill.status.removed{ --c: var(--text-dim); text-decoration: line-through; }
+  .pill.status{ --c: var(--vitales-bright); cursor: pointer; transition: box-shadow 0.15s ease, background 0.15s ease; }
+  .pill.status:hover{ background: color-mix(in srgb, var(--c) 24%, transparent); }
+  .pill.status.removed{ text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--c) 70%, transparent); opacity: 0.8; border-style: dashed; }
+  .pill.status.hl{ background: color-mix(in srgb, var(--c) 30%, transparent); box-shadow: 0 0 0 1px var(--c), 0 0 10px color-mix(in srgb, var(--c) 45%, transparent); }
   .status-effects{ display:inline; margin-left: 2px; }
   .status-effects .pill{ font-size: 12px; font-weight: 500; }
   .pill.pos{ --c: #9fd07a; }
@@ -399,6 +405,35 @@
   .tag.link{ text-decoration: none; font-style: normal; color: var(--text); }
   .tag.link:hover{ border-color: var(--bronze-bright); color: var(--bronze-bright); }
   .pill.status::before{ content: "◆ "; font-size: 9px; vertical-align: 2px; }
+  .pill.status.removed::before{ content: "✕ "; }
+
+  /* ---- Filtre par statut ---- */
+  .status-filter{ flex: 1 1 100%; display:flex; flex-wrap: wrap; align-items:center; gap: 6px; }
+  .status-filter[hidden]{ display:none !important; }
+  .status-filter .sf-label{
+    font-family: var(--font-display); font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--text-faint); margin-right: 4px;
+  }
+  .s-chip{
+    --c: var(--vitales-bright);
+    background: color-mix(in srgb, var(--c) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--c) 40%, transparent);
+    color: var(--c);
+    font-family: var(--font-body); font-size: 13px; font-weight: 600;
+    padding: 3px 9px; border-radius: 3px; cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  .s-chip::before{ content: "◆ "; font-size: 9px; vertical-align: 2px; }
+  .s-chip small{ font-family: var(--font-mono); font-weight: 400; font-size: 11px; opacity: 0.75; margin-left: 3px; }
+  .s-chip:hover{ background: color-mix(in srgb, var(--c) 20%, transparent); border-color: var(--c); }
+  .s-chip.active{ background: var(--c); color: #16110c; border-color: var(--c); box-shadow: 0 0 12px color-mix(in srgb, var(--c) 50%, transparent); }
+  .s-chip.active small{ opacity: 0.9; }
+  .s-chip.clear{ --c: var(--text-dim); }
+  .s-chip.dmg::before{ content: "✦ "; }
+  .pill.dmg{ cursor: pointer; transition: box-shadow 0.15s ease, background 0.15s ease; }
+  .pill.dmg:hover{ background: color-mix(in srgb, var(--c) 24%, transparent); }
+  .pill.dmg.hl{ background: color-mix(in srgb, var(--c) 30%, transparent); box-shadow: 0 0 0 1px var(--c), 0 0 10px color-mix(in srgb, var(--c) 45%, transparent); }
+  .s-chip.clear::before{ content: "✕ "; }
   .legend{
     display:flex; flex-wrap: wrap; justify-content: center; gap: 8px 14px;
     margin-top: 14px;
@@ -434,6 +469,9 @@
     <input class="search" id="search" type="search" placeholder="Rechercher une aptitude (nom ou n°)…" autocomplete="off">
     <div class="chips" id="chips"></div>
     <div class="counter" id="counter"></div>
+    <div class="status-filter" id="cost-filter"></div>
+    <div class="status-filter" id="damage-filter"></div>
+    <div class="status-filter" id="status-filter"></div>
   </div>
 
   <div class="layout">
@@ -497,7 +535,6 @@ const CATEGORIES = [
       { label: 'Armes de lancer', abilities: [
         [1013, 'Lancer de couteau'], [1943, 'Lancer de couteau (Toxique)'],
         [1944, 'Lancer de couteau (Poison de Mana)'], [722, 'Lancer de hache'], [723, 'Lancer de javelot'],
-        [1018, "Remplir son baudrier d'armes"],
       ]},
       { label: 'Tir — Arc', abilities: [
         [724, 'Tir (Court)'], [1982, 'Tir (Long)'], [747, 'Tir Handicapant'], [748, 'Triple fleche'],
@@ -737,11 +774,13 @@ const CATEGORIES = [
 //             un objet consommé s'ajoute aussi au coût : { PA: 1, "Pierre d'éclat": 1 }
 //   recharge: { PA: 1, AT: '1/1 · 3/3 avec armée' }   (ressources remises au maximum ; texte libre accepté)
 //   gain    : { Mana: 50 }                             (ressources rendues)
+//   perte   : { Hygiène: 10 }                          (ressources retirées à la cible)
 //   cooldown: '5 h'                                    (délai avant réutilisation)
 //   portee  : '1 Tile'
 //   cible   : '1 cible'
-//   degats  : ['Tranchants']                           (types de dégâts ; « Physiques » est ajouté d'office aux dégâts d'arme)
-//   statuts : ['Déséquilibre']                         (statuts appliqués à la cible)
+//   degats  : ['Tranchants']                           (types de dégâts ; « Physiques » est ajouté d'office aux dégâts d'arme, sauf « … fixes »)
+//   physiques: false                                   (les Dégâts Physiques ne comptent pas : « Physiques » n'est pas ajouté)
+//   statuts : ['Confus']                               (statuts appliqués à la cible)
 //   retire  : ['Immobile']                             (statuts retirés)
 //   jet     : '3d6 + Capacité de Combat'
 //   conditions : ['Points de Mouvement > 0']           (prérequis pour lancer l'aptitude)
@@ -752,6 +791,7 @@ const CATEGORIES = [
 //   affiche : { 'Onglet': ['Info 1', 'Info 2'] }       (informations affichées, par onglet)
 //   notes   : 'Remarques diverses'
 // ============================================================================
+const PREMIER_TOUR_COND = 'Ne pas avoir le statut Premier Tour';
 const DETAILS = {
   475: { // Menu Artisanat
     desc: "Ouvre le menu d'artisanat du personnage.",
@@ -775,6 +815,24 @@ const DETAILS = {
     desc: 'Ouvre le menu des actions lubriques que le personnage peut effectuer.',
     menus: ['Orgasmes', 'Stimulations', 'BDSM', 'Souillures', 'Exhibitionnisme'],
   },
+  1503: { // Trait de Foudre
+    type: 'Attaque',
+    cout: { PA: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Magiques', 'Air'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Air)'],
+    sources: ['Aéromancie'],
+  },
+  1550: { // Lame de Roche
+    type: 'Attaque',
+    cout: { PA: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Magiques', 'Terre'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Terre)'],
+    sources: ['Géomancie'],
+  },
   1665: { // Bouclier Arcanique
     cout: { PS: 1, Mana: 10 },
     portee: '6 Tiles',
@@ -782,6 +840,11 @@ const DETAILS = {
     statuts: ['Bouclier Magique'],
     conditions: ['Ne pas être transformé', "Ne pas avoir le statut Incantation Interdite (Arcane)"],
     sources: ['Arcaniste'],
+  },
+  1604: { // Cracher
+    portee: '4 Tiles',
+    cible: '1 cible',
+    perte: { Hygiène: 10 },
   },
   620: { // Boire potion de Mana
     cout: { PS: 1, 'Potion de Mana': 1, 'Ceinture de potion': 1 },
@@ -845,6 +908,164 @@ const DETAILS = {
     statuts: ['Vulnérable'],
     notes: 'Ne fait pas de dégâts.',
   },
+  722: { // Lancer de hache
+    type: 'Attaque',
+    cout: { PA: 1, PS: 1 },
+    portee: '3 Tiles',
+    cible: '1 cible',
+    degats: ['Tranchants'],
+    statuts: ['Immobile'],
+  },
+  719: { // Faucher les jambes
+    cout: { PA: 1, PS: 1 },
+    portee: '1 Tile',
+    cible: '3 cibles',
+    statuts: ['Controle'],
+
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1999: { // Charge d'interception (Tranchante)
+    type: 'Attaque',
+    cout: { PA: 1, PS: 1 },
+    portee: '3 Tiles',
+    cible: '1 cible',
+    degats: ['Tranchants'],
+    statuts: ['Immobile'],
+    effets: ['Projette son personnage de 3 Tiles en avant vers la cible'],
+  },
+  2000: { // Charge d'interception (Perçante)
+    type: 'Attaque',
+    cout: { PA: 1, PS: 1 },
+    portee: '3 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    statuts: ['Immobile'],
+    effets: ['Projette son personnage de 3 Tiles en avant vers la cible'],
+  },
+  2001: { // Charge d'interception (Contondante)
+    type: 'Attaque',
+    cout: { PA: 1, PS: 1 },
+    portee: '3 Tiles',
+    cible: '1 cible',
+    degats: ['Contondants'],
+    statuts: ['Immobile'],
+    effets: ['Projette son personnage de 3 Tiles en avant vers la cible'],
+  },
+  718: { // Renverser
+    cout: { PS: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    statuts: ['Controle'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1724: { // Attrapper
+    cout: { PS: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    statuts: ['Immobile'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1013: { // Lancer de couteau
+    type: 'Attaque',
+    cout: { PS: 1, 'Lames de jet': 1 },
+    portee: '3 Tiles',
+    cible: '1 cible',
+    degats: ['Tranchants fixes'],
+    notes: "Dégâts fixes : pas influencés par l'arme ni par les Dégâts Physiques.",
+  },
+  1943: { // Lancer de couteau (Toxique)
+    type: 'Attaque',
+    cout: { PS: 1, 'Lame de jet empoisonnés (Toxique)': 1 },
+    portee: '3 Tiles',
+    cible: '1 cible',
+    degats: ['Tranchants fixes'],
+    statuts: ['Poison'],
+    notes: "Dégâts fixes : pas influencés par l'arme ni par les Dégâts Physiques. Si la cible est déjà empoisonnée : Poison aggravé, des dégâts supplémentaires résistés par le Métabolisme.",
+  },
+  1944: { // Lancer de couteau (Poison de Mana)
+    type: 'Attaque',
+    cout: { PS: 1, 'Lame de jet empoisonnés (Poison de Mana)': 1 },
+    portee: '3 Tiles',
+    cible: '1 cible',
+    degats: ['Tranchants fixes'],
+    statuts: ['Poison de Mana'],
+    notes: "Dégâts fixes : pas influencés par l'arme ni par les Dégâts Physiques. Le Poison de Mana ne peut pas être aggravé.",
+  },
+  723: { // Lancer de javelot
+    type: 'Attaque',
+    cout: { PA: 1, PS: 1 },
+    portee: '3 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    statuts: ['Immobile'],
+  },
+  1991: { // Tir Fusil (Court)
+    type: 'Attaque',
+    cout: { PA: 1, Munitions: 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    physiques: false,
+    notes: 'Les Dégâts Physiques ne comptent pas.',
+  },
+  1014: { // Tir de Fusil (Long)
+    type: 'Attaque',
+    cout: { PA: 1, Munitions: 1 },
+    portee: '10 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    physiques: false,
+    conditions: ['Ne pas avoir le statut En mouvement'],
+    notes: 'Les Dégâts Physiques ne comptent pas.',
+  },
+  1015: { // Tir Ciblé (Fusil)
+    type: 'Attaque',
+    cout: { PA: 1, PS: 1, Munitions: 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    physiques: false,
+    statuts: ['Immobile'],
+    conditions: ['Ne pas avoir le statut En mouvement'],
+    notes: 'Les Dégâts Physiques ne comptent pas.',
+  },
+  1017: { // Tir de semonce
+    cout: { PA: 1, PS: 1, Munitions: 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    statuts: ['Controle'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  2338: { // Tir balle explosive
+    type: 'Attaque',
+    cout: { PS: 1, 'Munitions explosives': 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    physiques: false,
+    statuts: ['Brûlure'],
+    notes: 'Les Dégâts Physiques ne comptent pas. Si la cible brûle déjà : Brûlure aggravée, des dégâts supplémentaires résistés par la Résilience.',
+  },
+  1892: { // Rechargement Pistolet
+    cout: { PS: 1 },
+    gain: { Recharge: 1 },
+    notes: 'Maximum 2 points de Recharge.',
+  },
+  1460: { // Tir de Pistolet
+    type: 'Attaque',
+    cout: { Recharge: 1, Munitions: 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants fixes'],
+    notes: "Dégâts fixes : pas influencés par l'arme ni par les Dégâts Physiques.",
+  },
+  616: { // Coup de bouclier
+    cout: { PA: 1, PS: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    statuts: ['Controle'],
+    notes: 'Ne fait pas de dégâts.',
+  },
   2292: { // Fracassement (2M)
     cout: { PS: 1 },
     portee: '1 Tile',
@@ -884,6 +1105,21 @@ const DETAILS = {
     cible: '1 cible',
     degats: ['Perforants'],
     effets: ['Défense −10 sur la cible pendant le coup (à confirmer)'],
+  },
+  2004: { // Mordhau
+    type: 'Attaque',
+    cout: { PS: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    degats: ['Contondants'],
+    statuts: ['Confus'],
+  },
+  710: { // Coup de masse
+    type: 'Attaque',
+    cout: { PA: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    degats: ['Contondants'],
   },
   596: { // Coup de Lame
     type: 'Attaque',
@@ -936,7 +1172,7 @@ const DETAILS = {
   79: { // Terminer le combat
     cible: 'Tous les joueurs',
     desc: 'Met fin au combat pour tous les joueurs et retire les statuts temporaires liés au combat.',
-    retire: ['Déséquilibre', 'Controle', 'Incontrolable', 'Immobile', 'Ralenti', 'En mouvement'],
+    retire: ['Confus', 'Controle', 'Incontrolable', 'Immobile', 'Ralenti', 'En mouvement'],
     notes: 'Liste des statuts retirés non exhaustive.',
   },
   78: { // Terminer tour (Controle)
@@ -946,7 +1182,7 @@ const DETAILS = {
   },
   77: { // Terminer le tour
     desc: 'Met fin au tour du personnage.',
-    retire: ['Déséquilibre', 'Immobile', 'En mouvement'],
+    retire: ['Confus', 'Immobile', 'En mouvement'],
   },
   76: { // Commencer le tour
     desc: 'Déclare le début du tour du personnage et lui rend tous ses points.',
@@ -965,7 +1201,7 @@ const DETAILS = {
     portee: '1 Tile',
     cible: '1 cible',
     degats: ['Contondants'],
-    statuts: ['Déséquilibre'],
+    statuts: ['Confus'],
   },
   720: { // Coup de hampe : équivalent du Coup de pommeau pour les lances
     type: 'Attaque',
@@ -973,13 +1209,16 @@ const DETAILS = {
     portee: '1 Tile',
     cible: '1 cible',
     degats: ['Contondants'],
-    statuts: ['Déséquilibre'],
+    statuts: ['Confus'],
   },
 };
 // Variantes qui fonctionnent exactement comme une autre aptitude
 DETAILS[2293] = DETAILS[717]; // Faire Saigner (Hache)
 DETAILS[2294] = DETAILS[717]; // Faire saigner (Katana)
 DETAILS[1885] = DETAILS[1602]; // Utiliser Cosmétiques = S'apprêter
+DETAILS[2003] = DETAILS[720]; // Coup de hampe (2M) = Coup de hampe
+DETAILS[2291] = DETAILS[596]; // Coup de lame (Hache) = Coup de Lame
+DETAILS[716] = DETAILS[2292]; // Fracassement (1M) = Fracassement (2M)
 
 // ============================================================================
 // RENDU
@@ -991,6 +1230,12 @@ const counterEl = document.getElementById('counter');
 const searchEl = document.getElementById('search');
 
 let activeCat = 'all';
+let activeStatus = null; // nameKey du statut filtré
+let activeDegat = null;  // nameKey du type de dégâts filtré
+let activeCout = null;   // PA / PS / PM / AT
+const costFilterEl = document.getElementById('cost-filter');
+const damageFilterEl = document.getElementById('damage-filter');
+const statusFilterEl = document.getElementById('status-filter');
 
 function esc(s){
   return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -1101,11 +1346,44 @@ function dataEffects(data){
 }
 // Statut appliqué + ses effets s'il existe dans le simulateur (statuts, puis buffs de consommation).
 // Une durée entre parenthèses est ignorée pour la recherche : « Bon repos (20 h) » -> « Bon repos »
+// Code couleur des statuts (les statuts inconnus reçoivent une teinte stable dérivée de leur nom)
+const STATUS_COLORS = {
+  'Confus': '#e8d25f',
+  'Controle': '#ef7d5e',
+  'Incontrolable': '#c9a0e8',
+  'Immobile': '#6fa8e6',
+  'Ralenti': '#8aa0c8',
+  'En mouvement': '#5fd0b8',
+  'Vulnérable': '#ec7fb6',
+  'Saignement': '#e05555',
+  'Poison': '#98cc5c',
+  'Poison de Mana': '#a487f0',
+  'Brûlure': '#f5a54a',
+  'Bouclier Magique': '#6ccbee',
+  'Bon repos': '#b4d48f',
+  'Propre': '#7cc7b8',
+  'Maquillé': '#f2a9cf',
+  'Parfum': '#f0c89a',
+  'Posture en cours': '#c9a46e',
+};
+const statusBase = name => name.replace(/\s*\([^)]*\)\s*$/, '');
+function statusColor(name){
+  const k = nameKey(statusBase(name));
+  const known = Object.entries(STATUS_COLORS).find(([n]) => nameKey(n) === k);
+  if (known) return known[1];
+  let h = 0;
+  for (const ch of k) h = (h * 31 + ch.charCodeAt(0)) % 360;
+  return `hsl(${h} 62% 66%)`;
+}
+function statusPill(name, removed){
+  const base = statusBase(name);
+  return `<span class="pill status${removed ? ' removed' : ''}" data-status="${esc(base)}" style="--c:${statusColor(name)}" title="${removed ? 'Retire' : 'Applique'} ${esc(base)} — cliquer pour filtrer">${esc(name)}</span>`;
+}
 function statusHTML(name){
   const k = nameKey(name.replace(/\s*\([^)]*\)\s*$/, ''));
   const src = [STATUSES, CONSUMABLES].map(c => Object.entries(c).find(([key]) => nameKey(key) === k)).find(Boolean);
   const effects = src ? dataEffects(src[1]) : '';
-  return `<span class="pill status">${esc(name)}</span>${effects ? `<span class="status-effects">${effects}</span>` : ''}`;
+  return `${statusPill(name, false)}${effects ? `<span class="status-effects">${effects}</span>` : ''}`;
 }
 function abilityLink(name){
   const id = abilityIdFor(name);
@@ -1132,14 +1410,29 @@ const COSTS = {
   'Hygiène': { label: 'Hygiène', color: '#7cc7b8' },
   'Santé mentale': { label: 'Santé mentale', color: '#d79ad0' },
 };
+// Coûts filtrables (les ressources d'action uniquement)
+const COST_FILTER_KEYS = ['PA', 'PS', 'PM', 'AT'];
 // Types de dégâts : couleur par mot-clé (la première correspondance l'emporte)
 const DAMAGE_COLORS = [
+  [/^fixes$/i, '#d8c9a8'],
   [/magi/i, 'var(--magie-bright)'],
   [/physi/i, 'var(--combat-bright)'],
   [/contond/i, 'var(--dmg-contondant)'],
   [/tranch/i, 'var(--dmg-tranchant)'],
   [/per[cf]/i, 'var(--dmg-perforant)'],
+  [/terre/i, '#c4955a'],
+  [/feu/i, '#f2793f'],
+  [/eau/i, '#5aaee8'],
+  [/air/i, '#b7e0ee'],
+  [/lumi/i, '#f3e08a'],
+  [/sang/i, '#d84a5a'],
+  [/arcane/i, '#b88cf0'],
 ];
+// Types de dégâts filtrables d'une étiquette : « Tranchants fixes » -> Tranchants + Fixes
+function damageTypes(t){
+  const base = t.replace(/\s*fixes?\s*$/i, '').trim();
+  return /fixe/i.test(t) ? [base, 'Fixes'] : [base];
+}
 function damageColor(t){
   const m = DAMAGE_COLORS.find(([re]) => re.test(t));
   return m ? m[1] : 'var(--text-dim)';
@@ -1151,7 +1444,9 @@ function abilityHTML([id, name, opts = {}]){
   const linked = link ? DATA_COLLECTIONS[link[0]][link[1]] : null;
   const costs = Object.entries(d.cout || {}).map(([k, v]) => {
     const c = COSTS[k] || { label: k, color: 'var(--text-dim)' };
-    return `<span class="cost" style="--c:${c.color}" title="${esc(c.label)}">${esc(v)} ${esc(k)}</span>`;
+    return COST_FILTER_KEYS.includes(k)
+      ? `<span class="cost filt" data-cout="${k}" style="--c:${c.color}" title="${esc(c.label)} — cliquer pour filtrer">${esc(v)} ${esc(k)}</span>`
+      : `<span class="cost" style="--c:${c.color}" title="${esc(c.label)}">${esc(v)} ${esc(k)}</span>`;
   }).join('');
   const usage = [
     d.type && `<span class="u-chip type">${ICONS.type}${esc(d.type)}</span>`,
@@ -1170,7 +1465,7 @@ function abilityHTML([id, name, opts = {}]){
   const rows = [];
   // les dégâts d'arme (tranchants, perforants, contondants) sont toujours aussi des dégâts physiques
   const degats = [...(d.degats || [])];
-  if (degats.some(t => /contond|tranch|per[cf]/i.test(t)) && !degats.some(t => /physi/i.test(t))) degats.push('Physiques');
+  if (d.physiques !== false && degats.some(t => /contond|tranch|per[cf]/i.test(t) && !/fixe/i.test(t)) && !degats.some(t => /physi/i.test(t))) degats.push('Physiques');
   const recharge = Object.entries(d.recharge || {}).map(([k, v]) => {
     const c = COSTS[k] || { label: k, color: 'var(--text-dim)' };
     // nombre -> « 1/1 » ; texte -> affiché tel quel (ex. maximum variable)
@@ -1183,13 +1478,21 @@ function abilityHTML([id, name, opts = {}]){
     return `<span class="cost" style="--c:${c.color}" title="${esc(c.label)}">+${esc(v)} ${esc(k)}</span>`;
   }).join(' ');
   if (gain) rows.push(['Rend', `<span class="cost-row">${gain}</span>`]);
-  if (degats.length) rows.push(['Dégâts', degats.map(t => `<span class="pill" style="--c:${damageColor(t)}">${esc(t)}</span>`).join('')]);
+  const perte = Object.entries(d.perte || {}).map(([k, v]) => {
+    const c = COSTS[k] || { label: k, color: 'var(--text-dim)' };
+    return `<span class="cost" style="--c:${c.color}" title="${esc(c.label)}">−${esc(v)} ${esc(k)}</span>`;
+  }).join(' ');
+  if (perte) rows.push(['Retire à la cible', `<span class="cost-row">${perte}</span>`]);
+  if (degats.length) rows.push(['Dégâts', degats.map(t => `<span class="pill dmg" data-degat="${esc(damageTypes(t)[0])}" style="--c:${damageColor(t)}" title="Cliquer pour filtrer">${esc(t)}</span>`).join('')]);
   if (effectsHTML) rows.push(['Effets', effectsHTML]);
-  if (d.retire && d.retire.length) rows.push(['Retire', d.retire.map(t => `<span class="pill status removed">${esc(t)}</span>`).join('')]);
+  if (d.retire && d.retire.length) rows.push(['Retire', d.retire.map(t => statusPill(t, true)).join('')]);
   if (statuses.length) rows.push(['Statut', statuses.map(statusHTML).join('<br>')]);
   if (grants.length) rows.push(['Octroie', grants.map(abilityLink).join('')]);
   if (d.jet) rows.push(['Jet', esc(d.jet)]);
-  if (d.conditions && d.conditions.length) rows.push(['Conditions', `<ul class="conditions">${d.conditions.map(c => `<li>${esc(c)}</li>`).join('')}</ul>`]);
+  // Règle du jeu : une aptitude qui applique Immobile ou Controle ne peut pas être lancée avec Premier Tour
+  const conditions = [...(d.conditions || [])];
+  if ((d.statuts || []).some(st => /^(Immobile|Controle)\b/.test(st)) && !conditions.includes(PREMIER_TOUR_COND)) conditions.push(PREMIER_TOUR_COND);
+  if (conditions.length) rows.push(['Conditions', `<ul class="conditions">${conditions.map(c => `<li>${esc(c)}</li>`).join('')}</ul>`]);
   // effets en texte libre : liste à puces (« Autres effets » si des effets chiffrés sont déjà affichés)
   if (d.effets && d.effets.length) rows.push([effectsHTML ? 'Autres effets' : 'Effets',
     `<ul class="conditions">${d.effets.map(e => `<li>${esc(e)}</li>`).join('')}</ul>`]);
@@ -1200,11 +1503,11 @@ function abilityHTML([id, name, opts = {}]){
   if (d.notes) rows.push(['Notes', esc(d.notes)]);
 
   // « À documenter » tant qu'il n'y a ni description, ni coût, ni usage, ni effet connu
-  const documented = d.affiche || (d.menus && d.menus.length) || d.desc || usage || costs || recharge || gain || (d.retire && d.retire.length) || degats.length || effectsHTML || statuses.length || grants.length;
+  const documented = d.affiche || (d.menus && d.menus.length) || d.desc || usage || costs || recharge || gain || perte || (d.retire && d.retire.length) || degats.length || effectsHTML || statuses.length || grants.length;
   const searchText = [name, id, d.desc, d.type, ...degats, ...statuses, ...grants,
     ...(GRANTED_BY[id] || []).map(x => x.kind + ' ' + x.label), ...(d.sources || [])].filter(Boolean).join(' ');
   return `
-    <article class="ability" id="a${id}" data-search="${esc(norm(searchText))}">
+    <article class="ability" id="a${id}" data-search="${esc(norm(searchText))}" data-statuses="${esc('|' + [...statuses, ...(d.retire || [])].map(t => nameKey(statusBase(t))).join('|') + '|')}" data-couts="|${Object.keys(d.cout || {}).filter(k => COST_FILTER_KEYS.includes(k)).join('|')}|" data-degats="${esc('|' + degats.flatMap(damageTypes).map(nameKey).join('|') + '|')}">
       <div class="ability-head">
         <span class="ability-name">${esc(name)}</span>
         <span class="ability-side">${costs}<a class="ability-id" href="#a${id}" title="Lien direct">#${id}</a></span>
@@ -1242,6 +1545,39 @@ function render(){
   content.innerHTML = html;
   toc.innerHTML = tocHtml;
 
+  // Barre des statuts : tous ceux appliqués ou retirés par au moins une aptitude
+  const stats = new Map();
+  content.querySelectorAll('.ability .pill.status').forEach(p => {
+    const k = nameKey(p.dataset.status);
+    if (!stats.has(k)) stats.set(k, { name: p.dataset.status, color: p.style.getPropertyValue('--c'), ids: new Set() });
+    stats.get(k).ids.add(p.closest('.ability').id);
+  });
+  const sorted = [...stats.entries()].sort((a, b) => a[1].name.localeCompare(b[1].name, 'fr'));
+  statusFilterEl.innerHTML = `<span class="sf-label">Statuts</span>`
+    + sorted.map(([k, st]) => `<button class="s-chip" data-status="${esc(k)}" style="--c:${st.color}">${esc(st.name)}<small>${st.ids.size}</small></button>`).join('')
+    + `<button class="s-chip clear" data-status="" hidden>Effacer</button>`;
+  statusFilterEl.hidden = sorted.length === 0;
+
+  // Barre des coûts : PA / PS / PM / AT
+  const costCount = k => content.querySelectorAll(`.ability[data-couts*="|${k}|"]`).length;
+  costFilterEl.innerHTML = `<span class="sf-label">Coût</span>`
+    + COST_FILTER_KEYS.map(k => `<button class="s-chip cost-chip" data-cout="${k}" style="--c:${COSTS[k].color}" title="${esc(COSTS[k].label)}">${k}<small>${costCount(k)}</small></button>`).join('')
+    + `<button class="s-chip clear" data-cout="" hidden>Effacer</button>`;
+
+  // Barre des types de dégâts : physiques d'abord, puis magiques et éléments, puis le reste
+  const DMG_ORDER = ['Physiques', 'Tranchants', 'Perforants', 'Contondants', 'Magiques', 'Terre', 'Feu', 'Eau', 'Air', 'Lumière', 'Sang', 'Arcane', 'Fixes'];
+  const dmg = new Map();
+  content.querySelectorAll('.ability').forEach(a => a.dataset.degats.split('|').filter(Boolean).forEach(k => {
+    dmg.set(k, (dmg.get(k) || 0) + 1);
+  }));
+  const dmgName = k => DMG_ORDER.find(n => nameKey(n) === k) || k.charAt(0).toUpperCase() + k.slice(1);
+  const dmgRank = k => { const i = DMG_ORDER.findIndex(n => nameKey(n) === k); return i < 0 ? 99 : i; };
+  const dmgSorted = [...dmg.entries()].sort((a, b) => dmgRank(a[0]) - dmgRank(b[0]) || a[0].localeCompare(b[0], 'fr'));
+  damageFilterEl.innerHTML = `<span class="sf-label">Dégâts</span>`
+    + dmgSorted.map(([k, n]) => `<button class="s-chip dmg" data-degat="${esc(k)}" style="--c:${damageColor(dmgName(k))}">${esc(dmgName(k))}<small>${n}</small></button>`).join('')
+    + `<button class="s-chip clear" data-degat="" hidden>Effacer</button>`;
+  damageFilterEl.hidden = dmgSorted.length === 0;
+
   chipsEl.innerHTML = `<button class="chip active" data-cat="all">Toutes</button>`
     + CATEGORIES.map(c => `<button class="chip" data-cat="${c.key}" style="--cat:${c.color}">${esc(c.label)}</button>`).join('');
 }
@@ -1257,7 +1593,10 @@ function applyFilters(){
       let gShown = 0;
       g.querySelectorAll('.ability').forEach(a => {
         total++;
-        const ok = catOk && (!q || a.dataset.search.includes(q));
+        const ok = catOk && (!q || a.dataset.search.includes(q))
+          && (!activeStatus || a.dataset.statuses.includes(`|${activeStatus}|`))
+          && (!activeDegat || a.dataset.degats.includes(`|${activeDegat}|`))
+          && (!activeCout || a.dataset.couts.includes(`|${activeCout}|`));
         a.hidden = !ok;
         if (ok) gShown++;
       });
@@ -1271,6 +1610,23 @@ function applyFilters(){
     t.hidden = !(activeCat === 'all' || t.dataset.cat === activeCat);
   });
   document.getElementById('empty').hidden = shown !== 0;
+  statusFilterEl.querySelectorAll('.s-chip').forEach(c => {
+    if (c.classList.contains('clear')) c.hidden = !activeStatus;
+    else c.classList.toggle('active', c.dataset.status === activeStatus);
+  });
+  content.querySelectorAll('.pill.status').forEach(p =>
+    p.classList.toggle('hl', !!activeStatus && nameKey(p.dataset.status) === activeStatus));
+  costFilterEl.querySelectorAll('.s-chip').forEach(c => {
+    if (c.classList.contains('clear')) c.hidden = !activeCout;
+    else c.classList.toggle('active', c.dataset.cout === activeCout);
+  });
+  content.querySelectorAll('.cost.filt').forEach(p => p.classList.toggle('hl', p.dataset.cout === activeCout));
+  damageFilterEl.querySelectorAll('.s-chip').forEach(c => {
+    if (c.classList.contains('clear')) c.hidden = !activeDegat;
+    else c.classList.toggle('active', c.dataset.degat === activeDegat);
+  });
+  content.querySelectorAll('.pill.dmg').forEach(p =>
+    p.classList.toggle('hl', !!activeDegat && (nameKey(p.dataset.degat) === activeDegat || (activeDegat === 'fixes' && /fixe/i.test(p.textContent)))));
   const documented = Object.keys(DETAILS).length;
   counterEl.innerHTML = `<b>${shown}</b> / ${total} aptitudes · ${documented} documentées`;
 }
@@ -1283,10 +1639,45 @@ chipsEl.addEventListener('click', e => {
   applyFilters();
 });
 searchEl.addEventListener('input', applyFilters);
+// Filtre par statut : depuis la barre, ou en cliquant sur un statut dans une fiche (re-clic = retirer le filtre)
+function setStatusFilter(k){
+  activeStatus = k && k !== activeStatus ? k : null;
+  applyFilters();
+}
+statusFilterEl.addEventListener('click', e => {
+  const btn = e.target.closest('.s-chip');
+  if (btn) setStatusFilter(btn.dataset.status);
+});
+function setDegatFilter(k){
+  activeDegat = k && k !== activeDegat ? k : null;
+  applyFilters();
+}
+damageFilterEl.addEventListener('click', e => {
+  const btn = e.target.closest('.s-chip');
+  if (btn) setDegatFilter(btn.dataset.degat);
+});
+function setCoutFilter(k){
+  activeCout = k && k !== activeCout ? k : null;
+  applyFilters();
+}
+costFilterEl.addEventListener('click', e => {
+  const btn = e.target.closest('.s-chip');
+  if (btn) setCoutFilter(btn.dataset.cout);
+});
+content.addEventListener('click', e => {
+  const pill = e.target.closest('.pill.status[data-status], .pill.dmg[data-degat], .cost.filt[data-cout]');
+  if (!pill) return;
+  if (pill.dataset.cout !== undefined) setCoutFilter(pill.dataset.cout);
+  else if (pill.dataset.status !== undefined) setStatusFilter(nameKey(pill.dataset.status));
+  else setDegatFilter(nameKey(pill.dataset.degat));
+  const bar = document.querySelector('.toolbar');
+  window.scrollTo({ top: content.getBoundingClientRect().top + window.scrollY - bar.offsetHeight - 12 });
+});
 
 document.getElementById('legend').innerHTML = Object.entries(COSTS)
   .map(([k, c]) => `<span><span class="cost" style="--c:${c.color}">${k}</span>${esc(c.label)}</span>`).join('')
-  + `<span><span class="pill status">Statut</span>appliqué à la cible</span>`;
+  + `<span><span class="pill status">Statut</span>appliqué</span>`
+  + `<span><span class="pill status removed">Statut</span>retiré · cliquer pour filtrer</span>`;
 
 render();
 applyFilters();

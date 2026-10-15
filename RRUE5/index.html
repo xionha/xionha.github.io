@@ -1328,6 +1328,7 @@ function statChipsHTML(entries){
 function statusEffectText(data){
   const entries = [];
   Object.entries(data.parentDelta || {}).forEach(([k, v]) => entries.push([PARENT_LABELS_SHORT[k] || k, v]));
+  Object.entries(data.attrDelta || {}).forEach(([k, v]) => entries.push([ATTR_LABELS[k] || k, v]));
   Object.entries(data.flatStats).forEach(([k, v]) => entries.push([TALENT_STAT_LABELS[k] || k, v]));
   Object.entries(data.elemental).forEach(([k, v]) => entries.push([ELEMENTAL_STATS[k] || k, v]));
   let html = statChipsHTML(entries);
@@ -1349,7 +1350,7 @@ const FLOORED_STATS = new Set(['initiative', 'deplacement', 'capCombat', 'capTir
 const BASE_STATS = { pv: 120, mana: 75 };
 
 const GROUPS = [
-  { name: 'Vitales', color: 'var(--vitales)', stats: ['pv', 'mana'] },
+  { name: 'Vitales', color: 'var(--vitales)', stats: ['pv', 'mana', 'corruption'] },
   { name: 'Mobilité', color: 'var(--mobilite)', stats: ['initiative', 'deplacement', 'esquive'] },
   { name: 'Combat', color: 'var(--combat)', stats: ['capCombat', 'capTir', 'degatsPhysique'] },
   { name: 'Défense', color: 'var(--defense)', stats: ['defense', 'parade', 'defenseMagique'] },
@@ -1546,6 +1547,9 @@ function recalcStatuses(){
     Object.entries(st.parentDelta || {}).forEach(([parentKey, val]) => {
       const children = PARENT_TO_ATTR[parentKey];
       if (children) children.forEach(attrKey => { bonusSources.statuses[attrKey] += val; });
+    });
+    Object.entries(st.attrDelta || {}).forEach(([attrKey, val]) => {
+      if (attrKey in bonusSources.statuses) bonusSources.statuses[attrKey] += val;
     });
   });
 }
@@ -2918,7 +2922,7 @@ GROUPS.forEach(g => {
     <div class="stat-grid"></div>
   `;
   const grid = group.querySelector('.stat-grid');
-  const STAT_COLOR_OVERRIDES = { mana: 'var(--magie)' };
+  const STAT_COLOR_OVERRIDES = { mana: 'var(--magie)', corruption: '#9c6fc4' };
   g.stats.forEach(sKey => {
     const barColor = STAT_COLOR_OVERRIDES[sKey] || g.color;
     const card = document.createElement('div');

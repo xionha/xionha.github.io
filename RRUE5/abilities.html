@@ -581,13 +581,19 @@ const CATEGORIES = [
         [1486, 'Projectile Sanglant'], [1478, 'Scarification'], [1488, 'Marionette Macabre'],
         [1487, 'Liens de sang'], [1484, 'Suture'], [1589, 'Cicatrisation'],
       ]},
-      { label: 'Lumière', abilities: [
+      { label: 'Luminomancie', abilities: [
         [1513, 'Flash'], [1656, 'Salve de soin'], [1522, 'Bouclier Lumineux'], [1540, 'Rayonnement'],
         [1541, 'Lames du jugement'], [1657, 'Terreur Diurne'], [1659, 'Trou Noir'],
       ]},
       { label: 'Arcane', abilities: [
         [1665, 'Bouclier Arcanique'], [2363, 'Visage trouble'], [1554, 'Vision troublantes'],
         [2496, 'Disruption Toxique'], [1555, 'Vol Etherique'], [1556, 'Liens Magiques'], [1557, 'Poids Arcanique'],
+        [1632, 'Visions'],
+      ]},
+      { label: 'Sorcellerie', abilities: [
+        [1624, 'Aura inquiétante'], [1630, 'Se mutiler'], [1631, 'Invocation'],
+        [1961, 'Visions (Sorcier)'], [1639, "Poids de l'âme"], [1642, 'Bouclier de corruption'],
+        [1643, 'Camoufler Corruption'],
       ]},
       { label: 'Magie utilitaire', abilities: [
         [1367, 'Meditation'], [1771, 'Transfert de Mana'], [1772, 'Sort Utilitaire'],
@@ -655,11 +661,6 @@ const CATEGORIES = [
       { label: 'Maudits — Vampire, Démon, Lycan', abilities: [
         [555, 'Sucer le sang'], [1069, "Boire sang de l'ainé"], [1096, 'Morsure Lycanthrope'],
         [1428, 'Prendre essence'], [1408, 'Pacte Demoniaque'], [1371, 'Sentir proie'],
-      ]},
-      { label: 'Corruption', abilities: [
-        [1624, 'Aura inquiétante'], [1630, 'Se mutiler'], [1631, 'Invocation'], [1632, 'Visions'],
-        [1961, 'Visions (Sorcier)'], [1639, "Poids de l'âme"], [1642, 'Bouclier de corruption'],
-        [1643, 'Camoufler Corruption'],
       ]},
       { label: 'Ténériffe', abilities: [
         [1702, 'Choeur de Teneriffe'],
@@ -779,6 +780,7 @@ const CATEGORIES = [
 //   portee  : '1 Tile'
 //   cible   : '1 cible'
 //   degats  : ['Tranchants']                           (types de dégâts ; « Physiques » est ajouté d'office aux dégâts d'arme, sauf « … fixes »)
+//   resistance: [['Poison de Mana', 'Métabolisme']]    (jet de résistance explicite : 3d6 + attribut contre 15)
 //   physiques: false                                   (les Dégâts Physiques ne comptent pas : « Physiques » n'est pas ajouté)
 //   statuts : ['Confus']                               (statuts appliqués à la cible)
 //   retire  : ['Immobile']                             (statuts retirés)
@@ -792,6 +794,8 @@ const CATEGORIES = [
 //   notes   : 'Remarques diverses'
 // ============================================================================
 const PREMIER_TOUR_COND = 'Ne pas avoir le statut Premier Tour';
+// Jets de résistance automatiques (3d6 + attribut contre 15), seulement si l'aptitude fait aussi des dégâts
+const RESIST_RULES = [['Brûlure', 'Résilience'], ['Poison', 'Métabolisme'], ['Poison de Mana', 'Métabolisme']];
 const DETAILS = {
   475: { // Menu Artisanat
     desc: "Ouvre le menu d'artisanat du personnage.",
@@ -815,6 +819,226 @@ const DETAILS = {
     desc: 'Ouvre le menu des actions lubriques que le personnage peut effectuer.',
     menus: ['Orgasmes', 'Stimulations', 'BDSM', 'Souillures', 'Exhibitionnisme'],
   },
+  1642: { // Bouclier de corruption
+    cout: { PS: 1, Corruption: 10 },
+    cible: 'Soi',
+    statuts: ["Bouclier Magique (jusqu'au prochain Commencer le tour)"],
+    conditions: ['Ne pas avoir le statut En mouvement'],
+  },
+  1631: { // Invocation
+    cout: { Corruption: 100 },
+    cooldown: '48 h',
+    cible: 'Soi',
+    effets: ["Produit une Invocation Occulte (troupe) et la place dans l'inventaire"],
+    conditions: ['Avoir Déchéance corruptrice'],
+  },
+  1643: { // Camoufler Corruption
+    cout: { PV: 10 },
+    cooldown: '20 h',
+    cible: 'Soi',
+    effets: ['Descend d\'un stade de corruption'],
+  },
+  1630: { // Se mutiler
+    cout: { PV: 10 },
+    cible: 'Soi',
+    gain: { Corruption: 5 },
+  },
+  1624: { // Aura inquiétante
+    cout: { PS: 1, Corruption: 5 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    statuts: ['Confus'],
+    conditions: ['Ne pas avoir le statut En mouvement'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1639: { // Poids de l'âme
+    cout: { PS: 1, Corruption: 5 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    statuts: ['Ralenti'],
+    conditions: ['Ne pas avoir le statut En mouvement'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  634: { // Lancer filet
+    cout: { PS: 1, 'Filet de Capture': 1 },
+    portee: '3 Tiles',
+    cible: '1 cible',
+    statuts: ['Ralenti'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1514: { // Bulle Curatrice
+    type: 'Soin',
+    cout: { PA: 1, Mana: 10 },
+    portee: '3 Tiles',
+    cible: '1 cible',
+    degats: ['Magiques', 'Eau'],
+    effets: ['Soigne la cible selon les Dégâts Magiques et la stat Eau du lanceur'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Eau)'],
+    sources: ['Hydromancie'],
+  },
+  1495: { // Ecume Apaisante
+    cout: { PA: 1, PS: 1, Mana: 10 },
+    portee: '4 Tiles',
+    cible: '1 cible',
+    retire: ['Brûlure'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Eau)'],
+    sources: ['Hydromancie'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1512: { // Chaleur Suffocante
+    type: 'Attaque',
+    cout: { PA: 1, PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: 'Tout le monde sauf le lanceur',
+    degats: ['Magiques', 'Feu'],
+    statuts: ['Brûlure'],
+    conditions: ['Être dans une zone chaude', 'Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Feu)'],
+    sources: ['Pyromancie'],
+    notes: 'Si la cible brûle déjà : Brûlure aggravée, des dégâts supplémentaires résistés par la Résilience.',
+  },
+  1597: { // Voile Ignite
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    statuts: ["Bouclier Magique (M) (jusqu'au prochain Commencer le tour)"],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Feu)'],
+    sources: ['Pyromancie'],
+  },
+  1517: { // Flamboiement
+    cout: { PS: 1, Mana: 10 },
+    cible: 'Soi',
+    statuts: ["Flamboiement (jusqu'au prochain Commencer le tour)"],
+    retire: ['En mêlée'],
+    effets: ['Fait reculer le lanceur de 1.5 Tiles'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir de Posture', 'Ne pas avoir le statut Incantation Interdite (Feu)'],
+    sources: ['Pyromancie'],
+  },
+  1451: { // Boule de Feu
+    type: 'Attaque',
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: 'Zone · 1.5 Tiles de rayon autour du point choisi',
+    degats: ['Magiques', 'Feu'],
+    statuts: ['Brûlure'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Feu)'],
+    sources: ['Pyromancie'],
+    notes: 'Le lanceur peut être touché s\'il est dans la zone. Si la cible brûle déjà : Brûlure aggravée, des dégâts supplémentaires résistés par la Résilience.',
+  },
+  1510: { // Embrasement
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    statuts: ['Brûlure'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Feu)'],
+    sources: ['Pyromancie'],
+    notes: 'Brûlure appliquée sans jet de Résilience. Ne fait pas de dégâts, sauf si la cible brûle déjà : Brûlure aggravée, des dégâts supplémentaires résistés par la Résilience.',
+  },
+  1511: { // Feu d'artifice
+    type: 'Attaque',
+    cout: { PA: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    degats: ['Magiques', 'Feu'],
+    statuts: ['Brûlure'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Feu)'],
+    sources: ['Pyromancie'],
+    notes: 'Si la cible brûle déjà : Brûlure aggravée, des dégâts supplémentaires résistés par la Résilience.',
+  },
+  1498: { // Glaciation
+    conditions: ['Être dans une zone froide'],
+    sources: ['Hydromancie'],
+  },
+  1499: { // Blizzard
+    type: 'Attaque',
+    cout: { PS: 1, Mana: 10 },
+    portee: '5 Tiles',
+    cible: 'Tout le monde sauf le lanceur',
+    degats: ['Magiques', 'Eau'],
+    conditions: ['Être dans une zone froide', 'Ne pas être transformé', 'Ne pas avoir le statut En mouvement', 'Ne pas avoir le statut Incantation Interdite (Eau)'],
+    sources: ['Hydromancie'],
+  },
+  1497: { // Gel
+    cout: { PA: 1, PS: 1, Mana: 10 },
+    portee: '3 Tiles',
+    cible: '1 cible',
+    statuts: ['Immobile'],
+    conditions: ['Être dans une zone froide', 'Ne pas être transformé', 'Ne pas avoir le statut En mouvement', 'Ne pas avoir le statut Incantation Interdite (Eau)'],
+    sources: ['Hydromancie'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1496: { // Geyser
+    type: 'Attaque',
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    degats: ['Magiques', 'Eau'],
+    conditions: ["Avoir le statut Dans l'eau", 'Ne pas être transformé', 'Ne pas avoir le statut En mouvement', 'Ne pas avoir le statut Incantation Interdite (Eau)'],
+    sources: ['Hydromancie'],
+  },
+  1546: { // Fouet d'eau
+    type: 'Attaque',
+    cout: { PA: 1, Mana: 10 },
+    portee: '4 Tiles',
+    cible: '1 cible',
+    degats: ['Magiques', 'Eau'],
+    conditions: ['Ne pas avoir le statut Incantation Interdite (Eau)'],
+    sources: ['Hydromancie'],
+  },
+  1507: { // Vent Toxique
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: 'Zone · 1.5 Tiles de rayon autour du point choisi',
+    statuts: ['Poison'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Air)'],
+    sources: ['Aéromancie'],
+    notes: "Poison appliqué sans jet. Ne fait pas de dégâts, sauf si la cible est déjà empoisonnée : Poison aggravé, des dégâts supplémentaires résistés par le Métabolisme. Le lanceur peut être touché s'il est dans la zone.",
+  },
+  1595: { // Chaine d'éclairs
+    type: 'Attaque',
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    degats: ['Magiques', 'Air'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Air)'],
+    sources: ['Aéromancie'],
+  },
+  1588: { // Bio-Electricite
+    cout: { PS: 1, Mana: 10 },
+    cible: 'Soi',
+    statuts: ["Bio-Electricite (jusqu'au prochain Commencer le tour)"],
+    retire: ['En mêlée'],
+    effets: ['Fait reculer le lanceur de 1.5 Tiles'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir de Posture', 'Ne pas avoir le statut Incantation Interdite (Air)'],
+    sources: ['Aéromancie'],
+  },
+  1509: { // Eclair Paralysant
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    statuts: ['Controle'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Air)'],
+    sources: ['Aéromancie'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1765: { // Tornade
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: 'Zone · 2 Tiles de rayon autour du point choisi',
+    statuts: ['Confus'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Air)'],
+    sources: ['Aéromancie'],
+    notes: "Ne fait pas de dégâts. Le lanceur peut être touché s'il est dans la zone.",
+  },
+  1548: { // Foudroiement
+    type: 'Attaque',
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: 'Zone · 1.5 Tiles de rayon autour du point choisi',
+    degats: ['Magiques', 'Air'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Air)'],
+    sources: ['Aéromancie'],
+    notes: "Le lanceur peut être touché s'il est dans la zone.",
+  },
   1503: { // Trait de Foudre
     type: 'Attaque',
     cout: { PA: 1, Mana: 10 },
@@ -823,6 +1047,190 @@ const DETAILS = {
     degats: ['Magiques', 'Air'],
     conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Air)'],
     sources: ['Aéromancie'],
+  },
+  1657: { // Terreur Diurne
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles · Maudits uniquement',
+    statuts: ['Controle'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Lumière)', 'La cible doit avoir une malédiction Démon, Vampire ou Lycan (pas Mort Vivant)'],
+    sources: ['Luminomancie'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1659: { // Trou Noir
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: 'Zone · 1.5 Tiles de rayon autour du point choisi',
+    statuts: ['Confus'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Lumière)'],
+    sources: ['Luminomancie'],
+    notes: "Ne fait pas de dégâts. Le lanceur peut être touché s'il est dans la zone.",
+  },
+  1541: { // Lames du jugement
+    type: 'Attaque',
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    degats: ['Magiques', 'Lumière'],
+    statuts: ['Brûlure'],
+    conditions: ['Être de jour', 'Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Lumière)'],
+    sources: ['Luminomancie'],
+    notes: 'Si la cible brûle déjà : Brûlure aggravée, des dégâts supplémentaires résistés par la Résilience.',
+  },
+  1540: { // Rayonnement
+    type: 'Attaque',
+    cout: { PA: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Magiques', 'Lumière'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Lumière)'],
+    sources: ['Luminomancie'],
+  },
+  1522: { // Bouclier Lumineux
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    statuts: ["Bouclier Magique (jusqu'au prochain Commencer le tour)"],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Lumière)'],
+    sources: ['Luminomancie'],
+  },
+  1656: { // Salve de soin
+    type: 'Soin',
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    degats: ['Magiques', 'Lumière'],
+    effets: ['Soigne les cibles selon les Dégâts Magiques et la stat Lumière du lanceur', 'Une cible Maudite subit à la place des dégâts Magiques + Lumière'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Lumière)'],
+    sources: ['Luminomancie'],
+  },
+  1513: { // Flash
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    statuts: ['Controle'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Lumière)'],
+    sources: ['Luminomancie'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1489: { // Photosynthese
+    type: 'Soin',
+    cout: { PA: 1, PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Magiques', 'Terre'],
+    effets: ['Soigne la cible selon les Dégâts Magiques et la stat Terre du lanceur'],
+    conditions: ['Être de jour', 'Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Terre)'],
+    sources: ['Géomancie'],
+  },
+  1515: { // Anti-Toxines
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    retire: ['Poison', 'Poison de Mana'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Terre)'],
+    sources: ['Géomancie'],
+  },
+  1491: { // Chemin de lianes
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    statuts: ['Ralenti'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Terre)'],
+    sources: ['Géomancie'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1490: { // Ronce toxique
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    statuts: ['Poison'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Terre)'],
+    sources: ['Géomancie'],
+    notes: 'Ne fait pas de dégâts, sauf si la cible est déjà empoisonnée : Poison aggravé, des dégâts supplémentaires résistés par le Métabolisme.',
+  },
+  1519: { // Toxines Etherique
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    statuts: ['Poison de Mana'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Terre)'],
+    sources: ['Géomancie'],
+    notes: 'Ne fait pas de dégâts. Si la cible a déjà le Poison de Mana : Poison de Mana aggravé, qui retire du Mana (pas des PV), résisté par le Métabolisme.',
+  },
+  1493: { // Peau de Pierre
+    cout: { PS: 1, Mana: 10 },
+    cible: 'Soi',
+    statuts: ["Bouclier Magique (P) (jusqu'au prochain Commencer le tour)"],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Terre)'],
+    sources: ['Géomancie'],
+  },
+  1492: { // Enchevetrement
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    statuts: ['Immobile'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Terre)'],
+    sources: ['Géomancie'],
+
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1488: { // Marionette Macabre
+    cout: { PS: 1, Mana: 10 },
+    portee: '5 Tiles',
+    cible: '1 cible',
+    jet: '3d6 + Résilience (cible et lanceur, chacun le sien)',
+    statuts: ['Blessure (Normale, Majeure, Grave ou Critique selon le jet)'],
+    effets: ['Le lanceur reçoit aussi une Blessure, selon son propre jet'],
+    conditions: ['Avoir le statut Saignement', 'Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Sang)'],
+    sources: ['Hématomancie'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1487: { // Liens de sang
+    type: 'Attaque',
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: 'Tout le monde sauf le lanceur',
+    degats: ['Magiques', 'Sang'],
+    effets: ['Absorbe la vie des cibles : le lanceur récupère 15 PV par cible touchée'],
+    conditions: ['Avoir le statut Saignement', 'Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Sang)'],
+    sources: ['Hématomancie'],
+  },
+  1589: { // Cicatrisation
+    type: 'Soin',
+    cout: { PS: 1, Mana: 10 },
+    cible: 'Soi',
+    retire: ['Blessure Normale'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Sang)'],
+    sources: ['Hématomancie'],
+    notes: 'Soigne uniquement une Blessure normale : sans effet sur les blessures Majeure, Grave ou Critique.',
+  },
+  1484: { // Suture
+    cout: { PS: 1, Mana: 10 },
+    cible: 'Soi',
+    retire: ['Saignement'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Sang)'],
+    sources: ['Hématomancie'],
+  },
+  1478: { // Scarification
+    cout: { PA: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    statuts: ['Saignement'],
+    effets: ['Le lanceur reçoit aussi Saignement'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Sang)'],
+    sources: ['Hématomancie'],
+    notes: 'Ne fait pas de dégâts, sauf si la cible saigne déjà : Saignement aggravé, des dégâts de Sang supplémentaires résistés par la Résilience.',
+  },
+  1486: { // Projectile Sanglant
+    type: 'Attaque',
+    cout: { PA: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Magiques', 'Sang'],
+    effets: ['Rend au lanceur la moitié des dégâts infligés en PV'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Sang)'],
+    sources: ['Hématomancie'],
   },
   1550: { // Lame de Roche
     type: 'Attaque',
@@ -833,11 +1241,72 @@ const DETAILS = {
     conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Terre)'],
     sources: ['Géomancie'],
   },
+  1556: { // Liens Magiques
+    cout: { PA: 1, PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    statuts: ['Controle'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Arcane)'],
+    sources: ['Arcaniste'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  2310: { // Enduire Poison de Mana
+    cout: { 'Flèches/Carreaux ou Lames de jet': 1, 'Poison de Mana': 1 },
+    effets: ['Produit 1 Flèches/Carreaux (Poison de Mana) ou 1 Lames de jet empoisonnés (Poison de Mana), selon la munition consommée'],
+  },
+  2309: { // Enduire Poison Toxique
+    cout: { 'Flèches/Carreaux ou Lames de jet': 1, 'Poison toxique': 1 },
+    effets: ['Produit 1 Flèches/Carreaux (Toxique) ou 1 Lames de jet empoisonnés (Toxique), selon la munition consommée'],
+  },
+  1557: { // Poids Arcanique
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    statuts: ['Ralenti'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Arcane)'],
+    sources: ['Arcaniste'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1555: { // Vol Etherique
+    cout: { PS: 1, PV: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    perte: { Mana: 15 },
+    gain: { Mana: 15 },
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Arcane)'],
+    sources: ['Arcaniste'],
+  },
+  2496: { // Disruption Toxique
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    statuts: ['Poison'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Arcane)'],
+    sources: ['Arcaniste'],
+    notes: 'Ne fait pas de dégâts, sauf si la cible est déjà empoisonnée : Poison aggravé, des dégâts supplémentaires résistés par le Métabolisme.',
+  },
+  1554: { // Vision troublantes
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    statuts: ['Confus'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Arcane)'],
+    sources: ['Arcaniste'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  2363: { // Visage trouble
+    cout: { Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    statuts: ['Visage Trouble (7 h 20)'],
+    conditions: ['Ne pas avoir le statut Incantation Interdite (Arcane)', 'Ne pas avoir le statut Visage Trouble'],
+    sources: ['Arcaniste'],
+  },
   1665: { // Bouclier Arcanique
     cout: { PS: 1, Mana: 10 },
     portee: '6 Tiles',
     cible: '3 cibles',
-    statuts: ['Bouclier Magique'],
+    statuts: ["Bouclier Magique (jusqu'au prochain Commencer le tour)"],
     conditions: ['Ne pas être transformé', "Ne pas avoir le statut Incantation Interdite (Arcane)"],
     sources: ['Arcaniste'],
   },
@@ -899,7 +1368,7 @@ const DETAILS = {
     portee: '1 Tile',
     cible: '1 cible',
     statuts: ['Saignement'],
-    notes: 'Ne fait pas de dégâts, sauf si le Saignement est aggravé : inflige alors des dégâts de Sang.',
+    notes: 'Ne fait pas de dégâts, sauf si la cible saigne déjà : Saignement aggravé, des dégâts de Sang supplémentaires résistés par la Résilience.',
   },
   1817: { // Coup Vicieux
     cout: { PS: 1 },
@@ -975,7 +1444,7 @@ const DETAILS = {
   },
   1943: { // Lancer de couteau (Toxique)
     type: 'Attaque',
-    cout: { PS: 1, 'Lame de jet empoisonnés (Toxique)': 1 },
+    cout: { PS: 1, 'Lames de jet empoisonnés (Toxique)': 1 },
     portee: '3 Tiles',
     cible: '1 cible',
     degats: ['Tranchants fixes'],
@@ -984,12 +1453,12 @@ const DETAILS = {
   },
   1944: { // Lancer de couteau (Poison de Mana)
     type: 'Attaque',
-    cout: { PS: 1, 'Lame de jet empoisonnés (Poison de Mana)': 1 },
+    cout: { PS: 1, 'Lames de jet empoisonnés (Poison de Mana)': 1 },
     portee: '3 Tiles',
     cible: '1 cible',
     degats: ['Tranchants fixes'],
     statuts: ['Poison de Mana'],
-    notes: "Dégâts fixes : pas influencés par l'arme ni par les Dégâts Physiques. Le Poison de Mana ne peut pas être aggravé.",
+    notes: "Dégâts fixes : pas influencés par l'arme ni par les Dégâts Physiques. Si la cible a déjà le Poison de Mana : Poison de Mana aggravé, qui retire du Mana (pas des PV), résisté par le Métabolisme.",
   },
   723: { // Lancer de javelot
     type: 'Attaque',
@@ -1187,7 +1656,7 @@ const DETAILS = {
   76: { // Commencer le tour
     desc: 'Déclare le début du tour du personnage et lui rend tous ses points.',
     recharge: { PA: 1, PM: 1, PS: 1, AT: '1/1 · 3/3 avec armée', Posture: 1 },
-    retire: ['Posture en cours'],
+    retire: ['Posture en cours', 'Flamboiement', 'Bio-Electricite', 'Bouclier Magique', 'Bouclier Magique (M)', 'Bouclier Magique (P)'],
   },
   75: { // Initiative
     portee: '~16 Tiles',
@@ -1360,13 +1829,26 @@ const STATUS_COLORS = {
   'Poison de Mana': '#a487f0',
   'Brûlure': '#f5a54a',
   'Bouclier Magique': '#6ccbee',
+  'Bouclier Magique (M)': '#ff9f6b',
+  'Bouclier Magique (P)': '#c9a777',
   'Bon repos': '#b4d48f',
   'Propre': '#7cc7b8',
+  'Blessure': '#c76b6b',
+  'Visage Trouble': '#b08ee0',
+  'Flamboiement': '#ffb347',
+  'Bio-Electricite': '#c79bf2',
+  'En mêlée': '#d98c6a',
   'Maquillé': '#f2a9cf',
   'Parfum': '#f0c89a',
   'Posture en cours': '#c9a46e',
 };
-const statusBase = name => name.replace(/\s*\([^)]*\)\s*$/, '');
+// Retire une durée finale « (20 h) », « (jusqu'au …) » ; garde un suffixe court qui fait partie du nom, ex. « Bouclier Magique (M) »
+// Variantes affichées qui se rangent sous un même statut (couleur, filtre)
+const STATUS_GROUPS = { 'blessure normale': 'Blessure' };
+const statusBase = name => {
+  const base = name.replace(/\s*\([^)]*\s[^)]*\)\s*$/, '');
+  return STATUS_GROUPS[nameKey(base)] || base;
+};
 function statusColor(name){
   const k = nameKey(statusBase(name));
   const known = Object.entries(STATUS_COLORS).find(([n]) => nameKey(n) === k);
@@ -1380,7 +1862,7 @@ function statusPill(name, removed){
   return `<span class="pill status${removed ? ' removed' : ''}" data-status="${esc(base)}" style="--c:${statusColor(name)}" title="${removed ? 'Retire' : 'Applique'} ${esc(base)} — cliquer pour filtrer">${esc(name)}</span>`;
 }
 function statusHTML(name){
-  const k = nameKey(name.replace(/\s*\([^)]*\)\s*$/, ''));
+  const k = nameKey(statusBase(name));
   const src = [STATUSES, CONSUMABLES].map(c => Object.entries(c).find(([key]) => nameKey(key) === k)).find(Boolean);
   const effects = src ? dataEffects(src[1]) : '';
   return `${statusPill(name, false)}${effects ? `<span class="status-effects">${effects}</span>` : ''}`;
@@ -1409,6 +1891,7 @@ const COSTS = {
   Posture: { label: 'Posture', color: 'var(--combat-bright)' },
   'Hygiène': { label: 'Hygiène', color: '#7cc7b8' },
   'Santé mentale': { label: 'Santé mentale', color: '#d79ad0' },
+  Corruption: { label: 'Corruption', color: '#9c6fc4' },
 };
 // Coûts filtrables (les ressources d'action uniquement)
 const COST_FILTER_KEYS = ['PA', 'PS', 'PM', 'AT'];
@@ -1489,6 +1972,13 @@ function abilityHTML([id, name, opts = {}]){
   if (statuses.length) rows.push(['Statut', statuses.map(statusHTML).join('<br>')]);
   if (grants.length) rows.push(['Octroie', grants.map(abilityLink).join('')]);
   if (d.jet) rows.push(['Jet', esc(d.jet)]);
+  // Règle du jeu : un statut posé par une aptitude qui fait aussi des dégâts se résiste (3d6 + attribut contre 15)
+  const resist = [...(d.resistance || [])];
+  if (degats.length) RESIST_RULES.forEach(([st, attr]) => {
+    if ((d.statuts || []).some(x => nameKey(statusBase(x)) === nameKey(st)) && !resist.some(([r]) => nameKey(r) === nameKey(st))) resist.push([st, attr]);
+  });
+  resist.forEach(([st, attr]) =>
+    rows.push(['Résistance', `${esc(st)} : la cible lance <b>3d6 + ${esc(attr)}</b> contre <b>15</b>`]));
   // Règle du jeu : une aptitude qui applique Immobile ou Controle ne peut pas être lancée avec Premier Tour
   const conditions = [...(d.conditions || [])];
   if ((d.statuts || []).some(st => /^(Immobile|Controle)\b/.test(st)) && !conditions.includes(PREMIER_TOUR_COND)) conditions.push(PREMIER_TOUR_COND);

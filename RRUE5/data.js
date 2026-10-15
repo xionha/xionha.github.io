@@ -19,10 +19,10 @@ const ATTRIBUTES = [
       pv: [3, 3], mana: [2.5, 2.5], deplacement: [0.11, 0.11], parade: [0.31, 0.31], defense: [0.5, 0.5], defenseMagique: [0.25, 0.25]
   }},
   { key: 'resilience', label: 'Résilience', effects: {
-      pv: [2, 2], defense: [0.75, 0.75]
+      pv: [2, 2], corruption: [5, 5], defense: [0.75, 0.75]
   }, desc: 'Diminue les dégâts pris en début de tour des statuts Saignement et Brûlure.' },
   { key: 'volonte', label: 'Volonté', effects: {
-      pv: [0.5, 0.5], mana: [1.25, 1.25], initiative: [0.12, 0.12], forceMentale: [0.87, 0.87], defenseMagique: [0.75, 0.75], degatsMagique: [1.25, 1.25], incantation: [0.19, 0.19]
+      pv: [0.5, 0.5], mana: [1.25, 1.25], corruption: [10, 10], initiative: [0.12, 0.12], forceMentale: [0.87, 0.87], defenseMagique: [0.75, 0.75], degatsMagique: [1.25, 1.25], incantation: [0.19, 0.19]
   }},
   { key: 'perceptionMagique', label: 'Perception Magique', effects: {
       mana: [1.25, 1.25], defenseMagique: [0.5, 0.5], degatsMagique: [1, 1], incantation: [0.06, 0.06]
@@ -48,7 +48,7 @@ const ATTRIBUTES = [
 ];
 
 const STATS = {
-  pv: 'PV', mana: 'Mana', initiative: 'Initiative', deplacement: 'Déplacement',
+  pv: 'PV', mana: 'Mana', corruption: 'Corruption', initiative: 'Initiative', deplacement: 'Déplacement',
   capCombat: 'Capacité de Combat', capTir: 'Capacité de Tir', forceMentale: 'Force Mentale',
   incantation: 'Incantation',
   esquive: 'Esquive', parade: 'Parade', defense: 'Défense', degatsPhysique: 'Dégâts Physique',
@@ -126,37 +126,37 @@ const CORRUPTION = {
   "Niveau I – Souillure": {
     description: "Les premiers stigmates apparaissent. La peau se décolore, les yeux deviennent anormalement brillants et une sensation de froid accompagne désormais le personnage.",
     attrDelta: { endurance: -1 },
-    flatStats: { incantation: 1, degatsMagique: 2 },
+    flatStats: { incantation: 1, degatsMagique: 2, corruption: 10 },
     elemental: { lumiere: -1 },
     notes: [],
   },
   "Niveau II – Altération": {
     description: "Les veines s'assombrissent et une aura malsaine devient perceptible. Le corps commence à peiner à suivre la puissance qu'il canalise.",
     attrDelta: { endurance: -2 },
-    flatStats: { incantation: 2, degatsMagique: 4 },
+    flatStats: { incantation: 2, degatsMagique: 4, corruption: 20 },
     elemental: { lumiere: -2 },
     notes: [],
   },
   "Niveau III – Déchéance": {
     description: "Les traits se déforment, le sommeil devient agité et le personnage inspire instinctivement la méfiance. Son esprit s'élève tandis que son corps s'affaiblit.",
-    attrDelta: { endurance: -1, resilience: -1, metabolisme: -1, vitesse: -2 },
-    flatStats: { incantation: 3, degatsMagique: 6 },
+    attrDelta: { endurance: -3, resilience: -1, metabolisme: -1, vitesse: -2 },
+    flatStats: { incantation: 3, degatsMagique: 6, corruption: 30 },
     elemental: { lumiere: -6 },
-    notes: [],
+    notes: ['Octroie le statut : Corruption Visible'],
   },
   "Niveau IV – Dégradation": {
     description: "La corruption est visible au premier regard. La chair porte les marques de la magie noire et le corps commence à céder sous son propre pouvoir.",
-    attrDelta: { endurance: -2, resilience: -2, metabolisme: -2, vitesse: -3 },
-    flatStats: { incantation: 4, degatsMagique: 8 },
+    attrDelta: { endurance: -4, resilience: -2, metabolisme: -2, vitesse: -3 },
+    flatStats: { incantation: 4, degatsMagique: 8, corruption: 40 },
     elemental: { lumiere: -8 },
-    notes: [],
+    notes: ['Octroie le statut : Corruption Visible'],
   },
   "Niveau V – Transcendance profane": {
     description: "Le personnage n'est plus tout à fait mortel. Sa puissance magique atteint son apogée, mais son corps est devenu un simple réceptacle sur le point de céder sous les forces qui le traversent.",
     attrDelta: { endurance: -5, resilience: -3, metabolisme: -3, vitesse: -5 },
-    flatStats: { incantation: 5, degatsMagique: 10 },
+    flatStats: { incantation: 5, degatsMagique: 10, corruption: 50 },
     elemental: { lumiere: -10 },
-    notes: [],
+    notes: ['Octroie le statut : Corruption Visible'],
   },
 };
 
@@ -252,10 +252,15 @@ const STATUSES = {
   "Poison de Mana": { flatStats: { defenseMagique: -3, degatsMagique: -3, forceMentale: -3 }, elemental: {}, notes: [] },
   "Saignement": { flatStats: { parade: -1, capCombat: -1, capTir: -1, esquive: -1 }, elemental: { sang: 10 }, notes: [] },
   "Bouclier Magique": { flatStats: { defenseMagique: 10, defense: 10 }, elemental: {}, notes: [] },
+  "Bouclier Magique (M)": { flatStats: { defenseMagique: 10, defense: 10 }, elemental: {}, notes: [] },
+  "Bouclier Magique (P)": { flatStats: { defenseMagique: 10, defense: 10 }, elemental: {}, notes: [] },
   "Vulnérable": { flatStats: { defenseMagique: -6, defense: -10 }, elemental: {}, notes: [] },
   "Diverti": { parentDelta: { esprit: 1 }, flatStats: {}, elemental: {}, notes: [] },
+  "Visage Trouble": { attrDelta: { discretion: 3 }, flatStats: {}, elemental: {}, notes: [] },
   "Ému": { parentDelta: { presence: 1 }, flatStats: {}, elemental: {}, notes: [] },
   "En mouvement": { flatStats: { capTir: -5 }, elemental: {}, notes: ['Octroie : Désarçonner'] },
+  "Flamboiement": { flatStats: { deplacement: 2, esquive: 2, parade: 2 }, elemental: {}, notes: [] },
+  "Bio-Electricite": { flatStats: { deplacement: 2, esquive: 2, parade: 2 }, elemental: {}, notes: [] },
   "Controle": { flatStats: { pointsAction: -2, pointsMouvement: -2, actionSpeciale: -2, esquive: -10, parade: -10 }, elemental: {}, notes: ['Octroie : Terminer tour (Controle)'] },
 };
 
@@ -272,6 +277,7 @@ const ENVIRONMENTS = {
   "Jour": { flatStats: {}, elemental: { lumiere: 5, sang: -5 }, notes: [] },
   "Nuit": { flatStats: {}, elemental: { sang: 5, lumiere: -5 }, notes: [] },
   "Chaud": { flatStats: {}, elemental: { feu: 5, eau: -5 }, notes: ['Octroie le Perk : Chaleur Insupportable'] },
+  "Froid": { flatStats: {}, elemental: { eau: 5, feu: -5 }, notes: [] },
   "Eau": { flatStats: { capCombat: -3 }, elemental: { eau: 20, air: -20 }, notes: ['Octroie le Perk : Baignade'] },
   "Extérieur": { flatStats: {}, elemental: { terre: 5 }, notes: ['Octroie le Perk : Extérieur'] },
   "Vampire (Jour)": { parentDelta: { conditionPhysique: -2 }, flatStats: {}, elemental: {}, notes: [] },
@@ -408,7 +414,7 @@ const TALENT_STAT_LABELS = {
   degatsMagique: 'Dégâts Magiques', capCombat: 'Capacité de Combat', parade: 'Parade',
   capTir: 'Capacité de Tir', initiative: 'Initiative', esquive: 'Esquive',
   forceMentale: 'Force Mentale', degatsPhysique: 'Dégâts Physique', mana: 'Mana',
-  defenseMagique: 'Défense Magique', deplacement: 'Déplacement', defense: 'Défense', pv: 'Points de Vie',
+  defenseMagique: 'Défense Magique', deplacement: 'Déplacement', defense: 'Défense', pv: 'Points de Vie', corruption: 'Corruption',
   pointsAction: "Points d'Action", pointsMouvement: 'Points de Mouvement', actionSpeciale: 'Action Spéciale'
 };
 const TALENTS = [

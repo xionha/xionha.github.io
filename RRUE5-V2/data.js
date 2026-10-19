@@ -298,6 +298,13 @@ const EXTRA_STATS = {
   carquois: 'Carquois',
 };
 
+// ---- Stats ERP (jeu de rôle érotique) : sans effet sur le combat ----
+const ERP_STATS = {
+  stimulation: 'Stimulation',
+  dominance: 'Dominance',
+  inhibition: 'Inhibition',
+};
+
 // ---- Stats indépendantes, sans lien avec un attribut ou une stat parente ----
 const OTHER_STATS = {
   representationArtistique: 'Représentation Artistique',
@@ -326,6 +333,7 @@ const EQUIPMENT = {
     "Armure Intermédiaire": { flatStats: { esquive: -1, initiative: -1, defenseMagique: 15 }, extraStats: { defTranchante: 12, defPerforante: 15, defContondante: 15 }, notes: ['Octroie le Perk : Armure', 'Octroie le statut : Armure Intermédiaire'] },
     "Armure Lourde": { flatStats: { esquive: -3, deplacement: -1, initiative: -3, defenseMagique: 12 }, extraStats: { defTranchante: 19, defPerforante: 19, defContondante: 15 }, notes: ['Octroie le Perk : Armure', 'Octroie le statut : Armure Lourde'] },
     "Vêtement Renforcé": { flatStats: { defenseMagique: 17 }, extraStats: { defTranchante: 12, defPerforante: 12, defContondante: 12 }, notes: ['Octroie le Perk : Armure'] },
+    "Combinaison de la Dépravation Tentaculai": { flatStats: { esquive: -1, initiative: -1, defenseMagique: 12 }, extraStats: { defTranchante: 12, defPerforante: 15, defContondante: 15 }, erpStats: { stimulation: 10, dominance: 1, inhibition: 1 }, notes: ['Octroie le Perk : Chaos Entrave', 'Octroie : Ouvrir Tome de Conjuration Obscène', 'Octroie le Perk : Tenue Obscene'] },
   },
   cape: {
     "Manteau Lourd": { flatStats: { defense: 5 }, extraStats: {}, notes: [] },
@@ -347,14 +355,14 @@ const EQUIPMENT = {
   arme: {
     "Lame de Qualité": { flatStats: {}, extraStats: { degContondant: 10, degPerforant: 15, degTranchant: 20 }, notes: ['Octroie le Perk : Lames 1M de Bonne Facture', 'Octroie : Coup de Lame', 'Octroie : Faire Saigner', 'Octroie : Coup de Pommeau', 'Octroie le Perk : Arme'] },
     "Hache de Qualité": { flatStats: {}, extraStats: { degTranchant: 25 }, notes: ['Octroie le Perk : Haches 1M de Bonne Facture', 'Octroie : Coup de Lame (Hache)', 'Octroie : Faire Saigner (Hache)', 'Octroie : Lancer de Hache', 'Octroie le Perk : Arme'] },
-    "Espadon de Qualité": { flatStats: {}, extraStats: { degContondant: 15, degPerforant: 20, degTranchant: 25 }, notes: ['Octroie le Perk : Lames 2M de Bonne Facture', 'Octroie le Perk : Deux Mains', 'Octroie : Coup Tourbillonnant', 'Octroie : Empaler', 'Octroie : Faucher les Jambes', 'Octroie le Perk : Arme', "Octroie : Charge d'interception (Tranchante)", 'Octroie : Mordhau'] },
+    "Espadon de Qualité": { flatStats: {}, extraStats: { degContondant: 15, degPerforant: 20, degTranchant: 25 }, notes: ['Octroie le Perk : Lames 2M de Bonne Facture', 'Octroie le Perk : Deux Mains', 'Octroie : Coup Tourbillonnant', 'Octroie : Empaler (2M)', 'Octroie : Faucher les Jambes', 'Octroie le Perk : Arme', "Octroie : Charge d'interception (Tranchante)", 'Octroie : Mordhau'] },
     "Hache à deux mains de Qualité": { flatStats: {}, extraStats: { degContondant: 15, degTranchant: 25 }, notes: ['Octroie le Perk : Haches 2M de Bonne Facture', 'Octroie le Perk : Deux Mains', 'Octroie : Balayage', 'Octroie : Fracassement (2M)', 'Octroie : Faucher les Jambes', 'Octroie le Perk : Arme', "Octroie : Charge d'interception (Tranchante)", 'Octroie : Mordhau'] },
     "Matraque de Qualité": { flatStats: {}, extraStats: { degContondant: 20 }, notes: ['Octroie le Perk : Masse 1M de Bonne Facture', 'Octroie : Coup de Masse', 'Octroie : Fracassement (1M)', 'Octroie : Coup Tourbillonnant', 'Octroie le Perk : Arme'] },
     "Lance de Qualité": { flatStats: {}, extraStats: { degContondant: 15, degPerforant: 20 }, notes: ['Octroie le Perk : Lance 1M de Bonne Facture', 'Octroie : Coup de Lance', 'Octroie : Empaler', 'Octroie : Coup de Hampe', 'Octroie le Perk : Arme', 'Octroie : Lancer de Javelot', 'Octroie : Désarçonner'] },
     "Pieu Argent": { flatStats: {}, extraStats: { degPerforant: 30 }, notes: ['Octroie le Perk : Pieu 1M', 'Octroie : Enfoncer un Pieu en Argent'] },
     "Dague de Qualité": { flatStats: {}, extraStats: { degPerforant: 20, degTranchant: 20 }, notes: ['Octroie le Perk : Dague de Bonne Facture', 'Octroie : Empaler', 'Octroie : Faire Saigner', 'Octroie : Coup de Lame', 'Octroie le Perk : Arme', 'Octroie : Coup Vicieux'] },
     "Masse de Qualité": { flatStats: {}, extraStats: { degContondant: 35 }, notes: ['Octroie le Perk : Masse 2M de Bonne Facture', 'Octroie le Perk : Deux Mains', 'Octroie : Coup Tourbillonnant', 'Octroie : Fracassement (2M)', 'Octroie : Faucher les Jambes', 'Octroie le Perk : Arme', "Octroie : Charge d'interception (Contondante)", 'Octroie : Coup de Hampe (2M)'] },
-    "Katana de Qualité": { flatStats: {}, extraStats: { degPerforant: 30, degTranchant: 30 }, notes: ['Octroie le Perk : Katana de Bonne Facture', 'Octroie le Perk : Deux Mains', 'Octroie : Balayage', 'Octroie : Empaler', 'Octroie : Faire Saigner (Katana)', 'Octroie le Perk : Arme', "Octroie : Charge d'interception (Tranchante)"] },
+    "Katana de Qualité": { flatStats: {}, extraStats: { degPerforant: 30, degTranchant: 30 }, notes: ['Octroie le Perk : Katana de Bonne Facture', 'Octroie le Perk : Deux Mains', 'Octroie : Balayage', 'Octroie : Empaler (2M)', 'Octroie : Faire Saigner (Katana)', 'Octroie le Perk : Arme', "Octroie : Charge d'interception (Tranchante)"] },
     "Arc de Qualité": { flatStats: {}, extraStats: { degTranchant: 25 }, notes: ['Octroie le Perk : Arc de Bonne Facture', 'Octroie le Perk : Deux Mains', 'Octroie : Tir (Court)', 'Octroie : Tir Handicapant', 'Octroie : Triple Flèche', 'Octroie le Perk : Arme', 'Débloque : Carquois', 'Octroie : Tir (Long)', 'Octroie : Tir Empoisonné (Toxique)', 'Octroie : Tir Empoisonné (Mana)', 'Octroie : Tir Pointe Barbelée', 'Octroie : Viser'] },
     "Arbalète de Qualité": { flatStats: {}, extraStats: { degPerforant: 30 }, notes: ['Octroie le Perk : Arbalète de Bonne Facture', 'Octroie le Perk : Deux Mains', 'Octroie : Tir Arbalète (Court)', 'Octroie : Tir Ciblé (Arbalète)', 'Octroie : Tir Handicapant', 'Octroie le Perk : Arme', 'Octroie : Tir Arbalète (Long)', 'Octroie : Tir Empoisonné Ar. (Toxique)', 'Octroie : Tir Empoisonné Ar. (Mana)', 'Octroie : Tir Pointe Barbelée (Ar)', 'Octroie : Viser'] },
     "Mousquet de Qualité": { flatStats: {}, extraStats: { degPerforant: 35 }, notes: ['Octroie le Perk : Fusil de Bonne Facture', 'Octroie le Perk : Deux Mains', 'Octroie : Tir de Fusil (Long)', 'Octroie : Tir Ciblé (Fusil)', 'Octroie : Tir de Semonce', 'Octroie le Perk : Arme', 'Octroie : Tir Fusil (Court)', 'Octroie : Tir Balle Explosive'] },
@@ -364,11 +372,11 @@ const EQUIPMENT = {
     "Arbalète": { flatStats: {}, extraStats: { degPerforant: 25 }, notes: ['Octroie le Perk : Arbalète', 'Octroie le Perk : Deux Mains', 'Octroie : Tir Arbalète (Court)', 'Octroie : Tir Ciblé (Arbalète)', 'Octroie : Tir Handicapant', 'Octroie le Perk : Arme', 'Octroie : Tir Arbalète (Long)', 'Octroie : Tir Empoisonné Ar. (Toxique)', 'Octroie : Tir Empoisonné Ar. (Mana)', 'Octroie : Tir Pointe Barbelée (Ar)', 'Octroie : Viser'] },
     "Arc": { flatStats: {}, extraStats: { degTranchant: 20 }, notes: ['Octroie le Perk : Arc', 'Octroie le Perk : Deux Mains', 'Octroie : Tir (Court)', 'Octroie : Tir Handicapant', 'Octroie : Triple Flèche', 'Octroie le Perk : Arme', 'Débloque : Carquois', 'Octroie : Tir (Long)', 'Octroie : Tir Empoisonné (Toxique)', 'Octroie : Tir Empoisonné (Mana)', 'Octroie : Tir Pointe Barbelée', 'Octroie : Viser'] },
     "Tromblon": { flatStats: {}, extraStats: { degPerforant: 30 }, notes: ['Octroie le Perk : Fusil', 'Octroie le Perk : Deux Mains', 'Octroie : Tir de Fusil (Long)', 'Octroie : Tir Ciblé (Fusil)', 'Octroie : Tir de Semonce', 'Octroie le Perk : Arme', 'Octroie : Tir Fusil (Court)', 'Octroie : Tir Balle Explosive'] },
-    "Espadon": { flatStats: {}, extraStats: { degContondant: 10, degPerforant: 15, degTranchant: 20 }, notes: ['Octroie le Perk : Lames 2M', 'Octroie le Perk : Deux Mains', 'Octroie : Coup Tourbillonnant', 'Octroie : Empaler', 'Octroie : Faucher les Jambes', 'Octroie le Perk : Arme', "Octroie : Charge d'interception (Tranchante)", 'Octroie : Mordhau'] },
+    "Espadon": { flatStats: {}, extraStats: { degContondant: 10, degPerforant: 15, degTranchant: 20 }, notes: ['Octroie le Perk : Lames 2M', 'Octroie le Perk : Deux Mains', 'Octroie : Coup Tourbillonnant', 'Octroie : Empaler (2M)', 'Octroie : Faucher les Jambes', 'Octroie le Perk : Arme', "Octroie : Charge d'interception (Tranchante)", 'Octroie : Mordhau'] },
     "Matraque": { flatStats: {}, extraStats: { degContondant: 15 }, notes: ['Octroie le Perk : Masse 1M', 'Octroie : Coup de Masse', 'Octroie : Fracassement (1M)', 'Octroie : Coup Tourbillonnant', 'Octroie le Perk : Arme'] },
     "Masse": { flatStats: {}, extraStats: { degContondant: 20 }, notes: ['Octroie le Perk : Masse 2M', 'Octroie le Perk : Deux Mains', 'Octroie : Coup Tourbillonnant', 'Octroie : Fracassement (2M)', 'Octroie : Faucher les Jambes', 'Octroie le Perk : Arme', "Octroie : Charge d'interception (Contondante)", 'Octroie : Coup de Hampe (2M)'] },
     "Hache à deux mains": { flatStats: {}, extraStats: { degContondant: 10, degTranchant: 20 }, notes: ['Octroie le Perk : Haches 2M', 'Octroie le Perk : Deux Mains', 'Octroie : Balayage', 'Octroie : Fracassement (2M)', 'Octroie : Faucher les Jambes', 'Octroie le Perk : Arme', "Octroie : Charge d'interception (Tranchante)", 'Octroie : Mordhau'] },
-    "Katana": { flatStats: {}, extraStats: { degPerforant: 25, degTranchant: 25 }, notes: ['Octroie le Perk : Katana', 'Octroie le Perk : Deux Mains', 'Octroie : Balayage', 'Octroie : Empaler', 'Octroie : Faire Saigner (Katana)', 'Octroie le Perk : Arme', "Octroie : Charge d'interception (Tranchante)"] },
+    "Katana": { flatStats: {}, extraStats: { degPerforant: 25, degTranchant: 25 }, notes: ['Octroie le Perk : Katana', 'Octroie le Perk : Deux Mains', 'Octroie : Balayage', 'Octroie : Empaler (2M)', 'Octroie : Faire Saigner (Katana)', 'Octroie le Perk : Arme', "Octroie : Charge d'interception (Tranchante)"] },
     "Dague": { flatStats: {}, extraStats: { degPerforant: 15, degTranchant: 15 }, notes: ['Octroie le Perk : Dague', 'Octroie : Empaler', 'Octroie : Faire Saigner', 'Octroie : Coup de Lame', 'Octroie le Perk : Arme', 'Octroie : Coup Vicieux'] },
     "Focus": { flatStats: { degatsMagique: 15, incantation: 1 }, extraStats: {}, notes: ['Octroie le Perk : Deux Mains'] },
   },

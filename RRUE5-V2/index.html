@@ -30,6 +30,8 @@
     --combat: #c0672f;
     --defense: #7c8ea3;
     --magie: #4d84a3;
+    --erp-pos: #f29ac4;
+    --erp-neg: #9aa6f0;
     --shadow-deep: rgba(0,0,0,0.6);
     --font-display: 'Cinzel', Georgia, serif;
     --font-deco: 'Cinzel Decorative', 'Cinzel', Georgia, serif;
@@ -474,6 +476,16 @@
     font-family: var(--font-body);
     font-weight: normal;
     font-style: italic;
+  }
+  .stat-chip.erp-pos{
+    color: var(--erp-pos);
+    background: rgba(242,154,196,0.14);
+    border: 1px solid rgba(242,154,196,0.5);
+  }
+  .stat-chip.erp-neg{
+    color: var(--erp-neg);
+    background: rgba(154,166,240,0.14);
+    border: 1px solid rgba(154,166,240,0.5);
   }
   .talent-effect .stat-chip{ margin: 0; }
 
@@ -959,6 +971,16 @@
   }
 
   .paperdoll-descriptions{ margin-top: 18px; }
+  .erp-stats{
+    display:flex; flex-wrap:wrap; justify-content:center; gap: 4px 12px;
+    margin-top: 14px; padding-top: 8px;
+    border-top: 1px dashed var(--border);
+    font-size: 11px; letter-spacing: 0.3px;
+    color: var(--text-faint); opacity: 0.75;
+  }
+  .erp-stats-label{ text-transform: uppercase; letter-spacing: 1.5px; }
+  .erp-stats .erp-pos{ color: var(--erp-pos); }
+  .erp-stats .erp-neg{ color: var(--erp-neg); }
   .equip-desc-block{
     display:none;
     padding: 10px 12px;
@@ -1676,7 +1698,7 @@ temperamentSelector.appendChild(noneTemperamentBtn);
 // Rendu d'une ligne de bonus/malus sous forme de puce (▲ vert = bonus, ▼ rouge = malus), identique aux autres listes
 function flatSpanHTML(label, v, forceClass){
   const cls = forceClass || (v > 0 ? 'pos' : (v < 0 ? 'neg' : 'neutral'));
-  const arrow = cls === 'pos' ? '▲' : (cls === 'neg' ? '▼' : '•');
+  const arrow = cls === 'pos' || cls === 'erp-pos' ? '▲' : (cls === 'neg' || cls === 'erp-neg' ? '▼' : '•');
   return `<span class="stat-chip ${cls}">${arrow} ${label} ${v > 0 ? '+' : ''}${v}</span>`;
 }
 
@@ -2541,6 +2563,7 @@ function buildEquipPlainSummary(slot, itemName){
   Object.entries(item.flatStats || {}).forEach(([k, v]) => lines.push(`${TALENT_STAT_LABELS[k] || k} ${v > 0 ? '+' : ''}${v}`));
   Object.entries(item.extraStats || {}).forEach(([k, v]) => lines.push(`${EXTRA_STATS[k] || k} ${v > 0 ? '+' : ''}${v}`));
   Object.entries(item.elemental || {}).forEach(([k, v]) => lines.push(`${ELEMENTAL_STATS[k] || k} ${v > 0 ? '+' : ''}${v}`));
+  Object.entries(item.erpStats || {}).forEach(([k, v]) => lines.push(`${ERP_STATS[k] || k} ${v > 0 ? '+' : ''}${v}`));
   (item.notes || []).forEach(n => lines.push(n));
   return lines.length ? lines.join('\n') : 'Aucun effet particulier';
 }
@@ -2551,9 +2574,11 @@ equipmentSlots.innerHTML = `
   <div class="paperdoll-header">Équipement</div>
   <div class="paperdoll-grid" id="paperdollGrid"></div>
   <div class="paperdoll-descriptions" id="paperdollDescriptions"></div>
+  <div class="erp-stats" id="erpStats" title="Stats ERP apportées par l'équipement (sans effet en combat)"></div>
 `;
 const paperdollGrid = equipmentSlots.querySelector('#paperdollGrid');
 const paperdollDescriptions = equipmentSlots.querySelector('#paperdollDescriptions');
+const erpStatsEl = equipmentSlots.querySelector('#erpStats');
 const equipDescEls = {};
 const equipTileBoxEls = {};
 const equipTileNameEls = {};
@@ -2676,13 +2701,31 @@ function buildEquipDescriptionHTML(slot, itemName){
   [...flatEntries, ...extraEntries, ...elemEntries].forEach(([label, v]) => {
     html += flatSpanHTML(label, v, blocked ? 'neg' : undefined);
   });
+  Object.entries(item.erpStats || {}).forEach(([k, v]) => {
+    html += flatSpanHTML(ERP_STATS[k] || k, v, v > 0 ? 'erp-pos' : 'erp-neg');
+  });
 
   (item.notes || []).forEach(n => { html += `<span class="ability">${n}</span>`; });
 
   return html;
 }
 
+// Stats ERP de l'équipement porté : simple ligne discrète en bas du paperdoll
+function refreshErpStats(){
+  const totals = {};
+  Object.keys(ERP_STATS).forEach(k => totals[k] = 0);
+  Object.entries(equippedItems).forEach(([slot, itemName]) => {
+    const item = itemName && EQUIPMENT[slot] && EQUIPMENT[slot][itemName];
+    if (!item) return;
+    Object.entries(item.erpStats || {}).forEach(([k, v]) => { totals[k] = (totals[k] || 0) + v; });
+  });
+  erpStatsEl.innerHTML = '<span class="erp-stats-label">ERP</span>' + Object.entries(totals)
+    .map(([k, v]) => `<span class="${v > 0 ? 'erp-pos' : (v < 0 ? 'erp-neg' : '')}">${ERP_STATS[k] || k} ${v > 0 ? '+' : ''}${v}</span>`).join('');
+}
+refreshErpStats();
+
 function refreshEquipmentDescriptions(){
+  refreshErpStats();
   Object.keys(SLOT_LABELS).forEach(slot => {
     const itemName = equippedItems[slot];
     equipDescEls[slot].innerHTML = buildEquipDescriptionHTML(slot, itemName);

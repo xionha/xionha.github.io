@@ -44,6 +44,8 @@
     --dmg-perforant: #9fb6cc;
     --pos: #9fd07a;
     --neg: #ff9c8f;
+    --erp-pos: #f29ac4;
+    --erp-neg: #9aa6f0;
     --shadow-deep: rgba(0,0,0,0.6);
     --bar-h: 150px;
     --font-display: 'Cinzel', Georgia, serif;
@@ -456,6 +458,8 @@
   .pill.eff{ font-size: 14px; font-weight: 600; padding: 0 6px; }
   .pill.pos{ --c: var(--pos); }
   .pill.neg{ --c: var(--neg); }
+  .pill.erp-pos{ --c: var(--erp-pos); }
+  .pill.erp-neg{ --c: var(--erp-neg); }
   .st-line{ display: flex; flex-wrap: wrap; align-items: center; gap: 0; }
   .st-line + .st-line{ margin-top: 2px; }
   .st-line .eff-list{ display: inline-flex; flex-wrap: wrap; align-items: center; margin-left: 2px; padding-left: 8px; border-left: 1px solid var(--border); }
@@ -993,7 +997,7 @@ const CATEGORIES = [
 // ============================================================================
 const PREMIER_TOUR_COND = 'Ne pas avoir le statut Premier Tour';
 // Jets de résistance automatiques (3d6 + attribut contre 15), seulement si l'aptitude fait aussi des dégâts
-const RESIST_RULES = [['Brûlure', 'Résilience'], ['Poison', 'Métabolisme'], ['Poison de Mana', 'Métabolisme']];
+const RESIST_RULES = [['Brûlure', 'Résilience'], ['Saignement', 'Résilience'], ['Poison', 'Métabolisme'], ['Poison de Mana', 'Métabolisme']];
 const DETAILS = {
   475: { // Menu Artisanat
     desc: "Ouvre le menu d'artisanat du personnage.",
@@ -1157,8 +1161,8 @@ const DETAILS = {
   },
   1497: { // Gel
     cout: { PA: 1, PS: 1, Mana: 10 },
-    portee: '3 Tiles',
-    cible: '1 cible',
+    portee: '6 Tiles',
+    cible: '3 cibles',
     statuts: ['Immobile'],
     conditions: ['Être dans une zone froide', 'Ne pas être transformé', 'Ne pas avoir le statut En mouvement', 'Ne pas avoir le statut Incantation Interdite (Eau)'],
     sources: ['Hydromancie'],
@@ -1625,6 +1629,89 @@ const DETAILS = {
     statuts: ['Controle'],
     notes: 'Ne fait pas de dégâts.',
   },
+  1946: { // Renversement (Deux armes)
+    cout: { PS: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    statuts: ['Controle'],
+    conditions: ['Ne pas avoir une arme à deux mains équipée'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1939: { // Balayage (Deux armes)
+    type: 'Attaque',
+    cout: { PS: 1 },
+    portee: '1 Tile',
+    cible: '3 cibles',
+    degats: ['Tranchants fixes'],
+    conditions: ['Avoir Voie Jumelle', 'Ne pas avoir une arme à deux mains équipée'],
+    notes: "Dégâts fixes : pas influencés par l'arme ni par les Dégâts Physiques.",
+  },
+  1940: { // Fracassement (Deux Armes)
+    cout: { PA: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    statuts: ['Vulnérable'],
+    conditions: ['Avoir Voie Jumelle', 'Ne pas avoir une arme à deux mains équipée'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1941: { // Faucher les jambes (Deux armes)
+    cout: { PA: 1, PS: 1 },
+    portee: '1 Tile',
+    cible: '3 cibles',
+    statuts: ['Controle'],
+    conditions: ['Ne pas avoir une arme à deux mains équipée'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1942: { // Double fente (Deux armes)
+    type: 'Attaque',
+    cout: { PA: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    degats: ['Contondants'],
+    statuts: ['Confus'],
+    conditions: ['Avoir Voie Jumelle','Ne pas avoir une arme à deux mains équipée'],
+  },
+  1725: { // Coup de tête
+    type: 'Attaque',
+    cout: { PA: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    degats: ['Contondants'],
+    notes: 'Les bonus de Dégâts Contondants (arme, consommables…) ne sont pas pris en compte.',
+  },
+  1919: { // Utiliser posture offensive
+    cout: { PP: 1 },
+    cible: 'Soi',
+    conditions: ['Ne pas avoir le statut Buff Magique'],
+  },
+  1920: { // Utiliser posture defensive
+    cout: { PP: 1 },
+    cible: 'Soi',
+    conditions: ['Ne pas avoir le statut Buff Magique'],
+  },
+  1921: { // Utiliser posture technique
+    cout: { PP: 1 },
+    cible: 'Soi',
+    conditions: ['Ne pas avoir le statut Buff Magique'],
+  },
+  1922: { // Utiliser posture mobile
+    cout: { PP: 1 },
+    cible: 'Soi',
+    conditions: ['Ne pas avoir le statut Buff Magique'],
+  },
+  1867: { // Frappe de Geant
+    type: 'Attaque',
+    cout: { PA: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    degats: ['Contondants fixes', 'Physiques'],
+    notes: "30 dégâts Contondants fixes (pas influencés par l'arme ni par les bonus Contondants) + les Dégâts Physiques.",
+  },
+  2002: { // Bond Ailé
+    cout: { PS: 1 },
+    cible: 'Soi',
+    effets: ['Permet de se déplacer d\'autant de Tiles que la stat Déplacement du personnage'],
+  },
   1724: { // Attrapper
     cout: { PS: 1 },
     portee: '1 Tile',
@@ -1666,6 +1753,77 @@ const DETAILS = {
     degats: ['Perforants'],
     statuts: ['Immobile'],
   },
+  724: { // Tir (Court)
+    type: 'Attaque',
+    cout: { PA: 1, 'Flèches/Carreaux': 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Tranchants'],
+    physiques: false,
+    notes: 'Les Dégâts Physiques ne comptent pas.',
+  },
+  1982: { // Tir (Long)
+    type: 'Attaque',
+    cout: { PA: 1, 'Flèches/Carreaux': 1 },
+    portee: '10 Tiles',
+    cible: '1 cible',
+    degats: ['Tranchants'],
+    physiques: false,
+    conditions: ['Ne pas avoir le statut En mouvement'],
+    notes: 'Les Dégâts Physiques ne comptent pas.',
+  },
+  748: { // Triple fleche
+    type: 'Attaque',
+    cout: { PA: 1, PS: 1, 'Flèches/Carreaux': 3 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    degats: ['Tranchants'],
+    physiques: false,
+    notes: 'Les Dégâts Physiques ne comptent pas.',
+  },
+  2311: { // Tir Empoisonné (Toxique)
+    type: 'Attaque',
+    cout: { PS: 1, 'Flèches/Carreaux (Toxique)': 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Tranchants'],
+    physiques: false,
+    statuts: ['Poison'],
+    notes: 'Les Dégâts Physiques ne comptent pas. Si la cible est déjà empoisonnée : Poison aggravé, des dégâts supplémentaires résistés par le Métabolisme.',
+  },
+  2312: { // Tir Empoisonné (Mana)
+    type: 'Attaque',
+    cout: { PS: 1, 'Flèches/Carreaux (Poison de Mana)': 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Tranchants'],
+    physiques: false,
+    statuts: ['Poison de Mana'],
+    notes: 'Les Dégâts Physiques ne comptent pas. Si la cible a déjà le Poison de Mana : Poison de Mana aggravé, qui retire du Mana (pas des PV), résisté par le Métabolisme.',
+  },
+  2335: { // Tir Pointe Barbelée
+    type: 'Attaque',
+    cout: { PS: 1, 'Flèches Barbelées': 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Tranchants'],
+    physiques: false,
+    statuts: ['Saignement'],
+    notes: 'Les Dégâts Physiques ne comptent pas. Si la cible saigne déjà : Saignement aggravé, des dégâts de Sang supplémentaires résistés par la Résilience.',
+  },
+  2336: { // Viser
+    type: 'Buff',
+    cout: { PA: 1 },
+    cible: 'Soi',
+    effets: ["Capacité de Tir +3 (jusqu'au prochain Commencer le tour)"],
+  },
+  747: { // Tir Handicapant
+    cout: { PS: 1, 'Flèches/Carreaux': 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    statuts: ['Immobile'],
+    notes: 'Ne fait pas de dégâts.',
+  },
   1991: { // Tir Fusil (Court)
     type: 'Attaque',
     cout: { PA: 1, Munitions: 1 },
@@ -1682,6 +1840,66 @@ const DETAILS = {
     cible: '1 cible',
     degats: ['Perforants'],
     physiques: false,
+    conditions: ['Ne pas avoir le statut En mouvement'],
+    notes: 'Les Dégâts Physiques ne comptent pas.',
+  },
+  1983: { // Tir Arbalète (Court)
+    type: 'Attaque',
+    cout: { PA: 1, 'Flèches/Carreaux': 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    physiques: false,
+    notes: 'Les Dégâts Physiques ne comptent pas.',
+  },
+  1756: { // Tir Arbalète (Long)
+    type: 'Attaque',
+    cout: { PA: 1, 'Flèches/Carreaux': 1 },
+    portee: '10 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    physiques: false,
+    conditions: ['Ne pas avoir le statut En mouvement'],
+    notes: 'Les Dégâts Physiques ne comptent pas.',
+  },
+  2313: { // Tir Empoisonné Ar. (Toxique)
+    type: 'Attaque',
+    cout: { PS: 1, 'Flèches/Carreaux (Toxique)': 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    physiques: false,
+    statuts: ['Poison'],
+    notes: 'Les Dégâts Physiques ne comptent pas. Si la cible est déjà empoisonnée : Poison aggravé, des dégâts supplémentaires résistés par le Métabolisme.',
+  },
+  2314: { // Tir Empoisonné Ar. (Mana)
+    type: 'Attaque',
+    cout: { PS: 1, 'Flèches/Carreaux (Poison de Mana)': 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    physiques: false,
+    statuts: ['Poison de Mana'],
+    notes: 'Les Dégâts Physiques ne comptent pas. Si la cible a déjà le Poison de Mana : Poison de Mana aggravé, qui retire du Mana (pas des PV), résisté par le Métabolisme.',
+  },
+  2339: { // Tir Pointe Barbelée (Ar)
+    type: 'Attaque',
+    cout: { PS: 1, 'Flèches Barbelées': 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    physiques: false,
+    statuts: ['Saignement'],
+    notes: 'Les Dégâts Physiques ne comptent pas. Si la cible saigne déjà : Saignement aggravé, des dégâts de Sang supplémentaires résistés par la Résilience.',
+  },
+  2337: { // Tir Ciblé (Arbalète)
+    type: 'Attaque',
+    cout: { PA: 1, PS: 1, 'Flèches/Carreaux': 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    physiques: false,
+    statuts: ['Immobile'],
     conditions: ['Ne pas avoir le statut En mouvement'],
     notes: 'Les Dégâts Physiques ne comptent pas.',
   },
@@ -1853,7 +2071,7 @@ const DETAILS = {
   },
   76: { // Commencer le tour
     desc: 'Déclare le début du tour du personnage et lui rend tous ses points.',
-    recharge: { PA: 1, PM: 1, PS: 1, AT: '1/1 · 3/3 avec armée', Posture: 1 },
+    recharge: { PA: 1, PM: 1, PS: 1, AT: '1/1 · 3/3 avec armée', PP: 1 },
     retire: ['Posture en cours', 'Flamboiement', 'Bio-Electricite', 'Bouclier Magique', 'Bouclier Magique (M)', 'Bouclier Magique (P)'],
   },
   75: { // Initiative
@@ -1886,6 +2104,7 @@ DETAILS[1885] = DETAILS[1602]; // Utiliser Cosmétiques = S'apprêter
 DETAILS[2003] = DETAILS[720]; // Coup de hampe (2M) = Coup de hampe
 DETAILS[2291] = DETAILS[596]; // Coup de lame (Hache) = Coup de Lame
 DETAILS[716] = DETAILS[2292]; // Fracassement (1M) = Fracassement (2M)
+DETAILS[2305] = DETAILS[713]; // Empaler (2M) = Empaler
 
 
 // ============================================================================
@@ -1932,7 +2151,7 @@ const DATA_COLLECTIONS = { POSTURES, TRANSFORMATIONS, TRANSFORMATIONS_CHANGEFORM
 const ATTR_LABELS = Object.fromEntries(ATTRIBUTES.map(a => [a.key, a.label]));
 function statLabel(k){
   return TALENT_STAT_LABELS[k] || STATS[k] || PARENT_LABELS_SHORT[k] || ATTR_LABELS[k]
-    || EXTRA_STATS[k] || OTHER_STATS[k] || ELEMENTAL_STATS[k] || k;
+    || EXTRA_STATS[k] || OTHER_STATS[k] || ELEMENTAL_STATS[k] || ERP_STATS[k] || k;
 }
 
 // Clé de comparaison des noms d'aptitude (accents, casse, ligatures et espaces ignorés)
@@ -1970,8 +2189,8 @@ function indexSource(kind, entries){
 }
 Object.entries(EQUIPMENT).forEach(([slot, items]) => {
   Object.entries(items).forEach(([item, data]) => {
-    // perk principal de l'arme (ex. « Lames 1M »), hors perks génériques
-    const perk = (data.notes || []).map(n => /^Octroie le Perk\s*:\s*(.+)$/.exec(n)).filter(Boolean).map(m => m[1])
+    // perk principal de l'objet (ex. « Lames 1M »), hors perks génériques ; les perks d'armure ne sont pas des noms d'objet
+    const perk = slot !== 'armure' && (data.notes || []).map(n => /^Octroie le Perk\s*:\s*(.+)$/.exec(n)).filter(Boolean).map(m => m[1])
       .find(p => !['Arme', 'Deux Mains'].includes(p));
     const label = perk && perk !== item ? `${item} (${perk})` : item;
     grantedAbilities(data.notes).forEach(a => addGrant(a, SLOT_LABELS[slot] || slot, label));
@@ -1997,14 +2216,14 @@ if (UNMATCHED_GRANTS.size) console.warn('Aptitudes du simulateur introuvables da
 // Effets chiffrés d'une entrée du simulateur : [[libellé, valeur], …]
 function dataEffects(data){
   const entries = [];
-  ['parentDelta', 'attrDelta', 'flatStats', 'extraStats', 'otherStats', 'elemental'].forEach(field => {
-    Object.entries(data[field] || {}).forEach(([k, v]) => { if (v) entries.push([statLabel(k), v]); });
+  ['parentDelta', 'attrDelta', 'flatStats', 'extraStats', 'otherStats', 'elemental', 'erpStats'].forEach(field => {
+    Object.entries(data[field] || {}).forEach(([k, v]) => { if (v) entries.push([statLabel(k), v, field === 'erpStats']); });
   });
   return entries;
 }
 function effectPills(entries){
-  return entries.map(([label, v]) =>
-    `<span class="pill eff ${v > 0 ? 'pos' : 'neg'}">${esc(label)} ${v > 0 ? '+' : ''}${esc(v)}</span>`).join('');
+  return entries.map(([label, v, erp]) =>
+    `<span class="pill eff ${erp ? 'erp-' : ''}${v > 0 ? 'pos' : 'neg'}">${esc(label)} ${v > 0 ? '+' : ''}${esc(v)}</span>`).join('');
 }
 
 // ============================================================================
@@ -2086,13 +2305,13 @@ const COSTS = {
   Mana: { label: 'Mana', color: 'var(--magie-bright)' },
   PV: { label: 'Points de Vie', color: 'var(--vitales-bright)' },
   AT: { label: 'Action de Troupe', color: 'var(--defense-bright)' },
-  Posture: { label: 'Posture', color: 'var(--combat-bright)' },
+  PP: { label: 'Points de Posture', color: 'var(--combat-bright)' },
   'Hygiène': { label: 'Hygiène', color: '#7cc7b8' },
   'Santé mentale': { label: 'Santé mentale', color: '#d79ad0' },
   Corruption: { label: 'Corruption', color: '#9c6fc4' },
 };
 // Coûts filtrables (les ressources d'action uniquement)
-const COST_FILTER_KEYS = ['PA', 'PS', 'PM', 'AT'];
+const COST_FILTER_KEYS = ['PA', 'PS', 'PM', 'AT', 'PP'];
 // Types de dégâts : couleur par mot-clé (la première correspondance l'emporte)
 const DAMAGE_COLORS = [
   [/^fixes$/i, '#d8c9a8'],

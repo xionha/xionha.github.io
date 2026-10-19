@@ -1699,6 +1699,14 @@ const DETAILS = {
     cible: 'Soi',
     conditions: ['Ne pas avoir le statut Buff Magique'],
   },
+  471: { // Coup de caudale
+    type: 'Attaque',
+    cout: { PA: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    degats: ['Contondants fixes', 'Physiques'],
+    notes: "30 dégâts Contondants fixes (pas influencés par l'arme ni par les bonus Contondants) + les Dégâts Physiques.",
+  },
   1867: { // Frappe de Geant
     type: 'Attaque',
     cout: { PA: 1 },
@@ -1706,6 +1714,12 @@ const DETAILS = {
     cible: '1 cible',
     degats: ['Contondants fixes', 'Physiques'],
     notes: "30 dégâts Contondants fixes (pas influencés par l'arme ni par les bonus Contondants) + les Dégâts Physiques.",
+  },
+  467: { // Bond
+    cout: { PS: 1 },
+    cible: 'Soi',
+    retire: ['En mêlée'],
+    effets: ['Fait reculer automatiquement le personnage en arrière de 2.68 Tiles'],
   },
   2002: { // Bond Ailé
     cout: { PS: 1 },

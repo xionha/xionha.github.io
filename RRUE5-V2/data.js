@@ -3,49 +3,61 @@
 // Modifier une valeur ici la met à jour sur les deux pages.
 // ============================================================================
 
-// ---- Données extraites du tableau ----
-// effet: [min, max] gain par point investi dans l'attribut
+// ---- Attributs ----
+// Les effets sur les caractéristiques sont définis dans STAT_FORMULAS (plus bas) et recopiés
+// automatiquement dans attr.effects : effet: [min, max] gain par point investi dans l'attribut
 const ATTRIBUTES = [
-  { key: 'force', label: 'Force', effects: {
-      capCombat: [0.5, 0.5], parade: [0.5, 0.5], degatsPhysique: [2, 2]
-  }},
-  { key: 'analyse', label: 'Analyse', effects: {
-      capTir: [0.19, 0.19], forceMentale: [0.19, 0.19], degatsPhysique: [0.5, 0.5], degatsMagique: [0.5, 0.5], puissanceTroupe: [0.8, 0.8]
-  }},
-  { key: 'addresse', label: 'Adresse', effects: {
-      capCombat: [0.5, 0.5], capTir: [0.5, 0.5], esquive: [0.12, 0.12], parade: [0.19, 0.19], defense: [0.25, 0.25], degatsPhysique: [0.25, 0.25]
-  }},
-  { key: 'endurance', label: 'Endurance', effects: {
-      pv: [3, 3], mana: [2.5, 2.5], deplacement: [0.11, 0.11], parade: [0.31, 0.31], defense: [0.5, 0.5], defenseMagique: [0.25, 0.25]
-  }},
-  { key: 'resilience', label: 'Résilience', effects: {
-      pv: [2, 2], corruption: [5, 5], defense: [0.75, 0.75]
-  }, desc: 'Diminue les dégâts pris en début de tour des statuts Saignement et Brûlure.' },
-  { key: 'volonte', label: 'Volonté', effects: {
-      pv: [0.5, 0.5], mana: [1.25, 1.25], corruption: [10, 10], initiative: [0.12, 0.12], forceMentale: [0.87, 0.87], defenseMagique: [0.75, 0.75], degatsMagique: [1.25, 1.25], incantation: [0.19, 0.19]
-  }},
-  { key: 'perceptionMagique', label: 'Perception Magique', effects: {
-      mana: [1.25, 1.25], defenseMagique: [0.5, 0.5], degatsMagique: [1, 1], incantation: [0.06, 0.06]
-  }},
-  { key: 'vitesse', label: 'Vitesse', effects: {
-      initiative: [0.87, 0.87], deplacement: [0.25, 0.25], esquive: [0.87, 0.87]
-  }},
-  { key: 'perception', label: 'Perception', effects: {
-      capTir: [0.31, 0.31]
-  }},
+  { key: 'force', label: 'Force' },
+  { key: 'analyse', label: 'Analyse' },
+  { key: 'addresse', label: 'Adresse' },
+  { key: 'endurance', label: 'Endurance' },
+  { key: 'resilience', label: 'Résilience', desc: 'Diminue les dégâts pris en début de tour des statuts Saignement et Brûlure.' },
+  { key: 'volonte', label: 'Volonté' },
+  { key: 'perceptionMagique', label: 'Perception Magique' },
+  { key: 'vitesse', label: 'Vitesse' },
+  { key: 'perception', label: 'Perception' },
   // Sous-attributs sans effet sur les caractéristiques calculées : utiles uniquement pour les jets de rôle-play
-  { key: 'metabolisme', label: 'Métabolisme', effects: {}, rp: true, desc: 'Diminue les dégâts pris en début de tour du statut Poison.' },
-  { key: 'enseignement', label: 'Esoterisme', effects: {
-      incantation: [0.81, 0.81]
-  } },
-  { key: 'discretion', label: 'Discrétion', effects: {}, rp: true },
-  { key: 'convaincre', label: 'Convaincre', effects: {}, rp: true },
-  { key: 'commerce', label: 'Commerce', effects: {}, rp: true },
-  { key: 'commandement', label: 'Commandement', effects: {
-      forceMentale: [0.06, 0.06], puissanceTroupe: [1.2, 1.2]
-  }},
-  { key: 'deguisement', label: 'Déguisement', effects: {}, rp: true },
+  { key: 'metabolisme', label: 'Métabolisme', rp: true, desc: 'Diminue les dégâts pris en début de tour du statut Poison.' },
+  { key: 'enseignement', label: 'Esoterisme' },
+  { key: 'discretion', label: 'Discrétion', rp: true },
+  { key: 'convaincre', label: 'Convaincre', rp: true },
+  { key: 'commerce', label: 'Commerce', rp: true },
+  { key: 'commandement', label: 'Commandement' },
+  { key: 'deguisement', label: 'Déguisement', rp: true },
 ];
+
+// ---- Formules des caractéristiques, telles que dans l'éditeur du jeu (onglet Stats) ----
+// valeur = base + (Σ ROUNDDOWN(attribut × poids)) × finalMultiplier   (fonction « Sum »)
+// 0.062 vérifié en jeu : Force 1 + Endurance 1 + Adresse 1 → Parade = 16 × 0.062 = 0.992 → 0 (0.0625 donnerait 1).
+// Exception : Capacité de Combat à 0.0625 (l'éditeur affiche 0,062) car Force 3 + Adresse 3 → 3 en jeu (48 × 0.062 donnerait 2).
+const STAT_FORMULAS = {
+  pv:             { base: 100, finalMultiplier: 0.06, sources: { endurance: 50, volonte: 10, resilience: 40 } },
+  mana:           { base: 50,  finalMultiplier: 0.05, sources: { perceptionMagique: 50, endurance: 50 } },
+  corruption:     { base: 0, finalMultiplier: 5, sources: { volonte: 2, resilience: 1 } },
+  initiative:     { base: 0, finalMultiplier: 0.062, sources: { vitesse: 14, volonte: 2 } },
+  deplacement:    { base: 0, finalMultiplier: 0.36, sources: { vitesse: 0.7, endurance: 0.3 } },
+  capCombat:      { base: 0, finalMultiplier: 0.0625, sources: { force: 8, addresse: 8 } },
+  capTir:         { base: 0, finalMultiplier: 0.062, sources: { perception: 5, analyse: 3, addresse: 8 } },
+  forceMentale:   { base: 0, finalMultiplier: 0.062, sources: { analyse: 3, volonte: 14, commandement: 1 } },
+  incantation:    { base: 0, finalMultiplier: 0.062, sources: { volonte: 3, enseignement: 13, perceptionMagique: 1 } },
+  esquive:        { base: 0, finalMultiplier: 0.062, sources: { vitesse: 14, addresse: 2 } },
+  parade:         { base: 0, finalMultiplier: 0.062, sources: { addresse: 3, endurance: 5, force: 8 } },
+  defense:        { base: 0, finalMultiplier: 0.25, sources: { resilience: 3, endurance: 2, addresse: 1 } },
+  degatsPhysique: { base: 0, finalMultiplier: 0.25, sources: { force: 8, analyse: 2, addresse: 1 } },
+  defenseMagique: { base: 0, finalMultiplier: 0.25, sources: { perceptionMagique: 2, volonte: 3, endurance: 1 } },
+  degatsMagique:  { base: 0, finalMultiplier: 0.25, sources: { perceptionMagique: 4, volonte: 5, analyse: 2 } },
+  // Stat d'équipement (EXTRA_STATS), alimentée elle aussi par les attributs
+  puissanceTroupe: { base: 0, finalMultiplier: 0.02, sources: { commandement: 60, analyse: 40 } },
+};
+
+// Recopie des formules dans attr.effects : gain par point = poids × finalMultiplier
+ATTRIBUTES.forEach(a => { a.effects = {}; });
+Object.entries(STAT_FORMULAS).forEach(([statKey, f]) => {
+  Object.entries(f.sources).forEach(([attrKey, weight]) => {
+    const coef = weight * f.finalMultiplier;
+    ATTRIBUTES.find(a => a.key === attrKey).effects[statKey] = [coef, coef];
+  });
+});
 
 const STATS = {
   pv: 'PV', mana: 'Mana', corruption: 'Corruption', initiative: 'Initiative', deplacement: 'Déplacement',

@@ -1364,12 +1364,12 @@ function talentEffectText(t){
   return html;
 }
 
-// Stats dérivées : le jeu arrondit chaque coefficient (poids × Final Multiplier) à 2 décimales dans ATTRIBUTES,
+// Stats dérivées : le jeu calcule (Σ ROUNDDOWN(attribut × poids)) × Final Multiplier (voir STAT_FORMULAS dans data.js),
 // puis arrondit le total à l'entier inférieur. L'affichage garde les décimales ; le calculateur de toucher utilise l'entier.
 const FLOORED_STATS = new Set(['initiative', 'deplacement', 'capCombat', 'capTir', 'incantation', 'forceMentale', 'esquive', 'parade', 'degatsPhysique', 'degatsMagique', 'defense', 'defenseMagique']);
 
 // Valeurs de base avant tout bonus d'attribut, de tempérament, de morphologie ou d'espèce
-const BASE_STATS = { pv: 120, mana: 75 };
+const BASE_STATS = Object.fromEntries(Object.entries(STAT_FORMULAS).map(([k, f]) => [k, f.base]));
 
 const GROUPS = [
   { name: 'Vitales', color: 'var(--vitales)', stats: ['pv', 'mana', 'corruption'] },
@@ -3302,10 +3302,12 @@ function compute(){
   const extraFromAttrs = {};
   Object.keys(EXTRA_STATS).forEach(k => extraFromAttrs[k] = 0);
   let commerceTotal = 0;
+  const attrTotals = {};
 
   ATTRIBUTES.forEach(a => {
     const b = totalBonusFor(a.key);
     const total = state[a.key] + b;
+    attrTotals[a.key] = total;
     if (a.key === 'commerce') commerceTotal = total;
 
     // affichage de la ligne d'attribut
@@ -3318,16 +3320,21 @@ function compute(){
       bonusEl.textContent = '';
     }
 
-    if (!total) return;
-    Object.entries(a.effects).forEach(([statKey, [min, max]]) => {
-      if (totals[statKey]) {
-        totals[statKey].min += total * min;
-        totals[statKey].max += total * max;
-      } else if (extraFromAttrs[statKey] !== undefined) {
-        // ex: Commandement/Analyse -> Puissance de Troupe (stat de l'équipement, pas une caractéristique calculée)
-        extraFromAttrs[statKey] += total * max;
-      }
-    });
+  });
+
+  // Formule du jeu : (Σ ROUNDDOWN(attribut × poids)) × Final Multiplier
+  // (epsilon : évite qu'un produit entier calculé en flottant, ex. 2.9999999, tombe à l'entier du dessous)
+  Object.entries(STAT_FORMULAS).forEach(([statKey, f]) => {
+    const sum = Object.entries(f.sources)
+      .reduce((s, [attrKey, weight]) => s + Math.floor((attrTotals[attrKey] || 0) * weight + 1e-9), 0);
+    const bonus = sum * f.finalMultiplier;
+    if (totals[statKey]) {
+      totals[statKey].min = bonus;
+      totals[statKey].max = bonus;
+    } else if (extraFromAttrs[statKey] !== undefined) {
+      // ex: Commandement/Analyse -> Puissance de Troupe (stat de l'équipement, pas une caractéristique calculée)
+      extraFromAttrs[statKey] = bonus;
+    }
   });
 
   // Échange de 5 points de projet contre des pièces de bronze : 50 + (Commerce * 2)

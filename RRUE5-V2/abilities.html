@@ -2352,6 +2352,20 @@ function damageColor(t){
   const m = DAMAGE_COLORS.find(([re]) => re.test(t));
   return m ? m[1] : 'var(--text-dim)';
 }
+// Ciblage : classe d'une aptitude d'après son champ « cible »
+const CIBLAGES = [
+  ['soi',   { name: 'Soi',            color: '#9fd07a', title: 'Le lanceur uniquement' }, c => /^soi\b/i.test(c)],
+  ['mono',  { name: 'Monocible',      color: '#e0b07a', title: 'Une seule cible choisie' }, c => /^1 cible\b/i.test(c)],
+  ['multi', { name: 'Multicible',     color: '#e08a4f', title: 'Plusieurs cibles choisies une à une (ex. 3 cibles)' }, c => /^\d+ cibles\b/i.test(c)],
+  ['zone',  { name: 'Zone',           color: '#6fb0d4', title: 'Toutes les cibles dans un rayon autour du point choisi' }, c => /^zone\b/i.test(c)],
+  ['tous',  { name: 'Tous à portée',  color: '#b48ae0', title: 'Tout le monde à portée, sans choisir de cible' }, c => /^tou[ts]\b/i.test(c)],
+];
+function ciblageOf(c){
+  if (!c) return null;
+  const m = CIBLAGES.find(([, , test]) => test(c));
+  if (!m) console.warn('Ciblage non classé :', c);
+  return m ? m[0] : null;
+}
 const TYPE_COLORS = { Attaque: 'var(--combat-bright)', Soin: 'var(--pos)' };
 
 // Pastille de ressource (coût, recharge, gain, perte). Un objet consommé s'affiche à part, en pointillés.
@@ -2421,6 +2435,7 @@ function buildModel([id, name, opts = {}], cat, group){
     degats, statuts, retire, grants, effects, sources, cout, recharge, gain, perte, effets, resist, conditions,
     documented, hasInfo, applies, removes, search,
     couts: cout.map(([k]) => k).filter(k => COST_FILTER_KEYS.includes(k)),
+    ciblage: ciblageOf(d.cible),
     degatKeys: [...new Set(degats.flatMap(damageTypes).map(nameKey))],
     sortKeys: { name: name, id, cout: costSort, portee: firstNumber(d.portee) },
   };
@@ -2627,6 +2642,7 @@ const state = {
   status: null, statusMode: 'any', // any | applique | retire
   degat: null,
   cout: null,
+  ciblage: null,
   view: store.get('view', 'cards') === 'table' ? 'table' : 'cards',
   hideUndoc: !!store.get('hideUndoc', false),
   filtersOpen: !!store.get('filtersOpen', false),
@@ -2692,12 +2708,15 @@ function buildFilterPanel(){
   FILTER_LABELS.status = Object.fromEntries(statuses.map(([k, s]) => [k, { name: s.name, color: s.color }]));
   FILTER_LABELS.degat = Object.fromEntries(dmgSorted.map(([k]) => [k, { name: dmgName(k), color: damageColor(dmgName(k)) }]));
   FILTER_LABELS.cout = Object.fromEntries(COST_FILTER_KEYS.map(k => [k, { name: k, color: COSTS[k].color, title: COSTS[k].label }]));
+  FILTER_LABELS.ciblage = Object.fromEntries(CIBLAGES.map(([k, info]) => [k, info]));
 
   const chip = (f, k, info, n) => `<button type="button" class="s-chip" data-f="${f}" data-v="${esc(k)}" aria-pressed="false" style="--c:${info.color}"${info.title ? ` title="${esc(info.title)}"` : ''}><span class="dot"></span>${esc(info.name)}<small>${n}</small></button>`;
   panelEl.innerHTML = `
     <p class="hint fp-hint">Astuce : cliquez aussi sur un coût, un type de dégâts ou un statut directement dans une fiche pour filtrer.</p>
     <div class="fp-label">Coût</div>
     <div class="fp-chips">${COST_FILTER_KEYS.map(k => [k, MODELS.filter(m => m.couts.includes(k)).length]).filter(([, n]) => n).map(([k, n]) => chip('cout', k, FILTER_LABELS.cout[k], n)).join('')}</div>
+    <div class="fp-label">Ciblage</div>
+    <div class="fp-chips">${CIBLAGES.map(([k, info]) => [k, info, MODELS.filter(m => m.ciblage === k).length]).filter(([, , n]) => n).map(([k, info, n]) => chip('ciblage', k, info, n)).join('')}</div>
     <div class="fp-label">Dégâts</div>
     <div class="fp-chips">${dmgSorted.map(([k, n]) => chip('degat', k, FILTER_LABELS.degat[k], n)).join('')}</div>
     <div class="fp-label">Statuts</div>
@@ -2710,7 +2729,7 @@ function buildFilterPanel(){
       ${statuses.map(([k, s]) => chip('status', k, s, s.n)).join('')}
     </div>`;
 }
-const FILTER_LABELS = { status: {}, degat: {}, cout: {} };
+const FILTER_LABELS = { status: {}, degat: {}, cout: {}, ciblage: {} };
 
 function matches(m, ignoreCat){
   if (!ignoreCat && state.cat !== 'all' && m.cat.key !== state.cat) return false;
@@ -2722,6 +2741,7 @@ function matches(m, ignoreCat){
   }
   if (state.degat && !m.degatKeys.includes(state.degat)) return false;
   if (state.cout && !m.couts.includes(state.cout)) return false;
+  if (state.ciblage && m.ciblage !== state.ciblage) return false;
   return true;
 }
 
@@ -2791,6 +2811,7 @@ function applyFilters(){
   const MODE_LABEL = { any: 'Statut', applique: 'Applique', retire: 'Retire' };
   if (state.q) af.push(['q', 'Recherche', `« ${searchEl.value.trim()} »`, 'var(--bronze-bright)']);
   if (state.cout) af.push(['cout', 'Coût', state.cout, FILTER_LABELS.cout[state.cout].color]);
+  if (state.ciblage) af.push(['ciblage', 'Ciblage', FILTER_LABELS.ciblage[state.ciblage].name, FILTER_LABELS.ciblage[state.ciblage].color]);
   if (state.degat) af.push(['degat', 'Dégâts', FILTER_LABELS.degat[state.degat]?.name || state.degat, FILTER_LABELS.degat[state.degat]?.color]);
   if (state.status) af.push(['status', MODE_LABEL[state.statusMode], FILTER_LABELS.status[state.status]?.name || state.status, FILTER_LABELS.status[state.status]?.color]);
   activeEl.innerHTML = af.length
@@ -2798,7 +2819,7 @@ function applyFilters(){
       + (af.length > 1 ? `<button type="button" class="btn ghost" data-action="reset">Tout effacer</button>` : '')
     : '';
   $('af-row').hidden = af.length === 0;
-  const nFilters = [state.cout, state.degat, state.status].filter(Boolean).length;
+  const nFilters = [state.cout, state.ciblage, state.degat, state.status].filter(Boolean).length;
   const badge = $('filters-badge');
   badge.hidden = !nFilters;
   badge.textContent = nFilters;
@@ -2900,7 +2921,7 @@ function revealHash(){
   el.classList.add('flash');
 }
 function resetFilters(){
-  state.cat = 'all'; state.q = ''; state.status = null; state.statusMode = 'any'; state.degat = null; state.cout = null;
+  state.cat = 'all'; state.q = ''; state.status = null; state.statusMode = 'any'; state.degat = null; state.cout = null; state.ciblage = null;
   state.hideUndoc = false; $('hide-undoc').checked = false; store.set('hideUndoc', false);
   searchEl.value = '';
   applyFilters();

@@ -1365,7 +1365,7 @@ function talentEffectText(t){
 }
 
 // Stats dérivées : le jeu calcule (Σ ROUNDDOWN(attribut × poids)) × Final Multiplier (voir STAT_FORMULAS dans data.js),
-// puis arrondit le total à l'entier inférieur. L'affichage garde les décimales ; le calculateur de toucher utilise l'entier.
+// puis arrondit le total à l'entier inférieur, comme dans l'affichage et le calculateur de toucher.
 const FLOORED_STATS = new Set(['initiative', 'deplacement', 'capCombat', 'capTir', 'incantation', 'forceMentale', 'esquive', 'parade', 'degatsPhysique', 'degatsMagique', 'defense', 'defenseMagique']);
 
 // Valeurs de base avant tout bonus d'attribut, de tempérament, de morphologie ou d'espèce
@@ -3364,8 +3364,11 @@ function compute(){
     const { min, max } = totals[sKey];
     const base = BASE_STATS[sKey] || 0;
     const flat = flatStatBonus[sKey] || 0;
-    const dispMin = min + flat + base;
-    const dispMax = max + flat + base;
+    // valeur affichée comme en jeu : arrondi à l'entier inférieur pour les stats concernées
+    // (epsilon : évite qu'une valeur entière calculée en flottant, ex. 8.9999999, tombe à l'entier du dessous)
+    const roundGame = v => FLOORED_STATS.has(sKey) ? Math.floor(v + 1e-9) : v;
+    const dispMin = roundGame(min + flat + base);
+    const dispMax = roundGame(max + flat + base);
     if (sKey === 'capCombat' || sKey === 'forceMentale' || sKey === 'incantation' || sKey === 'esquive') {
       // valeur entière utilisée par le jeu : arrondi à l'entier inférieur
       // (epsilon : évite qu'une valeur entière calculée en flottant, ex. 8.9999999, tombe à l'entier du dessous)

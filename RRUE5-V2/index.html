@@ -3364,17 +3364,18 @@ function compute(){
     const { min, max } = totals[sKey];
     const base = BASE_STATS[sKey] || 0;
     const flat = flatStatBonus[sKey] || 0;
-    // valeur affichée comme en jeu : arrondi à l'entier inférieur pour les stats concernées
-    // (epsilon : évite qu'une valeur entière calculée en flottant, ex. 8.9999999, tombe à l'entier du dessous)
+    // valeur affichée avec ses décimales pour voir la progression ; le jeu, lui, arrondit à l'entier inférieur
+    // pour les stats concernées (epsilon : évite qu'une valeur entière calculée en flottant, ex. 8.9999999, tombe à l'entier du dessous)
     const roundGame = v => FLOORED_STATS.has(sKey) ? Math.floor(v + 1e-9) : v;
-    const dispMin = roundGame(min + flat + base);
-    const dispMax = roundGame(max + flat + base);
+    const dispMin = min + flat + base;
+    const dispMax = max + flat + base;
     if (sKey === 'capCombat' || sKey === 'forceMentale' || sKey === 'incantation' || sKey === 'esquive') {
       // valeur entière utilisée par le jeu : arrondi à l'entier inférieur
       // (epsilon : évite qu'une valeur entière calculée en flottant, ex. 8.9999999, tombe à l'entier du dessous)
       sheetStatsForCalc[sKey] = FLOORED_STATS.has(sKey) ? Math.floor(dispMax + 1e-9) : Math.round(dispMax);
     }
     const valueEl = statValueEls[sKey];
+    valueEl.title = FLOORED_STATS.has(sKey) ? `En jeu : ${fmt(roundGame(dispMax))}` : '';
     const fillMin = statFillMinEls[sKey];
     const fillRange = statFillRangeEls[sKey];
 

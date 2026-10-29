@@ -30,6 +30,8 @@
     --combat: #c0672f;
     --defense: #7c8ea3;
     --magie: #4d84a3;
+    --erp-pos: #f29ac4;
+    --erp-neg: #9aa6f0;
     --shadow-deep: rgba(0,0,0,0.6);
     --font-display: 'Cinzel', Georgia, serif;
     --font-deco: 'Cinzel Decorative', 'Cinzel', Georgia, serif;
@@ -228,6 +230,21 @@
     text-shadow: 0 2px 24px rgba(232,177,104,0.18);
     margin: 0 0 10px;
   }
+  .page-link{
+    display:inline-block;
+    margin-top: 14px;
+    font-family: var(--font-display);
+    font-size: 11.5px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-decoration: none;
+    border: 1px solid var(--border-bright);
+    background: var(--surface-2);
+    padding: 7px 16px;
+    transition: all 0.2s ease;
+  }
+  .page-link:hover{ color: var(--bronze-bright); border-color: var(--bronze-bright); background: rgba(189,125,63,0.12); }
   header p{
     font-family: var(--font-body);
     color: var(--text-dim);
@@ -459,6 +476,16 @@
     font-family: var(--font-body);
     font-weight: normal;
     font-style: italic;
+  }
+  .stat-chip.erp-pos{
+    color: var(--erp-pos);
+    background: rgba(242,154,196,0.14);
+    border: 1px solid rgba(242,154,196,0.5);
+  }
+  .stat-chip.erp-neg{
+    color: var(--erp-neg);
+    background: rgba(154,166,240,0.14);
+    border: 1px solid rgba(154,166,240,0.5);
   }
   .talent-effect .stat-chip{ margin: 0; }
 
@@ -944,6 +971,16 @@
   }
 
   .paperdoll-descriptions{ margin-top: 18px; }
+  .erp-stats{
+    display:flex; flex-wrap:wrap; justify-content:center; gap: 4px 12px;
+    margin-top: 14px; padding-top: 8px;
+    border-top: 1px dashed var(--border);
+    font-size: 11px; letter-spacing: 0.3px;
+    color: var(--text-faint); opacity: 0.75;
+  }
+  .erp-stats-label{ text-transform: uppercase; letter-spacing: 1.5px; }
+  .erp-stats .erp-pos{ color: var(--erp-pos); }
+  .erp-stats .erp-neg{ color: var(--erp-neg); }
   .equip-desc-block{
     display:none;
     padding: 10px 12px;
@@ -970,11 +1007,16 @@
 
   .equip-desc-block .age-desc{ margin-bottom: 0; min-height: 0; }
 
-  .injury-selector .injury-btn{ flex: 1 1 0; font-size: 12px; padding: 7px 6px; }
-  .injury-btn.sev-normale.active{
+  .injury-selector .injury-btn{ flex: 1 1 0; min-width: 0; font-size: 11.5px; padding: 7px 4px; }
+  .injury-btn.sev-blessure.active{
     background: rgba(212,175,86,0.16);
     border-color: var(--gold);
     color: var(--gold);
+  }
+  .injury-btn.sev-majeure.active{
+    background: rgba(201,140,66,0.18);
+    border-color: #c98c42;
+    color: #d9a05a;
   }
   .injury-btn.sev-grave.active{
     background: rgba(192,103,47,0.2);
@@ -986,7 +1028,6 @@
     border-color: var(--vitales);
     color: #e8776a;
   }
-  .injury-btn:disabled{ opacity: 0.3; cursor: not-allowed; }
 
   /* ---- Panneau Export / Import de build (menu déroulant, sections séparées) ---- */
   .io-panel{ margin-bottom: 22px; padding-bottom: 4px; }
@@ -1073,6 +1114,7 @@
     <h1>Simulateur d'Attributs</h1>
     <p>Répartissez vos points et observez la fourchette de chaque caractéristique</p>
     <div class="hero-rule"><span class="diamond" id="hitcalcTrigger"></span></div>
+    <a class="page-link" href="abilities.html">Encyclopédie des Aptitudes →</a>
   </header>
 
   <div class="hitcalc-menu" id="hitcalcMenu">
@@ -1188,8 +1230,8 @@
 
   <div class="toolbar">
     <div class="points-group">
-      <div class="total-points">Points investis&nbsp; <b id="totalPoints">0</b></div>
-      <div class="total-points">Points investis (Parents)&nbsp; <b id="parentPoints">0</b></div>
+      <div class="total-points">Points investis&nbsp; <b id="totalPoints">0</b> / 23</div>
+      <div class="total-points">Points investis (Parents)&nbsp; <b id="parentPoints">0</b> / 2</div>
     </div>
     <button class="reset" id="resetBtn">Réinitialiser</button>
   </div>
@@ -1281,59 +1323,8 @@
   <footer></footer>
 </div>
 
+<script src="data.js"></script>
 <script>
-// ---- Données extraites du tableau ----
-// effet: [min, max] gain par point investi dans l'attribut
-const ATTRIBUTES = [
-  { key: 'force', label: 'Force', effects: {
-      capCombat: [0.355, 0.355], parade: [0.497, 0.497], degats: [2, 2]
-  }},
-  { key: 'analyse', label: 'Analyse', effects: {
-      capTir: [0.213, 0.213], forceMentale: [0.142, 0.142], degats: [0.5, 0.5], degatsMagique: [0.5, 0.5], puissanceTroupe: [0.8, 0.8]
-  }},
-  { key: 'addresse', label: 'Adresse', effects: {
-      capCombat: [0.355, 0.355], capTir: [0.497, 0.497], esquive: [0.142, 0.142], parade: [0.213, 0.213], defense: [0.15, 0.15], degats: [0.25, 0.25]
-  }},
-  { key: 'endurance', label: 'Endurance', effects: {
-      pv: [3, 3], mana: [2.5, 2.5], deplacement: [0.09, 0.09], parade: [0.284, 0.284], defense: [0.3, 0.3], defenseMagique: [0.15, 0.15]
-  }},
-  { key: 'resilience', label: 'Résilience', effects: {
-      pv: [2, 2], defense: [0.45, 0.45]
-  }, desc: 'Diminue les dégâts pris en début de tour des statuts Saignement et Brûlure.' },
-  { key: 'volonte', label: 'Volonté', effects: {
-      pv: [0.5, 0.5], mana: [1.25, 1.25], initiative: [0.355, 0.355], forceMentale: [0.71, 0.71], defenseMagique: [0.45, 0.45], degatsMagique: [1.25, 1.25], incantation: [0.142, 0.142]
-  }},
-  { key: 'perceptionMagique', label: 'Perception Magique', effects: {
-      mana: [1.25, 1.25], defenseMagique: [0.3, 0.3], degatsMagique: [1, 1], incantation: [0.142, 0.142]
-  }},
-  { key: 'vitesse', label: 'Vitesse', effects: {
-      initiative: [0.497, 0.497], deplacement: [0.21, 0.21], capCombat: [0.284, 0.284], esquive: [0.994, 0.994]
-  }},
-  { key: 'perception', label: 'Perception', effects: {
-      initiative: [0.142, 0.142], capCombat: [0, 0], capTir: [0.355, 0.355]
-  }},
-  // Sous-attributs sans effet sur les caractéristiques calculées : utiles uniquement pour les jets de rôle-play
-  { key: 'metabolisme', label: 'Métabolisme', effects: {}, rp: true, desc: 'Diminue les dégâts pris en début de tour du statut Poison.' },
-  { key: 'enseignement', label: 'Esoterisme', effects: {
-      incantation: [0.71, 0.71]
-  } },
-  { key: 'discretion', label: 'Discrétion', effects: {}, rp: true },
-  { key: 'convaincre', label: 'Convaincre', effects: {}, rp: true },
-  { key: 'commerce', label: 'Commerce', effects: {}, rp: true },
-  { key: 'commandement', label: 'Commandement', effects: {
-      forceMentale: [0.142, 0.142], puissanceTroupe: [1.2, 1.2]
-  }},
-  { key: 'deguisement', label: 'Déguisement', effects: {}, rp: true },
-];
-
-const STATS = {
-  pv: 'PV', mana: 'Mana', initiative: 'Initiative', deplacement: 'Déplacement',
-  capCombat: 'Capacité de Combat', capTir: 'Capacité de Tir', forceMentale: 'Force Mentale',
-  incantation: 'Incantation',
-  esquive: 'Esquive', parade: 'Parade', defense: 'Défense', degats: 'Dégâts',
-  defenseMagique: 'Défense Magique', degatsMagique: 'Dégâts Magique'
-};
-
 // ---- Table inverse : pour chaque caractéristique, quels attributs y contribuent et de combien ----
 // Triée du plus haut au plus bas impact (par la valeur maximale par point)
 const STAT_ATTRIBUTE_SOURCES = {};
@@ -1345,255 +1336,6 @@ ATTRIBUTES.forEach(attr => {
   });
 });
 Object.values(STAT_ATTRIBUTE_SOURCES).forEach(list => list.sort((a, b) => b.max - a.max));
-
-// ---- Tempéraments : bonus/malus sur les stats parentes ----
-// Une stat parente donne son plein montant à CHACUNE de ses sous-stats (pas de répartition)
-const TEMPERAMENTS = {
-  "Impetueux": { conditionPhysique: 1, presence: 2, savoirFaire: 1, reflexes: 1 },
-  "Physique":  { conditionPhysique: 2, savoirFaire: 3 },
-  "Ingenieux": { esprit: 1, savoirFaire: 4 },
-  "Savant":    { conditionPhysique: -1, esprit: 2, savoirFaire: 4 },
-};
-
-// Sous-stats de chaque stat parente qui existent dans ce simulateur
-// (Métabolisme, Discrétion, Convaincre, Commerce, Déguisement et Savoir Faire
-// n'affectent aucune caractéristique dérivée du tableau et ne sont donc pas calculés ici)
-const PARENT_TO_ATTR = {
-  conditionPhysique: ['endurance', 'force', 'metabolisme', 'resilience'],
-  esprit: ['analyse', 'enseignement', 'perceptionMagique', 'volonte'],
-  reflexes: ['addresse', 'discretion', 'perception', 'vitesse'],
-  presence: ['convaincre', 'commerce', 'commandement', 'deguisement'],
-};
-
-// Structure d'affichage : stat parente -> sous-attributs correspondants dans ce simulateur
-const PARENT_GROUPS = [
-  { key: 'savoirFaire', label: 'Savoir Faire', children: [] },
-  { key: 'conditionPhysique', label: 'Condition Physique', children: ['endurance', 'force', 'metabolisme', 'resilience'] },
-  { key: 'esprit', label: 'Esprit', children: ['analyse', 'enseignement', 'perceptionMagique', 'volonte'] },
-  { key: 'reflexes', label: 'Réflexes', children: ['addresse', 'discretion', 'perception', 'vitesse'] },
-  { key: 'presence', label: 'Présence', children: ['convaincre', 'commerce', 'commandement', 'deguisement'] },
-];
-
-// ---- Morphologie : bonus fixes sur les stats parentes ----
-const MORPHOLOGIES = {
-  "Corps gracieux": { presence: 1 },
-  "Corps nerveux": { reflexes: 1 },
-  "Corps massif": { conditionPhysique: 1 },
-};
-
-// ---- Espèce : bonus sur les stats parentes + bonus fixes sur certaines caractéristiques ----
-// flatStats utilise directement les clés de STATS (pv, defense, deplacement, ...)
-// notes = éléments purement descriptifs (aptitudes, résistances) sans impact sur les calculs
-const SPECIES = {
-  "Humain": { parents: { savoirFaire: 2, conditionPhysique: 2, esprit: 2, reflexes: 2, presence: 2 }, flatStats: {}, elemental: {}, notes: [] },
-  "Géant": { parents: { savoirFaire: 0, conditionPhysique: 4, esprit: 0, reflexes: 1, presence: 1 }, flatStats: { defense: 2, deplacement: -1 }, elemental: {}, notes: ['Octroie : Frappe de Géant'] },
-  "Diable": { parents: { conditionPhysique: 2, esprit: 2, reflexes: 2, presence: 3, savoirFaire: 1 }, flatStats: {}, elemental: { lumiere: -10 }, notes: ['Octroie : Pacte Démoniaque'] },
-  "Drow": { parents: { conditionPhysique: 3, reflexes: 2, esprit: 2, presence: 2, savoirFaire: 1 }, flatStats: {}, elemental: {}, notes: [] },
-  "Céleste": { parents: { esprit: 3, reflexes: 2, presence: 2, savoirFaire: 1, conditionPhysique: 2 }, flatStats: {}, elemental: { sang: -10 }, notes: [] },
-  "Esprit": { parents: { esprit: 3, presence: 3, savoirFaire: 2, conditionPhysique: 1, reflexes: 1 }, flatStats: {}, elemental: {}, notes: [] },
-  "Sirène": { parents: { esprit: 2, reflexes: 2, presence: 3, savoirFaire: 1, conditionPhysique: 1 }, flatStats: {}, elemental: { air: -5, eau: 5 }, notes: ['Octroie : Charme', 'Octroie : Présence Hypnotisante'] },
-  "Nain": { parents: { savoirFaire: 3, conditionPhysique: 4, reflexes: 1 }, flatStats: {}, elemental: {}, notes: [] },
-  "Gobelin": { parents: { savoirFaire: 4, reflexes: 3, conditionPhysique: 1 }, flatStats: { pv: -25 }, elemental: {}, notes: [] },
-  "Orc": { parents: { conditionPhysique: 4, reflexes: 2, presence: 1 }, flatStats: { deplacement: -1, pv: 5 }, elemental: {}, notes: [] },
-  "Drakheide": { parents: { conditionPhysique: 4, reflexes: 2, presence: 1 }, flatStats: { deplacement: -1, pv: 5 }, elemental: {}, notes: ['Octroie : Coup de griffes', 'Octroie : Coup de caudale'] },
-  "Elfe": { parents: { esprit: 3, reflexes: 2, presence: 3, conditionPhysique: 1, savoirFaire: 1 }, flatStats: {}, elemental: {}, notes: [] },
-  "Semi-Hommes": { parents: { savoirFaire: 2, conditionPhysique: 1, esprit: 3, reflexes: 2, presence: 2 }, flatStats: {}, elemental: {}, notes: [] },
-};
-
-const STAT_LABELS_SHORT = { pv: 'PV', defense: 'Défense', deplacement: 'Déplacement' };
-const PARENT_LABELS_SHORT = { conditionPhysique: 'Condition Physique', esprit: 'Esprit', reflexes: 'Réflexes', presence: 'Présence', savoirFaire: 'Savoir Faire' };
-
-// ---- Malédiction : effets directs sur les attributs de base + bonus fixes sur certaines caractéristiques ----
-// attrDelta agit DIRECTEMENT sur les attributs (pas via les stats parentes, contrairement à Tempérament/Morphologie/Espèce)
-const CURSES = {
-  "Démon": { attrDelta: {}, flatStats: {}, elemental: { lumiere: -10 }, notes: ['Octroie : Charme', 'Octroie : Pacte Démoniaque', 'Octroie : Transformation Démoniaque'] },
-  "Vampire": { attrDelta: {}, flatStats: { forceMentale: 1, capCombat: 1 }, elemental: { sang: 10, lumiere: -10, feu: -20 }, notes: ['Octroie : Présence Hypnotisante', 'Octroie : Charme', 'Octroie : Sucer le Sang'] },
-  "Lycan": { attrDelta: {}, flatStats: {}, elemental: { lumiere: -20, sang: 10 }, notes: ['Octroie : Transformation Lycanthrope I'] },
-  "Mort Vivant": { attrDelta: {}, flatStats: {}, elemental: { lumiere: -30, feu: -30 }, notes: ['Immunisé au Saignement', 'Immunisé au Poison'] },
-};
-
-// ---- Corruption : un seul niveau actif à la fois (paliers non cumulables) ----
-// attrDelta agit DIRECTEMENT sur les attributs, comme la Malédiction
-const CORRUPTION = {
-  "Niveau I – Souillure": {
-    description: "Les premiers stigmates apparaissent. La peau se décolore, les yeux deviennent anormalement brillants et une sensation de froid accompagne désormais le personnage.",
-    attrDelta: { endurance: -1 },
-    flatStats: { incantation: 1, degatsMagique: 2 },
-    elemental: { lumiere: -1 },
-    notes: [],
-  },
-  "Niveau II – Altération": {
-    description: "Les veines s'assombrissent et une aura malsaine devient perceptible. Le corps commence à peiner à suivre la puissance qu'il canalise.",
-    attrDelta: { endurance: -2 },
-    flatStats: { incantation: 2, degatsMagique: 4 },
-    elemental: { lumiere: -2 },
-    notes: [],
-  },
-  "Niveau III – Déchéance": {
-    description: "Les traits se déforment, le sommeil devient agité et le personnage inspire instinctivement la méfiance. Son esprit s'élève tandis que son corps s'affaiblit.",
-    attrDelta: { endurance: -1, resilience: -1, metabolisme: -1, vitesse: -2 },
-    flatStats: { incantation: 3, degatsMagique: 6 },
-    elemental: { lumiere: -6 },
-    notes: [],
-  },
-  "Niveau IV – Dégradation": {
-    description: "La corruption est visible au premier regard. La chair porte les marques de la magie noire et le corps commence à céder sous son propre pouvoir.",
-    attrDelta: { endurance: -2, resilience: -2, metabolisme: -2, vitesse: -3 },
-    flatStats: { incantation: 4, degatsMagique: 8 },
-    elemental: { lumiere: -8 },
-    notes: [],
-  },
-  "Niveau V – Transcendance profane": {
-    description: "Le personnage n'est plus tout à fait mortel. Sa puissance magique atteint son apogée, mais son corps est devenu un simple réceptacle sur le point de céder sous les forces qui le traversent.",
-    attrDelta: { endurance: -5, resilience: -3, metabolisme: -3, vitesse: -5 },
-    flatStats: { incantation: 5, degatsMagique: 10 },
-    elemental: { lumiere: -10 },
-    notes: [],
-  },
-};
-
-// ---- Élémentaires : bascule unique, effets directs sur les stats élémentaires ----
-const ELEMENTAIRES = {
-  "Elementaire de feu":  { elemental: { feu: 15, eau: -15 } },
-  "Elementaire d'eau":   { elemental: { eau: 15, air: -15 } },
-  "Elementaire de terre": { elemental: { terre: 15, feu: -15 } },
-  "Elementaire d'air":   { elemental: { air: 15, terre: -15 } },
-};
-
-// ---- Statut Esclave : bascule Oui/Non, effets directs sur les attributs ----
-// ---- Transformation : bascule unique parmi les formes disponibles (Démoniaque / Lycanthrope I) ----
-const TRANSFORMATIONS = {
-  "Démoniaque": { flatStats: { parade: 1, defenseMagique: 2, degatsMagique: 2, degats: 2, defense: 2, forceMentale: 1 }, elemental: { lumiere: -20 }, notes: ['Octroie : Présence Hypnotisante', 'Octroie : Reprendre Forme Humaine'] },
-  "Lycanthrope I": { flatStats: {}, extraStats: { degTranchant: 30, degPerforant: 30, degContondant: 30, defTranchante: 17, defPerforante: 17, defContondante: 17 }, elemental: { lumiere: -20 }, notes: ['Octroie : Coup de Griffes', 'Octroie : Bond Puissant', 'Octroie : Morsure', 'Octroie : Reprendre Forme Humaine', 'Octroie : Faire Saigner'] },
-};
-
-// ---- Transformation Changeforme : bascule unique parmi les formes disponibles, nécessite le talent "ChangeForme" ----
-const TRANSFORMATIONS_CHANGEFORME = {
-  "Aquatique": { flatStats: {}, elemental: { air: -5, eau: 5 }, notes: ['Octroie : Coup de Caudale', 'Octroie : Reprendre Forme Humaine', 'Octroie : Crachat Puissant'] },
-  "Araignée": { flatStats: { deplacement: 1 }, elemental: {}, notes: ['Octroie : Reprendre Forme Humaine', 'Octroie : Coup Venimeux', 'Octroie : Produire Toxine', 'Octroie : Tisser Toile'] },
-  "Aviaire": { flatStats: {}, elemental: {}, notes: ['Octroie : Coup de griffes', 'Octroie : Reprendre forme Humaine', 'Octroie : Bond Ailé'] },
-  "Dragon": { flatStats: {}, elemental: {}, notes: ['Octroie : Bond', 'Octroie : Reprendre Forme Humaine', 'Octroie : Souffle Enflammé'] },
-  "Canidé": { flatStats: { capCombat: 1 }, elemental: {}, notes: ['Octroie : Bond', 'Octroie : Morsure', 'Octroie : Reprendre Forme Humaine'] },
-  "Cervidé": { flatStats: { esquive: 1 }, elemental: {}, notes: ['Octroie : Bond', 'Octroie : Reprendre Forme Humaine', 'Octroie : Empaler'] },
-  "Félin": { flatStats: { esquive: 1 }, elemental: {}, notes: ['Octroie : Coup de Griffes', 'Octroie : Bond', 'Octroie : Reprendre Forme Humaine'] },
-  "Vulpes": { flatStats: { esquive: 1 }, elemental: {}, notes: ['Octroie : Bond', 'Octroie : Morsure', 'Octroie : Reprendre Forme Humaine'] },
-  "Lagomorphe": { flatStats: { initiative: 1 }, elemental: {}, notes: ['Octroie : Bond Puissant', 'Octroie : Reprendre Forme Humaine'] },
-  "Urside": { flatStats: { defense: 2 }, elemental: {}, notes: ['Octroie : Reprendre Forme Humaine', 'Octroie : Empaler', 'Octroie : Renverser'] },
-  "Reptilien": { flatStats: {}, elemental: {}, notes: ['Octroie : Coup de Caudale', 'Octroie : Reprendre Forme Humaine', 'Octroie : Produire Toxine', 'Octroie : Coup Venimeux'] },
-};
-
-// ---- Posture : bascule unique parmi les postures de combat ----
-const POSTURES = {
-  "Posture Offensive": { flatStats: { degats: 5, defense: -5, capCombat: 3, esquive: -3 } },
-  "Posture Defensive": { flatStats: { defense: 5, degats: -5, parade: 3, deplacement: -1 } },
-  "Posture Technique": { flatStats: { capCombat: 3, esquive: -3, parade: 3, defense: -2 } },
-  "Posture Mobile": { flatStats: { deplacement: 1, esquive: 3, capCombat: -3, parade: -3, degats: -5 } },
-};
-
-const ESCLAVE = {
-  attrDelta: { addresse: -3, vitesse: -3, force: -3, endurance: 1, resilience: 1, metabolisme: 1 },
-  parentDelta: { savoirFaire: 3 },
-  flatStats: {},
-  elemental: {},
-  notes: ['Octroie le statut : Esclave'],
-};
-
-// ---- Buff Ténériffe : bascule Oui/Non ----
-const TENERIFFE = {
-  attrDelta: { perception: 1 },
-  flatStats: { defense: 2, defenseMagique: 2, pv: 50 },
-  elemental: {},
-  notes: ['Octroie : Sentir Proie', 'Octroie : Chœur de Ténériffe', 'Octroie : Coup de Griffes', 'Octroie : Coup de Caudale'],
-};
-
-// ---- Voie Jumelle : bascule Oui/Non ----
-// ---- Buffs de consommation : cumulables, sans limite de sélection ----
-// parentDelta -> cascade sur les sous-attributs via PARENT_TO_ATTR (comme le Tempérament/l'Espèce)
-// attrDelta -> effet direct sur un attribut précis
-// flatStats -> effet direct sur une caractéristique finale déjà calculée
-const CONSUMABLES = {
-  "Cosmétique (Maquillage)": { parentDelta: {}, attrDelta: { commerce: 2, convaincre: 2, enseignement: 2 }, flatStats: {}, otherStats: { representationArtistique: 2 }, notes: ['Octroie le statut : Maquillé(e)'] },
-  "Parfum (Sent Bon)": { parentDelta: {}, attrDelta: { commerce: 1, enseignement: 1, convaincre: 1 }, flatStats: {}, notes: ['Octroie le statut : Parfum'] },
-  "Savon (Propre)": { parentDelta: {}, attrDelta: { convaincre: 1, commerce: 1 }, flatStats: {}, otherStats: { representationArtistique: 1 }, notes: [] },
-  "Repas": { parentDelta: {}, attrDelta: {}, flatStats: { pv: 5, mana: 5, defense: 1, defenseMagique: 1 }, notes: [], category: 'nourriture' },
-  "Casse-Croûte": { parentDelta: {}, attrDelta: {}, flatStats: { pv: 5, mana: 5 }, notes: [], category: 'nourriture' },
-  "Jus": { parentDelta: {}, attrDelta: {}, flatStats: { pv: 5, mana: 5 }, notes: [], category: 'boisson' },
-  "Alcool doux": { parentDelta: {}, attrDelta: {}, flatStats: { pv: 5, mana: 5, defense: 1, degats: 1, initiative: -1, esquive: -1 }, notes: [], category: 'boisson' },
-  "Spiritueux (Alcool Fort)": { parentDelta: {}, attrDelta: {}, flatStats: { pv: 10, mana: 10, defense: 2, degats: 2, esquive: -3, initiative: -3 }, notes: [], category: 'boisson' },
-  "Dopant Physique (Stimulant Physique)": { parentDelta: { conditionPhysique: 2, reflexes: 2 }, attrDelta: {}, flatStats: {}, notes: [], category: null },
-  "Dopant Mystique (Stimulant Mental)": { parentDelta: { esprit: 2 }, attrDelta: {}, flatStats: {}, notes: [], category: null },
-  "Récréatif": { parentDelta: {}, attrDelta: { metabolisme: -2, resilience: 2, analyse: -2, perceptionMagique: 2, perception: 2, vitesse: -2, volonte: -2 }, flatStats: {}, notes: [] },
-};
-
-const VOIE_JUMELLE = {
-  flatStats: { capCombat: 1, parade: 1, degats: 2, defense: 2 },
-};
-
-// ---- Statuts : effets cumulables (plusieurs actifs en même temps), sans limite de sélection ----
-const STATUSES = {
-  "Ralenti": { flatStats: { deplacement: -2, esquive: -3 }, elemental: {}, notes: ['Octroie : Couper les Liens'] },
-  "Immobile": { flatStats: { deplacement: -1, esquive: -10 }, elemental: {}, notes: [] },
-  "Brûlure": { flatStats: { esquive: -1, deplacement: -1, parade: -1, defense: -5 }, elemental: {}, notes: [] },
-  "Poison": { flatStats: { capCombat: -1, forceMentale: -1, esquive: -1, parade: -1, capTir: -1 }, elemental: {}, notes: [] },
-  "Poison de Mana": { flatStats: { defenseMagique: -3, degatsMagique: -3, forceMentale: -3 }, elemental: {}, notes: [] },
-  "Saignement": { flatStats: { parade: -1, capCombat: -1, capTir: -1, esquive: -1 }, elemental: { sang: 10 }, notes: [] },
-  "Vulnérable": { flatStats: { defenseMagique: -6, defense: -10 }, elemental: {}, notes: [] },
-  "Controle": { flatStats: { pointsAction: -2, pointsMouvement: -2, actionSpeciale: -2, esquive: -10, parade: -10 }, elemental: {}, notes: ['Octroie : Terminer tour (Controle)'] },
-};
-
-// ---- Blessures : par emplacement du corps, sévérité Normale ou Critique ----
-// Certains emplacements/sévérités seront complétés plus tard ; seules les combinaisons définies ci-dessous apparaissent dans les listes.
-const INJURY_LOCATIONS = [
-  { key: 'tete', label: 'Tête' },
-  { key: 'torse', label: 'Torse' },
-  { key: 'brasGauche', label: 'Bras Gauche' },
-  { key: 'brasDroit', label: 'Bras Droit' },
-  { key: 'jambeGauche', label: 'Jambe Gauche' },
-  { key: 'jambeDroite', label: 'Jambe Droite' },
-];
-const INJURIES = {
-  tete: {
-    normale: { parentDelta: { conditionPhysique: -1, esprit: -1, reflexes: -1, presence: -1 }, flatStats: {}, notes: [] },
-    grave: { parentDelta: { conditionPhysique: -2, esprit: -2, reflexes: -2, presence: -2 }, flatStats: {}, notes: [] },
-    critique: { parentDelta: { conditionPhysique: -4, esprit: -4, reflexes: -4, presence: -4 }, flatStats: {}, notes: [] },
-  },
-  torse: {
-    normale: { parentDelta: { conditionPhysique: -1, reflexes: -1 }, flatStats: {}, notes: [] },
-    grave: { parentDelta: { conditionPhysique: -2, reflexes: -2 }, flatStats: {}, notes: [] },
-    critique: { parentDelta: { conditionPhysique: -4, reflexes: -4 }, flatStats: {}, notes: [] },
-  },
-  brasGauche: {
-    normale: { parentDelta: { conditionPhysique: -1, reflexes: -1 }, flatStats: {}, notes: [] },
-    grave: { parentDelta: { conditionPhysique: -2, reflexes: -2, savoirFaire: -2 }, flatStats: {}, notes: [] },
-    critique: { parentDelta: { conditionPhysique: -4, reflexes: -4, savoirFaire: -4 }, flatStats: {}, notes: [] },
-  },
-  brasDroit: {
-    normale: { parentDelta: { conditionPhysique: -1, reflexes: -1 }, flatStats: {}, notes: [] },
-    grave: { parentDelta: { reflexes: -2, conditionPhysique: -2, savoirFaire: -2 }, flatStats: {}, notes: [] },
-    critique: { parentDelta: { conditionPhysique: -4, reflexes: -4, savoirFaire: -4 }, flatStats: {}, notes: [] },
-  },
-  jambeGauche: {
-    normale: { parentDelta: { reflexes: -1 }, flatStats: { deplacement: -1 }, notes: [] },
-    grave: { parentDelta: { reflexes: -2 }, flatStats: { deplacement: -2 }, notes: [] },
-    critique: { parentDelta: { reflexes: -4 }, flatStats: { deplacement: -4 }, notes: [] },
-  },
-  jambeDroite: {
-    normale: { parentDelta: { reflexes: -1 }, flatStats: { deplacement: -1 }, notes: [] },
-    grave: { parentDelta: { reflexes: -2 }, flatStats: { deplacement: -2 }, notes: [] },
-    critique: { parentDelta: { reflexes: -4 }, flatStats: { deplacement: -4 }, notes: [] },
-  },
-};
-const INJURY_SEVERITY_LABELS = { normale: 'Normale', grave: 'Grave', critique: 'Critique' };
-
-// ---- Environnement : effets cumulables selon le lieu/contexte, sans limite de sélection ----
-const ENVIRONMENTS = {
-  "Jour": { flatStats: {}, elemental: { lumiere: 5, sang: -5 }, notes: [] },
-  "Nuit": { flatStats: {}, elemental: { sang: 5, lumiere: -5 }, notes: [] },
-  "Chaud": { flatStats: {}, elemental: { feu: 5, eau: -5 }, notes: ['Octroie le Perk : Chaleur Insupportable'] },
-  "Eau": { flatStats: { capCombat: -3 }, elemental: { eau: 20, air: -20 }, notes: ['Octroie le Perk : Baignade'] },
-  "Extérieur": { flatStats: {}, elemental: { terre: 5 }, notes: ['Octroie le Perk : Extérieur'] },
-  "Vampire (Jour)": { parentDelta: { conditionPhysique: -2 }, flatStats: {}, elemental: {}, notes: [] },
-};
 
 // Rendu de puces colorées (bonus en vert ▲, malus en rouge ▼) pour les résumés compacts d'effets
 function statChipsHTML(entries){
@@ -1608,6 +1350,7 @@ function statChipsHTML(entries){
 function statusEffectText(data){
   const entries = [];
   Object.entries(data.parentDelta || {}).forEach(([k, v]) => entries.push([PARENT_LABELS_SHORT[k] || k, v]));
+  Object.entries(data.attrDelta || {}).forEach(([k, v]) => entries.push([ATTR_LABELS[k] || k, v]));
   Object.entries(data.flatStats).forEach(([k, v]) => entries.push([TALENT_STAT_LABELS[k] || k, v]));
   Object.entries(data.elemental).forEach(([k, v]) => entries.push([ELEMENTAL_STATS[k] || k, v]));
   let html = statChipsHTML(entries);
@@ -1615,166 +1358,23 @@ function statusEffectText(data){
   return html;
 }
 
-// ---- Stats élémentaires : suivies séparément des caractéristiques de combat ----
-const ELEMENTAL_STATS = { lumiere: 'Lumière', feu: 'Feu', sang: 'Sang', air: 'Air', eau: 'Eau', terre: 'Terre', arcane: 'Arcane' };
-
-// ---- Stats supplémentaires apportées uniquement par l'équipement ----
-const EXTRA_STATS = {
-  puissanceTroupe: 'Puissance de Troupe',
-  defTranchante: 'Défense Tranchante',
-  defPerforante: 'Défense Perforante',
-  defContondante: 'Défense Contondante',
-  degTranchant: 'Dégâts Tranchants',
-  degPerforant: 'Dégâts Perforants',
-  degContondant: 'Dégâts Contondants',
-  carquois: 'Carquois',
-};
-
-// ---- Stats indépendantes, sans lien avec un attribut ou une stat parente ----
-const OTHER_STATS = {
-  representationArtistique: 'Représentation Artistique',
-};
-
-// ---- Équipement : un seul objet équipable par emplacement ----
-const SLOT_LABELS = {
-  troupe: 'Troupe', amulette: 'Amulette', armure: 'Armure', cape: 'Cape',
-  gants: 'Gants', ceinture: 'Ceinture', bottes: 'Bottes', arme: 'Arme', deuxH: '2H',
-};
-const EQUIPMENT = {
-  troupe: {
-    "Bête Elite": { flatStats: { pv: 50 }, extraStats: { puissanceTroupe: 30 }, notes: ['Octroie : Morsure de Bête', 'Débloque : Action de Troupe', 'Octroie le statut : Bête', 'Débloque : Puissance de Troupe'] },
-    "Garde Elite": { flatStats: { pv: 100 }, extraStats: { puissanceTroupe: 25 }, notes: ['Octroie : Salve de Flèches', 'Octroie : Cache de Bien', 'Octroie : Sacrifice de Troupe', 'Débloque : Action de Troupe', 'Octroie le statut : Garde', 'Débloque : Puissance de Troupe'] },
-    "Armée d'Elite": { flatStats: {}, extraStats: {}, notes: ["Octroie : Mettre en Marche (Elite)"] },
-    "Invocation Occulte": { flatStats: { pv: 100 }, extraStats: {}, notes: ['Octroie le Perk : Invocation Occulte', 'Octroie : Salve de Flèches (Occulte)', 'Débloque : Action de Troupe', 'Octroie le statut : Invocation Occulte', 'Octroie : Sacrifice Invocation Occulte'] },
-    "Golem Elite": { flatStats: { pv: 100 }, extraStats: { puissanceTroupe: 30 }, notes: ['Octroie : Salve de Flèches', 'Octroie : Cache de Bien', 'Débloque : Action de Troupe', 'Débloque : Puissance de Troupe', 'Octroie le statut : Golem'] },
-  },
-  amulette: {
-    "Amulette de Vigueur": { flatStats: { pv: 20 }, extraStats: {}, notes: [] },
-    "Joyau de Réserve": { flatStats: { mana: 20 }, extraStats: {}, notes: [] },
-    "Amulette de concentration": { flatStats: { forceMentale: 3 }, extraStats: {}, notes: [] },
-  },
-  armure: {
-    "Armure Légère": { flatStats: { defenseMagique: 17 }, extraStats: { defTranchante: 12, defPerforante: 12, defContondante: 12 }, notes: ['Octroie le Perk : Armure', 'Octroie le statut : Armure Légère'] },
-    "Armure Intermédiaire": { flatStats: { esquive: -1, initiative: -1, defenseMagique: 15 }, extraStats: { defTranchante: 12, defPerforante: 15, defContondante: 15 }, notes: ['Octroie le Perk : Armure', 'Octroie le statut : Armure Intermédiaire'] },
-    "Armure Lourde": { flatStats: { esquive: -3, deplacement: -1, initiative: -3, defenseMagique: 12 }, extraStats: { defTranchante: 19, defPerforante: 19, defContondante: 15 }, notes: ['Octroie le Perk : Armure', 'Octroie le statut : Armure Lourde'] },
-    "Vêtement Renforcé": { flatStats: { defenseMagique: 17 }, extraStats: { defTranchante: 12, defPerforante: 12, defContondante: 12 }, notes: ['Octroie le Perk : Armure'] },
-  },
-  cape: {
-    "Cape Lourde": { flatStats: { defense: 2 }, extraStats: {}, notes: [] },
-    "Cape en Soie": { flatStats: { defenseMagique: 2 }, extraStats: {}, notes: [] },
-  },
-  gants: {
-    "Bracelets de Force": { flatStats: { capCombat: 3 }, extraStats: {}, notes: [] },
-    "Gant de Lanceur de Sorts": { flatStats: { incantation: 3 }, extraStats: {}, notes: [] },
-    "Gants de Visée": { flatStats: { capTir: 3 }, extraStats: {}, notes: [] },
-  },
-  ceinture: {
-    "Ceinture de Potion Enchantée": { flatStats: {}, extraStats: {}, notes: ['Octroie le Perk : Sac de Potions Sans Fond', 'Octroie : Remplir Ceinture de Potion'] },
-    "Ceinture de Potion": { flatStats: {}, extraStats: {}, notes: ['Octroie le Perk : Sac de Potions', 'Octroie : Remplir Ceinture de Potion'] },
-  },
-  bottes: {
-    "Bottes d'Aventurier": { flatStats: { deplacement: 1 }, extraStats: {}, notes: [] },
-    "Chaussures en Toile": { flatStats: { esquive: 1 }, extraStats: {}, notes: [] },
-  },
-  arme: {
-    "Lame de Qualité": { flatStats: {}, extraStats: { degContondant: 10, degPerforant: 15, degTranchant: 20 }, notes: ['Octroie le Perk : Lames 1M de Bonne Facture', 'Octroie : Coup de Lame', 'Octroie : Faire Saigner', 'Octroie : Coup de Pommeau', 'Octroie le Perk : Arme'] },
-    "Hache de Qualité": { flatStats: {}, extraStats: { degTranchant: 20 }, notes: ['Octroie le Perk : Haches 1M', 'Octroie : Coup de Lame', 'Octroie : Faire Saigner', 'Octroie : Lancer de Hache', 'Octroie le Perk : Arme'] },
-    "Espadon de Qualité": { flatStats: {}, extraStats: { degContondant: 15, degPerforant: 20, degTranchant: 25 }, notes: ['Octroie le Perk : Lames 2M de Bonne Facture', 'Octroie le Perk : Deux Mains', 'Octroie : Coup Tourbillonnant', 'Octroie : Empaler', 'Octroie : Faucher les Jambes', 'Octroie le Perk : Arme'] },
-    "Grande Hache de Qualité": { flatStats: {}, extraStats: { degTranchant: 25 }, notes: ['Octroie le Perk : Haches 2M de Bonne Facture', 'Octroie le Perk : Deux Mains', 'Octroie : Balayage', 'Octroie : Fracasser', 'Octroie : Faucher les Jambes', 'Octroie le Perk : Arme'] },
-    "Masse de Qualité": { flatStats: {}, extraStats: { degContondant: 20 }, notes: ['Octroie le Perk : Masse 1M de Bonne Facture', 'Octroie : Coup de Masse', 'Octroie : Fracasser', 'Octroie : Coup Tourbillonnant'] },
-    "Lance de Qualité": { flatStats: {}, extraStats: { degContondant: 15, degPerforant: 20 }, notes: ['Octroie le Perk : Lance 1M de Bonne Facture', 'Octroie : Coup de Lance', 'Octroie : Empaler', 'Octroie : Coup de Hampe', 'Octroie le Perk : Arme', 'Octroie : Lancer de Javelot', 'Octroie : Désarçonner'] },
-    "Trident de Qualité": { flatStats: {}, extraStats: { degContondant: 20, degPerforant: 25 }, notes: ['Octroie le Perk : Lances 2M de Bonne Facture', 'Octroie le Perk : Deux Mains', 'Octroie : Coup de Lance', 'Octroie : Empaler', 'Octroie : Coup Tourbillonnant', 'Octroie le Perk : Arme', 'Octroie : Désarçonner'] },
-    "Pieu Argent": { flatStats: {}, extraStats: { degPerforant: 30 }, notes: ['Octroie le Perk : Pieu 1M', 'Octroie : Enfoncer un Pieu en Argent'] },
-    "Dague de Qualité": { flatStats: {}, extraStats: { degPerforant: 20, degTranchant: 20 }, notes: ['Octroie le Perk : Dague de Bonne Facture', 'Octroie : Empaler', 'Octroie : Faire Saigner', 'Octroie : Coup de Lame', 'Octroie le Perk : Arme', 'Octroie : Coup Vicieux'] },
-    "Marteau de Qualité": { flatStats: {}, extraStats: { degContondant: 35 }, notes: ['Octroie le Perk : Masse 2M de Bonne Facture', 'Octroie le Perk : Deux Mains', 'Octroie : Coup Tourbillonnant', 'Octroie : Fracasser', 'Octroie : Faucher les Jambes', 'Octroie le Perk : Arme'] },
-    "Katana de Qualité": { flatStats: {}, extraStats: { degPerforant: 25, degTranchant: 25 }, notes: ['Octroie le Perk : Katana de Bonne Facture', 'Octroie le Perk : Deux Mains', 'Octroie : Balayage', 'Octroie : Empaler', 'Octroie : Faire Saigner', 'Octroie le Perk : Arme'] },
-    "Arc de Qualité": { flatStats: {}, extraStats: { degPerforant: 25 }, notes: ['Octroie le Perk : Arc de Bonne Facture', 'Octroie le Perk : Deux Mains', 'Octroie : Tir (Court)', 'Octroie : Tir Handicapant', 'Octroie : Triple Flèche', 'Octroie le Perk : Arme', 'Débloque : Carquois', 'Octroie : Remplir son Carquois', 'Octroie : Tir (Long)'] },
-    "Arbalète de Qualité": { flatStats: {}, extraStats: { degPerforant: 25 }, notes: ['Octroie le Perk : Arbalète de Bonne Facture', 'Octroie le Perk : Deux Mains', 'Octroie : Tir (Court)', 'Octroie : Tir Ciblé', 'Octroie : Tir Handicapant', 'Octroie : Rechargement', 'Débloque : Carquois', 'Octroie : Remplir son Carquois', 'Octroie : Tir Arbalète (Long)'] },
-    "Mousquet de Qualité": { flatStats: {}, extraStats: { degPerforant: 25 }, notes: ['Octroie le Perk : Fusil de Bonne Facture', 'Octroie le Perk : Deux Mains', 'Octroie : Tir de Fusil (Long)', 'Octroie : Tir Ciblé', 'Octroie : Tir de Semonce', 'Octroie le Perk : Arme', 'Octroie : Rechargement'] },
-    "Lame": { flatStats: {}, extraStats: { degContondant: 5, degPerforant: 10, degTranchant: 15 }, notes: ['Octroie le Perk : Lames 1M', 'Octroie : Coup de Lame', 'Octroie : Faire Saigner', 'Octroie : Coup de Pommeau', 'Octroie le Perk : Arme'] },
-    "Hache": { flatStats: {}, extraStats: { degTranchant: 20 }, notes: ['Octroie le Perk : Haches 1M', 'Octroie : Coup de Lame', 'Octroie : Faire Saigner', 'Octroie : Lancer de Hache', 'Octroie le Perk : Arme'] },
-    "Lance": { flatStats: {}, extraStats: { degContondant: 10, degPerforant: 15 }, notes: ['Octroie le Perk : Lance 1M', 'Octroie : Coup de Lance', 'Octroie : Empaler', 'Octroie : Coup de Hampe', 'Octroie le Perk : Arme', 'Octroie : Lancer de Javelot', 'Octroie : Désarçonner'] },
-    "Arbalète": { flatStats: {}, extraStats: { degPerforant: 20, carquois: 15 }, notes: ['Octroie le Perk : Arabalete', 'Octroie le Perk : Deux Mains', 'Octroie : Tir (Court)', 'Octroie : Tir Ciblé', 'Octroie : Tir Handicapant', 'Octroie le Perk : Arme', 'Débloque : Carquois', 'Octroie : Remplir son Carquois', 'Octroie : Tir Arbalète (Long)'] },
-    "Arc": { flatStats: {}, extraStats: { degPerforant: 20 }, notes: ['Octroie le Perk : Arc', 'Octroie le Perk : Deux Mains', 'Octroie : Tir (Court)', 'Octroie : Tir Handicapant', 'Octroie : Triple Flèche', 'Octroie le Perk : Arme', 'Octroie : Remplir son Carquois', 'Débloque : Carquois', 'Octroie : Tir (Long)'] },
-    "Tromblon": { flatStats: {}, extraStats: { degPerforant: 20 }, notes: ['Octroie le Perk : Fusil', 'Octroie le Perk : Deux Mains', 'Octroie : Tir de Fusil (Long)', 'Octroie : Tir Ciblé', 'Octroie : Tir de Semonce', 'Octroie le Perk : Arme', 'Octroie : Rechargement'] },
-    "Espadon": { flatStats: {}, extraStats: { degContondant: 10, degPerforant: 15, degTranchant: 20 }, notes: ['Octroie le Perk : Lames 2M', 'Octroie le Perk : Deux Mains', 'Octroie : Coup Tourbillonnant', 'Octroie : Empaler', 'Octroie : Faucher les Jambes', 'Octroie le Perk : Arme'] },
-    "Masse": { flatStats: {}, extraStats: { degContondant: 15 }, notes: ['Octroie le Perk : Masse 1M', 'Octroie : Coup de Masse', 'Octroie : Fracasser', 'Octroie : Coup Tourbillonnant', 'Octroie le Perk : Arme'] },
-    "Marteau": { flatStats: {}, extraStats: { degContondant: 20 }, notes: ['Octroie le Perk : Masse 2M', 'Octroie le Perk : Deux Mains', 'Octroie : Coup Tourbillonnant', 'Octroie : Fracasser', 'Octroie : Faucher les Jambes', 'Octroie le Perk : Arme'] },
-    "Grande Hache": { flatStats: {}, extraStats: { degTranchant: 20 }, notes: ['Octroie le Perk : Haches 2M', 'Octroie le Perk : Deux Mains', 'Octroie : Balayage', 'Octroie : Fracasser', 'Octroie : Faucher les Jambes', 'Octroie le Perk : Arme'] },
-    "Katana": { flatStats: {}, extraStats: { degPerforant: 20, degTranchant: 20 }, notes: ['Octroie le Perk : Katana', 'Octroie le Perk : Deux Mains', 'Octroie : Balayage', 'Octroie : Empaler', 'Octroie : Faire Saigner', 'Octroie le Perk : Arme'] },
-    "Dague": { flatStats: {}, extraStats: { degPerforant: 15, degTranchant: 15 }, notes: ['Octroie le Perk : Dague', 'Octroie : Empaler', 'Octroie : Faire Saigner', 'Octroie : Coup de Lame', 'Octroie le Perk : Arme', 'Octroie : Coup Vicieux'] },
-    "Trident": { flatStats: {}, extraStats: { degContondant: 15, degPerforant: 20 }, notes: ['Octroie le Perk : Lances 2M', 'Octroie le Perk : Deux Mains', 'Octroie : Coup de Lance', 'Octroie : Empaler', 'Octroie : Coup Tourbillonnant', 'Octroie le Perk : Arme', 'Octroie : Désarçonner'] },
-    "Focus": { flatStats: { degatsMagique: 15 }, extraStats: {}, notes: [] },
-  },
-  deuxH: {
-    "Bouclier de Qualité": {
-      flatStats: { parade: 3, defense: 6 },
-      extraStats: {},
-      elemental: { air: -10 },
-      requiresOneHanded: true,
-      notes: ['Octroie le Perk : Bouclier de Qualité', 'Octroie : Coup de Bouclier'],
-    },
-    "Lame (Main Gauche)": {
-      flatStats: {},
-      extraStats: {},
-      elemental: {},
-      notes: ['Octroie : Balayage (Deux Armes)', 'Octroie : Coup Vicieux (Deux Armes)'],
-    },
-    "Hache (Main Gauche)": {
-      flatStats: {},
-      extraStats: {},
-      elemental: {},
-      notes: ['Octroie : Fracassement (Deux Armes)', 'Octroie : Faucher les Jambes (Deux Armes)', 'Octroie : Double Fente (Deux Armes)'],
-    },
-    "Dague de Parade": {
-      flatStats: {},
-      extraStats: {},
-      elemental: {},
-      notes: ['Octroie : Double Fente (Deux Armes)', 'Octroie : Renversement (Deux Armes)'],
-    },
-  },
-};
-
-// ---- Talents : bonus fixes directs sur les caractéristiques, jusqu'à 3 choisis ----
-const MAX_TALENT_POINTS = 3;
-const TALENT_STAT_LABELS = {
-  incantation: 'Incantation',
-  degatsMagique: 'Dégâts Magiques', capCombat: 'Capacité de Combat', parade: 'Parade',
-  capTir: 'Capacité de Tir', initiative: 'Initiative', esquive: 'Esquive',
-  forceMentale: 'Force Mentale', degats: 'Dégâts', mana: 'Mana',
-  defenseMagique: 'Défense Magique', deplacement: 'Déplacement', defense: 'Défense', pv: 'Points de Vie',
-  pointsAction: "Points d'Action", pointsMouvement: 'Points de Mouvement', actionSpeciale: 'Action Spéciale'
-};
-const TALENTS = [
-  { name: 'ChangeForme', cost: 1, effects: {} },
-  { name: 'Anomalie Magique', cost: 1, effects: { degatsMagique: 2 } },
-  { name: 'Bagarreur', cost: 1, effects: { capCombat: 1, parade: 1 } },
-  { name: "Œil d'aigle", cost: 1, effects: { capTir: 2 } },
-  { name: 'Instinct de tueur', cost: 1, effects: { capCombat: 2 } },
-  { name: 'Cascadeur', cost: 1, effects: { initiative: 1, esquive: 1 } },
-  { name: 'Clairvoyant', cost: 1, effects: { forceMentale: 1, initiative: 1 } },
-  { name: 'Destructeur', cost: 1, effects: { degats: 2 } },
-  { name: 'Éveil', cost: 1, effects: { mana: 10 } },
-  { name: 'Sens aiguisés', cost: 1, effects: { capTir: 1, initiative: 1 } },
-  { name: 'Pied agile', cost: 1, effects: { deplacement: 1 } },
-  { name: 'Résistance à la magie', cost: 1, effects: { defenseMagique: 2 } },
-  { name: 'Peau dure', cost: 1, effects: { defense: 2 } },
-  { name: 'Robuste', cost: 1, effects: { pv: 10 } },
-  { name: 'Vif', cost: 1, effects: { initiative: 2 } },
-  { name: "Mental d'acier", cost: 1, effects: { forceMentale: 2 } },
-];
-
-function talentEffectText(effects){
-  return statChipsHTML(Object.entries(effects).map(([k, v]) => [TALENT_STAT_LABELS[k] || k, v]));
+function talentEffectText(t){
+  let html = statChipsHTML(Object.entries(t.effects).map(([k, v]) => [TALENT_STAT_LABELS[k] || k, v]));
+  (t.notes || []).forEach(n => { html += `<span class="stat-chip neutral">${n}</span>`; });
+  return html;
 }
 
+// Stats dérivées : le jeu calcule (Σ ROUNDDOWN(attribut × poids)) × Final Multiplier (voir STAT_FORMULAS dans data.js),
+// puis arrondit le total à l'entier inférieur, comme dans l'affichage et le calculateur de toucher.
+const FLOORED_STATS = new Set(['initiative', 'deplacement', 'capCombat', 'capTir', 'incantation', 'forceMentale', 'esquive', 'parade', 'degatsPhysique', 'degatsMagique', 'defense', 'defenseMagique']);
+
 // Valeurs de base avant tout bonus d'attribut, de tempérament, de morphologie ou d'espèce
-const BASE_STATS = { pv: 120, mana: 75 };
+const BASE_STATS = Object.fromEntries(Object.entries(STAT_FORMULAS).map(([k, f]) => [k, f.base]));
 
 const GROUPS = [
-  { name: 'Vitales', color: 'var(--vitales)', stats: ['pv', 'mana'] },
+  { name: 'Vitales', color: 'var(--vitales)', stats: ['pv', 'mana', 'corruption'] },
   { name: 'Mobilité', color: 'var(--mobilite)', stats: ['initiative', 'deplacement', 'esquive'] },
-  { name: 'Combat', color: 'var(--combat)', stats: ['capCombat', 'capTir', 'degats'] },
+  { name: 'Combat', color: 'var(--combat)', stats: ['capCombat', 'capTir', 'degatsPhysique'] },
   { name: 'Défense', color: 'var(--defense)', stats: ['defense', 'parade', 'defenseMagique'] },
   { name: 'Magie', color: 'var(--magie)', stats: ['incantation', 'forceMentale', 'degatsMagique'] },
 ];
@@ -1794,7 +1394,7 @@ const GROUP_ICONS = {
 
 // ---- État ----
 const state = {};          // points alloués manuellement par l'utilisateur
-const bonusSources = { temperament: {}, morphology: {}, species: {}, curse: {}, corruption: {}, esclave: {}, teneriffe: {}, parentAlloc: {}, consumables: {}, injuries: {}, environments: {} }; // bonus/malus dérivés de chaque source
+const bonusSources = { temperament: {}, morphology: {}, species: {}, curse: {}, corruption: {}, esclave: {}, teneriffe: {}, parentAlloc: {}, consumables: {}, injuries: {}, environments: {}, statuses: {} }; // bonus/malus dérivés de chaque source
 let flatStatBonus = {};    // bonus fixes combinés (espèce + malédiction + talents) directement sur les caractéristiques
 let speciesFlatStats = {}; // bonus fixes de l'espèce actuelle uniquement
 let curseFlatStats = {};   // bonus fixes de la malédiction actuelle uniquement
@@ -1810,6 +1410,7 @@ const selectedStatuses = new Set();
 const selectedEnvironments = new Set();
 const equippedItems = { troupe: null, amulette: null, armure: null, cape: null, gants: null, ceinture: null, bottes: null, arme: null, deuxH: null };
 let equipmentFlatStats = {}; // bonus fixes combinés de tout l'équipement porté
+let consumablesExtraStats = {}; // stats supplémentaires (dégâts/défenses spécifiques) des consommables
 let equipmentExtraStats = {}; // stats supplémentaires (Puissance de Troupe, défenses spécifiques) de l'équipement
 let equipmentElemental = {}; // stats élémentaires apportées par l'équipement
 let extraStatBonus = {};
@@ -1819,6 +1420,18 @@ Object.keys(EXTRA_STATS).forEach(k => attrExtraStatBonus[k] = 0);
 let otherStatBonus = {};
 Object.keys(OTHER_STATS).forEach(k => otherStatBonus[k] = 0);
 const parentState = { savoirFaire: 0, conditionPhysique: 0, esprit: 0, reflexes: 0, presence: 0 };
+const MAX_ATTR_POINTS = 23;   // points investis au total dans les sous-attributs
+const MAX_POINTS_PER_ATTR = 5; // points investis max dans un même sous-attribut
+const MAX_PARENT_POINTS = 2;  // points investis au total dans les stats parentes
+// Ramène une valeur dans les limites autorisées, compte tenu des points déjà placés ailleurs
+function clampAttrPoints(key, v){
+  const others = ATTRIBUTES.reduce((s, a) => s + (a.key === key ? 0 : state[a.key]), 0);
+  return Math.max(0, Math.min(v, MAX_POINTS_PER_ATTR, MAX_ATTR_POINTS - others));
+}
+function clampParentPoints(key, v){
+  const others = Object.entries(parentState).reduce((s, [k, x]) => s + (k === key ? 0 : x), 0);
+  return Math.max(0, Math.min(v, MAX_PARENT_POINTS - others));
+}
 ATTRIBUTES.forEach(a => {
   state[a.key] = 0;
   bonusSources.temperament[a.key] = 0;
@@ -1832,12 +1445,13 @@ ATTRIBUTES.forEach(a => {
   bonusSources.consumables[a.key] = 0;
   bonusSources.injuries[a.key] = 0;
   bonusSources.environments[a.key] = 0;
+  bonusSources.statuses[a.key] = 0;
 });
 Object.keys(STATS).forEach(k => flatStatBonus[k] = 0);
 const selectedConsumables = new Set();
 let consumablesFlatStats = {};
 let consumablesOtherStats = {};
-const selectedInjuries = { tete: null, torse: null, brasGauche: null, brasDroit: null, jambeGauche: null, jambeDroite: null };
+let selectedInjury = null;
 let injuriesFlatStats = {};
 let currentTemperament = null;
 let currentMorphology = null;
@@ -1909,6 +1523,7 @@ function recalcConsumables(){
   ATTRIBUTES.forEach(a => bonusSources.consumables[a.key] = 0);
   const flat = {};
   const other = {};
+  const extra = {};
   selectedConsumables.forEach(name => {
     const c = CONSUMABLES[name];
     if (!c) return;
@@ -1921,26 +1536,27 @@ function recalcConsumables(){
     });
     Object.entries(c.flatStats || {}).forEach(([k, val]) => { flat[k] = (flat[k] || 0) + val; });
     Object.entries(c.otherStats || {}).forEach(([k, val]) => { other[k] = (other[k] || 0) + val; });
+    Object.entries(c.extraStats || {}).forEach(([k, val]) => { extra[k] = (extra[k] || 0) + val; });
   });
   consumablesFlatStats = flat;
   consumablesOtherStats = other;
+  consumablesExtraStats = extra;
   recalcFlatStats();
   recalcOtherStats();
+  recalcExtraStats();
 }
 
 function recalcInjuries(){
   ATTRIBUTES.forEach(a => bonusSources.injuries[a.key] = 0);
   const flat = {};
-  Object.entries(selectedInjuries).forEach(([loc, severity]) => {
-    if (!severity) return;
-    const data = INJURIES[loc] && INJURIES[loc][severity];
-    if (!data) return;
+  const data = selectedInjury && INJURIES[selectedInjury];
+  if (data) {
     Object.entries(data.parentDelta || {}).forEach(([parentKey, val]) => {
       const children = PARENT_TO_ATTR[parentKey];
       if (children) children.forEach(attrKey => { bonusSources.injuries[attrKey] += val; });
     });
     Object.entries(data.flatStats || {}).forEach(([k, val]) => { flat[k] = (flat[k] || 0) + val; });
-  });
+  }
   injuriesFlatStats = flat;
   recalcFlatStats();
 }
@@ -1953,6 +1569,21 @@ function recalcEnvironments(){
     Object.entries(e.parentDelta || {}).forEach(([parentKey, val]) => {
       const children = PARENT_TO_ATTR[parentKey];
       if (children) children.forEach(attrKey => { bonusSources.environments[attrKey] += val; });
+    });
+  });
+}
+
+function recalcStatuses(){
+  ATTRIBUTES.forEach(a => bonusSources.statuses[a.key] = 0);
+  selectedStatuses.forEach(name => {
+    const st = STATUSES[name];
+    if (!st) return;
+    Object.entries(st.parentDelta || {}).forEach(([parentKey, val]) => {
+      const children = PARENT_TO_ATTR[parentKey];
+      if (children) children.forEach(attrKey => { bonusSources.statuses[attrKey] += val; });
+    });
+    Object.entries(st.attrDelta || {}).forEach(([attrKey, val]) => {
+      if (attrKey in bonusSources.statuses) bonusSources.statuses[attrKey] += val;
     });
   });
 }
@@ -1990,6 +1621,7 @@ function recalcElementalStats(){
 function recalcExtraStats(){
   Object.keys(EXTRA_STATS).forEach(k => extraStatBonus[k] = 0);
   Object.entries(equipmentExtraStats).forEach(([k, v]) => { extraStatBonus[k] = (extraStatBonus[k] || 0) + v; });
+  Object.entries(consumablesExtraStats).forEach(([k, v]) => { extraStatBonus[k] = (extraStatBonus[k] || 0) + v; });
   if (currentTransformation && TRANSFORMATIONS[currentTransformation] && TRANSFORMATIONS[currentTransformation].extraStats) {
     Object.entries(TRANSFORMATIONS[currentTransformation].extraStats).forEach(([k, v]) => { extraStatBonus[k] = (extraStatBonus[k] || 0) + v; });
   }
@@ -2033,7 +1665,8 @@ function totalBonusFor(attrKey){
        + (bonusSources.corruption[attrKey] || 0)
        + (bonusSources.esclave[attrKey] || 0) + (bonusSources.teneriffe[attrKey] || 0)
        + (bonusSources.parentAlloc[attrKey] || 0) + (bonusSources.consumables[attrKey] || 0)
-       + (bonusSources.injuries[attrKey] || 0) + (bonusSources.environments[attrKey] || 0);
+       + (bonusSources.injuries[attrKey] || 0) + (bonusSources.environments[attrKey] || 0)
+       + (bonusSources.statuses[attrKey] || 0);
 }
 
 function applyParentBonuses(sourceName, parentValues){
@@ -2077,7 +1710,7 @@ temperamentSelector.appendChild(noneTemperamentBtn);
 // Rendu d'une ligne de bonus/malus sous forme de puce (▲ vert = bonus, ▼ rouge = malus), identique aux autres listes
 function flatSpanHTML(label, v, forceClass){
   const cls = forceClass || (v > 0 ? 'pos' : (v < 0 ? 'neg' : 'neutral'));
-  const arrow = cls === 'pos' ? '▲' : (cls === 'neg' ? '▼' : '•');
+  const arrow = cls === 'pos' || cls === 'erp-pos' ? '▲' : (cls === 'neg' || cls === 'erp-neg' ? '▼' : '•');
   return `<span class="stat-chip ${cls}">${arrow} ${label} ${v > 0 ? '+' : ''}${v}</span>`;
 }
 
@@ -2642,7 +2275,7 @@ TALENTS.forEach(t => {
   row.innerHTML = `
     <div class="talent-info">
       <span class="talent-name">${t.name}</span>
-      <span class="talent-effect">${talentEffectText(t.effects)}</span>
+      <span class="talent-effect">${talentEffectText(t)}</span>
     </div>
     <button class="talent-toggle" data-name="${t.name}">+</button>
   `;
@@ -2736,6 +2369,8 @@ function toggleStatus(name){
     selectedStatuses.add(name);
   }
   renderStatusStates();
+  recalcStatuses();
+  renderParentRows();
   recalcFlatStats();
   recalcElementalStats();
   compute();
@@ -2805,6 +2440,7 @@ function consumableEffectText(c){
   Object.entries(c.attrDelta || {}).forEach(([k, v]) => entries.push([ATTR_LABELS[k] || k, v]));
   Object.entries(c.flatStats || {}).forEach(([k, v]) => entries.push([TALENT_STAT_LABELS[k] || k, v]));
   Object.entries(c.otherStats || {}).forEach(([k, v]) => entries.push([OTHER_STATS[k] || k, v]));
+  Object.entries(c.extraStats || {}).forEach(([k, v]) => entries.push([EXTRA_STATS[k] || k, v]));
   let html = entries.length ? statChipsHTML(entries) : '';
   (c.notes || []).forEach(n => { html += `<span class="stat-chip neutral">${n}</span>`; });
   return html || '<span class="stat-chip neutral">Aucune donnée pour le moment</span>';
@@ -2868,10 +2504,9 @@ consumableList.addEventListener('click', e => {
   toggleConsumable(btn.dataset.name);
 });
 
-// ---- Construction de la liste des Blessures (par emplacement du corps) ----
-function injuryEffectHTML(loc, severity){
-  if (!severity) return '';
-  const data = INJURIES[loc] && INJURIES[loc][severity];
+// ---- Construction du sélecteur de Blessure (une seule à la fois) ----
+function injuryEffectHTML(key){
+  const data = key && INJURIES[key];
   if (!data) return '';
   let html = '';
   Object.entries(data.parentDelta || {})
@@ -2885,63 +2520,32 @@ function injuryEffectHTML(loc, severity){
 }
 
 const injuryList = document.getElementById('injuryList');
-const injuryDescEls = {};
-const injuryBtnGroups = {};
+const injuryBtnRow = document.createElement('div');
+injuryBtnRow.className = 'age-selector injury-selector';
+injuryBtnRow.innerHTML = `<button type="button" class="age-btn injury-btn active" data-severity="">Aucune</button>`
+  + Object.entries(INJURIES).map(([key, data]) =>
+      `<button type="button" class="age-btn injury-btn sev-${key}" data-severity="${key}">${data.label}</button>`).join('');
+const injuryDescEl = document.createElement('div');
+injuryDescEl.className = 'age-desc';
+injuryList.appendChild(injuryBtnRow);
+injuryList.appendChild(injuryDescEl);
 
-INJURY_LOCATIONS.forEach(loc => {
-  const available = Object.keys(INJURIES[loc.key] || {});
-  const block = document.createElement('div');
-  block.className = 'equip-slot';
-  block.innerHTML = `<label class="equip-label">${loc.label}</label>`;
-
-  const btnRow = document.createElement('div');
-  btnRow.className = 'age-selector injury-selector';
-
-  const noneBtn = document.createElement('button');
-  noneBtn.type = 'button';
-  noneBtn.className = 'age-btn injury-btn active';
-  noneBtn.dataset.severity = '';
-  noneBtn.textContent = 'Aucune';
-  btnRow.appendChild(noneBtn);
-
-  ['normale', 'grave', 'critique'].forEach(sev => {
-    if (!available.includes(sev)) return;
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = `age-btn injury-btn sev-${sev}`;
-    btn.dataset.severity = sev;
-    btn.textContent = INJURY_SEVERITY_LABELS[sev];
-    btnRow.appendChild(btn);
-  });
-
-  block.appendChild(btnRow);
-  const descEl = document.createElement('div');
-  descEl.className = 'age-desc';
-  descEl.id = `injurydesc-${loc.key}`;
-  block.appendChild(descEl);
-
-  if (!available.length) {
-    btnRow.querySelectorAll('button').forEach(b => b.disabled = true);
-    descEl.innerHTML = `<span class="note">À compléter</span>`;
-  }
-
-  injuryList.appendChild(block);
-  injuryDescEls[loc.key] = descEl;
-  injuryBtnGroups[loc.key] = btnRow;
-
-  btnRow.addEventListener('click', e => {
-    const btn = e.target.closest('.injury-btn');
-    if (!btn || btn.disabled) return;
-    applyInjury(loc.key, btn.dataset.severity);
-  });
+injuryBtnRow.addEventListener('click', e => {
+  const btn = e.target.closest('.injury-btn');
+  if (!btn) return;
+  applyInjury(btn.dataset.severity);
 });
 
-function applyInjury(loc, severity){
-  selectedInjuries[loc] = severity || null;
-  injuryDescEls[loc].innerHTML = injuryEffectHTML(loc, severity || null);
-  injuryBtnGroups[loc].querySelectorAll('.injury-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.severity === (severity || ''));
+function renderInjuryState(){
+  injuryDescEl.innerHTML = injuryEffectHTML(selectedInjury);
+  injuryBtnRow.querySelectorAll('.injury-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.severity === (selectedInjury || ''));
   });
+}
+
+function applyInjury(key){
+  selectedInjury = INJURIES[key] ? key : null;
+  renderInjuryState();
   recalcInjuries();
   renderParentRows();
   compute();
@@ -2971,6 +2575,7 @@ function buildEquipPlainSummary(slot, itemName){
   Object.entries(item.flatStats || {}).forEach(([k, v]) => lines.push(`${TALENT_STAT_LABELS[k] || k} ${v > 0 ? '+' : ''}${v}`));
   Object.entries(item.extraStats || {}).forEach(([k, v]) => lines.push(`${EXTRA_STATS[k] || k} ${v > 0 ? '+' : ''}${v}`));
   Object.entries(item.elemental || {}).forEach(([k, v]) => lines.push(`${ELEMENTAL_STATS[k] || k} ${v > 0 ? '+' : ''}${v}`));
+  Object.entries(item.erpStats || {}).forEach(([k, v]) => lines.push(`${ERP_STATS[k] || k} ${v > 0 ? '+' : ''}${v}`));
   (item.notes || []).forEach(n => lines.push(n));
   return lines.length ? lines.join('\n') : 'Aucun effet particulier';
 }
@@ -2981,9 +2586,11 @@ equipmentSlots.innerHTML = `
   <div class="paperdoll-header">Équipement</div>
   <div class="paperdoll-grid" id="paperdollGrid"></div>
   <div class="paperdoll-descriptions" id="paperdollDescriptions"></div>
+  <div class="erp-stats" id="erpStats" title="Stats ERP apportées par l'équipement (sans effet en combat)"></div>
 `;
 const paperdollGrid = equipmentSlots.querySelector('#paperdollGrid');
 const paperdollDescriptions = equipmentSlots.querySelector('#paperdollDescriptions');
+const erpStatsEl = equipmentSlots.querySelector('#erpStats');
 const equipDescEls = {};
 const equipTileBoxEls = {};
 const equipTileNameEls = {};
@@ -3106,13 +2713,31 @@ function buildEquipDescriptionHTML(slot, itemName){
   [...flatEntries, ...extraEntries, ...elemEntries].forEach(([label, v]) => {
     html += flatSpanHTML(label, v, blocked ? 'neg' : undefined);
   });
+  Object.entries(item.erpStats || {}).forEach(([k, v]) => {
+    html += flatSpanHTML(ERP_STATS[k] || k, v, v > 0 ? 'erp-pos' : 'erp-neg');
+  });
 
   (item.notes || []).forEach(n => { html += `<span class="ability">${n}</span>`; });
 
   return html;
 }
 
+// Stats ERP de l'équipement porté : simple ligne discrète en bas du paperdoll
+function refreshErpStats(){
+  const totals = {};
+  Object.keys(ERP_STATS).forEach(k => totals[k] = 0);
+  Object.entries(equippedItems).forEach(([slot, itemName]) => {
+    const item = itemName && EQUIPMENT[slot] && EQUIPMENT[slot][itemName];
+    if (!item) return;
+    Object.entries(item.erpStats || {}).forEach(([k, v]) => { totals[k] = (totals[k] || 0) + v; });
+  });
+  erpStatsEl.innerHTML = '<span class="erp-stats-label">ERP</span>' + Object.entries(totals)
+    .map(([k, v]) => `<span class="${v > 0 ? 'erp-pos' : (v < 0 ? 'erp-neg' : '')}">${ERP_STATS[k] || k} ${v > 0 ? '+' : ''}${v}</span>`).join('');
+}
+refreshErpStats();
+
 function refreshEquipmentDescriptions(){
+  refreshErpStats();
   Object.keys(SLOT_LABELS).forEach(slot => {
     const itemName = equippedItems[slot];
     equipDescEls[slot].innerHTML = buildEquipDescriptionHTML(slot, itemName);
@@ -3189,7 +2814,7 @@ function buildChildRow(a){
     <div class="attr-controls">
       <div class="stepper">
         <button data-key="${a.key}" data-dir="-1">−</button>
-        <input type="number" min="0" max="99" value="0" data-key="${a.key}" />
+        <input type="number" min="0" max="5" value="0" data-key="${a.key}" />
         <button data-key="${a.key}" data-dir="1">+</button>
       </div>
       <span class="attr-total" id="total-${a.key}">0</span>
@@ -3215,7 +2840,7 @@ PARENT_GROUPS.forEach(group => {
     <div class="attr-controls">
       <div class="stepper">
         <button data-parent="${group.key}" data-dir="-1">−</button>
-        <input type="number" min="0" max="99" value="0" data-parent="${group.key}" />
+        <input type="number" min="0" max="2" value="0" data-parent="${group.key}" />
         <button data-parent="${group.key}" data-dir="1">+</button>
       </div>
       <span class="attr-total" id="ptotal-${group.key}">0</span>
@@ -3258,7 +2883,7 @@ attrTree.addEventListener('click', e => {
   if (pbtn) {
     const key = pbtn.dataset.parent;
     const dir = parseInt(pbtn.dataset.dir, 10);
-    parentState[key] = Math.max(0, Math.min(99, parentState[key] + dir));
+    parentState[key] = clampParentPoints(key, parentState[key] + dir);
     attrTree.querySelector(`input[data-parent="${key}"]`).value = parentState[key];
     applyParentBonuses('parentAlloc', parentState);
     renderParentRows();
@@ -3269,7 +2894,7 @@ attrTree.addEventListener('click', e => {
   if (!btn) return;
   const key = btn.dataset.key;
   const dir = parseInt(btn.dataset.dir, 10);
-  state[key] = Math.max(0, Math.min(99, state[key] + dir));
+  state[key] = clampAttrPoints(key, state[key] + dir);
   attrTree.querySelector(`input[data-key="${key}"]`).value = state[key];
   compute();
 });
@@ -3279,7 +2904,7 @@ attrTree.addEventListener('input', e => {
   if (pinput) {
     let v = parseInt(pinput.value, 10);
     if (isNaN(v)) v = 0;
-    v = Math.max(0, Math.min(99, v));
+    v = clampParentPoints(pinput.dataset.parent, v);
     parentState[pinput.dataset.parent] = v;
     pinput.value = v;
     applyParentBonuses('parentAlloc', parentState);
@@ -3291,7 +2916,7 @@ attrTree.addEventListener('input', e => {
   if (!input) return;
   let v = parseInt(input.value, 10);
   if (isNaN(v)) v = 0;
-  v = Math.max(0, Math.min(99, v));
+  v = clampAttrPoints(input.dataset.key, v);
   state[input.dataset.key] = v;
   input.value = v;
   compute();
@@ -3352,7 +2977,7 @@ GROUPS.forEach(g => {
     <div class="stat-grid"></div>
   `;
   const grid = group.querySelector('.stat-grid');
-  const STAT_COLOR_OVERRIDES = { mana: 'var(--magie)' };
+  const STAT_COLOR_OVERRIDES = { mana: 'var(--magie)', corruption: '#9c6fc4' };
   g.stats.forEach(sKey => {
     const barColor = STAT_COLOR_OVERRIDES[sKey] || g.color;
     const card = document.createElement('div');
@@ -3689,10 +3314,12 @@ function compute(){
   const extraFromAttrs = {};
   Object.keys(EXTRA_STATS).forEach(k => extraFromAttrs[k] = 0);
   let commerceTotal = 0;
+  const attrTotals = {};
 
   ATTRIBUTES.forEach(a => {
     const b = totalBonusFor(a.key);
     const total = state[a.key] + b;
+    attrTotals[a.key] = total;
     if (a.key === 'commerce') commerceTotal = total;
 
     // affichage de la ligne d'attribut
@@ -3705,16 +3332,21 @@ function compute(){
       bonusEl.textContent = '';
     }
 
-    if (!total) return;
-    Object.entries(a.effects).forEach(([statKey, [min, max]]) => {
-      if (totals[statKey]) {
-        totals[statKey].min += total * min;
-        totals[statKey].max += total * max;
-      } else if (extraFromAttrs[statKey] !== undefined) {
-        // ex: Commandement/Analyse -> Puissance de Troupe (stat de l'équipement, pas une caractéristique calculée)
-        extraFromAttrs[statKey] += total * max;
-      }
-    });
+  });
+
+  // Formule du jeu : (Σ ROUNDDOWN(attribut × poids)) × Final Multiplier
+  // (epsilon : évite qu'un produit entier calculé en flottant, ex. 2.9999999, tombe à l'entier du dessous)
+  Object.entries(STAT_FORMULAS).forEach(([statKey, f]) => {
+    const sum = Object.entries(f.sources)
+      .reduce((s, [attrKey, weight]) => s + Math.floor((attrTotals[attrKey] || 0) * weight + 1e-9), 0);
+    const bonus = sum * f.finalMultiplier;
+    if (totals[statKey]) {
+      totals[statKey].min = bonus;
+      totals[statKey].max = bonus;
+    } else if (extraFromAttrs[statKey] !== undefined) {
+      // ex: Commandement/Analyse -> Puissance de Troupe (stat de l'équipement, pas une caractéristique calculée)
+      extraFromAttrs[statKey] = bonus;
+    }
   });
 
   // Échange de 5 points de projet contre des pièces de bronze : 50 + (Commerce * 2)
@@ -3744,12 +3376,18 @@ function compute(){
     const { min, max } = totals[sKey];
     const base = BASE_STATS[sKey] || 0;
     const flat = flatStatBonus[sKey] || 0;
+    // valeur affichée avec ses décimales pour voir la progression ; le jeu, lui, arrondit à l'entier inférieur
+    // pour les stats concernées (epsilon : évite qu'une valeur entière calculée en flottant, ex. 8.9999999, tombe à l'entier du dessous)
+    const roundGame = v => FLOORED_STATS.has(sKey) ? Math.floor(v + 1e-9) : v;
     const dispMin = min + flat + base;
     const dispMax = max + flat + base;
     if (sKey === 'capCombat' || sKey === 'forceMentale' || sKey === 'incantation' || sKey === 'esquive') {
-      sheetStatsForCalc[sKey] = Math.round(dispMax);
+      // valeur entière utilisée par le jeu : arrondi à l'entier inférieur
+      // (epsilon : évite qu'une valeur entière calculée en flottant, ex. 8.9999999, tombe à l'entier du dessous)
+      sheetStatsForCalc[sKey] = FLOORED_STATS.has(sKey) ? Math.floor(dispMax + 1e-9) : Math.round(dispMax);
     }
     const valueEl = statValueEls[sKey];
+    valueEl.title = FLOORED_STATS.has(sKey) ? `En jeu : ${fmt(roundGame(dispMax))}` : '';
     const fillMin = statFillMinEls[sKey];
     const fillRange = statFillRangeEls[sKey];
 
@@ -3892,21 +3530,15 @@ function resetAllState(){
   updateChangeformeAvailability();
   selectedStatuses.clear();
   renderStatusStates();
+  recalcStatuses();
   selectedEnvironments.clear();
   renderEnvironmentStates();
   recalcEnvironments();
   selectedConsumables.clear();
   renderConsumableStates();
   recalcConsumables();
-  Object.keys(selectedInjuries).forEach(loc => {
-    selectedInjuries[loc] = null;
-    if (injuryBtnGroups[loc]) {
-      injuryBtnGroups[loc].querySelectorAll('.injury-btn').forEach(b => {
-        b.classList.toggle('active', b.dataset.severity === '');
-      });
-    }
-    if (injuryDescEls[loc]) injuryDescEls[loc].innerHTML = '';
-  });
+  selectedInjury = null;
+  renderInjuryState();
   recalcInjuries();
   Object.keys(equippedItems).forEach(slot => {
     equippedItems[slot] = null;
@@ -3937,7 +3569,7 @@ function serializeBuild(){
     selectedStatuses: Array.from(selectedStatuses),
     selectedEnvironments: Array.from(selectedEnvironments),
     selectedConsumables: Array.from(selectedConsumables),
-    selectedInjuries: { ...selectedInjuries },
+    selectedInjury,
     equippedItems: { ...equippedItems },
   };
 }
@@ -3946,12 +3578,12 @@ function loadBuildData(data){
   resetAllState();
 
   ATTRIBUTES.forEach(a => {
-    const v = (data.state && data.state[a.key]) || 0;
+    const v = clampAttrPoints(a.key, (data.state && data.state[a.key]) || 0);
     state[a.key] = v;
     attrTree.querySelector(`input[data-key="${a.key}"]`).value = v;
   });
   Object.keys(parentState).forEach(k => {
-    const v = (data.parentState && data.parentState[k]) || 0;
+    const v = clampParentPoints(k, (data.parentState && data.parentState[k]) || 0);
     parentState[k] = v;
     attrTree.querySelector(`input[data-parent="${k}"]`).value = v;
   });
@@ -3980,6 +3612,7 @@ function loadBuildData(data){
 
   (data.selectedStatuses || []).forEach(name => { if (STATUSES[name]) selectedStatuses.add(name); });
   renderStatusStates();
+  recalcStatuses();
   (data.selectedEnvironments || []).forEach(name => { if (ENVIRONMENTS[name]) selectedEnvironments.add(name); });
   renderEnvironmentStates();
   recalcEnvironments();
@@ -3987,16 +3620,8 @@ function loadBuildData(data){
   renderConsumableStates();
   recalcConsumables();
 
-  Object.keys(selectedInjuries).forEach(loc => {
-    const severity = data.selectedInjuries && data.selectedInjuries[loc];
-    selectedInjuries[loc] = severity || null;
-    if (injuryBtnGroups[loc]) {
-      injuryBtnGroups[loc].querySelectorAll('.injury-btn').forEach(b => {
-        b.classList.toggle('active', b.dataset.severity === (severity || ''));
-      });
-    }
-    if (injuryDescEls[loc]) injuryDescEls[loc].innerHTML = injuryEffectHTML(loc, severity || null);
-  });
+  selectedInjury = INJURIES[data.selectedInjury] ? data.selectedInjury : null;
+  renderInjuryState();
   recalcInjuries();
 
   Object.keys(equippedItems).forEach(slot => {

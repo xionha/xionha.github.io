@@ -1,0 +1,3092 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Encyclopédie des Aptitudes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Cinzel+Decorative:wght@700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0a0806;
+    --bg-vignette:
+      radial-gradient(ellipse 900px 500px at 50% -8%, #2a1d10 0%, transparent 60%),
+      radial-gradient(ellipse 1200px 800px at 100% 100%, #1a1109 0%, transparent 55%),
+      linear-gradient(180deg, #100b07 0%, #0a0806 100%);
+    --surface: #16100a;
+    --surface-2: #201810;
+    --surface-3: #2b2117;
+    --surface-4: #352a1d;
+    --border: #3d2f1e;
+    --border-soft: #2e2317;
+    --border-bright: #7a5a2e;
+    --text: #f2e6ca;
+    --text-dim: #d3bf96;
+    --text-faint: #ab976f;
+    --bronze: #bd7d3f;
+    --bronze-bright: #e8b168;
+    --gold: #d9b25c;
+    --vitales: #9c3225;
+    --mobilite: #6f8a45;
+    --combat: #c0672f;
+    --defense: #7c8ea3;
+    --magie: #4d84a3;
+    --erp: #a8507a;
+    --ps: #b48ae0;
+    --mobilite-bright: #9dbd6a;
+    --magie-bright: #6fb0d4;
+    --vitales-bright: #e8776a;
+    --combat-bright: #e08a4f;
+    --defense-bright: #a7b8cc;
+    --dmg-contondant: #c9a77a;
+    --dmg-tranchant: #d8d2c4;
+    --dmg-perforant: #9fb6cc;
+    --pos: #9fd07a;
+    --neg: #ff9c8f;
+    --erp-pos: #f29ac4;
+    --erp-neg: #9aa6f0;
+    --shadow-deep: rgba(0,0,0,0.6);
+    --bar-h: 150px;
+    --font-display: 'Cinzel', Georgia, serif;
+    --font-deco: 'Cinzel Decorative', 'Cinzel', Georgia, serif;
+    --font-body: 'EB Garamond', Georgia, 'Times New Roman', serif;
+    --font-mono: ui-monospace, 'Cascadia Mono', Consolas, 'Courier New', monospace;
+  }
+
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+  body{
+    margin: 0;
+    background: var(--bg-vignette), var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 17px;
+    line-height: 1.45;
+    min-height: 100vh;
+    padding: 28px 20px 120px;
+    position: relative;
+  }
+  body::before{
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.45;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.35'/></svg>");
+  }
+  button{ font: inherit; color: inherit; }
+  :focus-visible{ outline: 2px solid var(--bronze-bright); outline-offset: 2px; }
+  [hidden]{ display: none !important; }
+
+  .app{ max-width: 1560px; margin: 0 auto; position: relative; z-index: 1; }
+
+  /* ================= En-tête ================= */
+  header.hero{ text-align: center; margin-bottom: 22px; padding: 4px 16px 0; }
+  .hero-glyph{ width: 42px; height: 42px; margin: 0 auto 4px; color: var(--bronze-bright); opacity: 0.9; display: block; }
+  h1{
+    font-family: var(--font-deco);
+    font-size: clamp(24px, 4vw, 36px);
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    font-weight: 700;
+    background: linear-gradient(180deg, var(--bronze-bright) 10%, var(--bronze) 55%, #a9723a 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin: 0 0 6px;
+  }
+  .hero p{ color: var(--text-dim); font-style: italic; font-size: 17px; margin: 0; }
+  .hero-rule{ display: flex; align-items: center; justify-content: center; gap: 14px; max-width: 420px; margin: 12px auto 0; }
+  .hero-rule::before, .hero-rule::after{ content: ""; height: 1px; flex: 1 1 auto; background: linear-gradient(90deg, transparent, var(--border-bright)); }
+  .hero-rule::after{ background: linear-gradient(90deg, var(--border-bright), transparent); }
+  .hero-rule .diamond{ width: 7px; height: 7px; flex-shrink: 0; background: var(--bronze-bright); transform: rotate(45deg); box-shadow: 0 0 8px rgba(232,177,104,0.55); }
+  .back-link{
+    display: inline-block;
+    margin-top: 14px;
+    font-family: var(--font-display);
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    text-decoration: none;
+    border: 1px solid var(--border-bright);
+    background: var(--surface-2);
+    padding: 7px 16px;
+    transition: all 0.2s ease;
+  }
+  .back-link:hover{ color: var(--bronze-bright); border-color: var(--bronze-bright); background: rgba(189,125,63,0.12); }
+
+  /* Légende */
+  .legend{
+    margin: 18px auto 0;
+    max-width: 1100px;
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 18px;
+    font-size: 15px; color: var(--text-dim);
+  }
+  .legend > span{ display: inline-flex; align-items: center; gap: 6px; }
+
+  /* ================= Barre d'outils ================= */
+  .toolbar{
+    position: sticky; top: 0; z-index: 30;
+    margin: 0 0 22px;
+    background: rgba(22,16,10,0.97);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--border-bright);
+    box-shadow: 0 10px 28px var(--shadow-deep);
+    padding: 12px 16px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  @supports (backdrop-filter: blur(4px)){ .toolbar{ background: rgba(22,16,10,0.9); backdrop-filter: blur(8px); } }
+  .tb-row{ display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+
+  .search-box{ position: relative; flex: 1 1 300px; min-width: 0; }
+  .search-box svg{ position: absolute; left: 11px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--text-faint); pointer-events: none; }
+  .search{
+    width: 100%;
+    background: var(--surface-2);
+    border: 1px solid var(--border-bright);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 17px;
+    padding: 9px 36px 9px 38px;
+    outline: none;
+    border-radius: 3px;
+  }
+  .search:focus{ border-color: var(--bronze-bright); box-shadow: 0 0 0 3px rgba(232,177,104,0.15); }
+  .search::placeholder{ color: var(--text-faint); font-style: italic; }
+  .search-box kbd{
+    position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+    font-family: var(--font-mono); font-size: 12px; color: var(--text-faint);
+    border: 1px solid var(--border); border-radius: 3px; padding: 0 6px; background: var(--surface);
+  }
+  .search:focus + kbd, .search:not(:placeholder-shown) + kbd{ display: none; }
+
+  .seg{ display: inline-flex; border: 1px solid var(--border-bright); border-radius: 3px; overflow: hidden; flex-shrink: 0; }
+  .seg button{
+    display: inline-flex; align-items: center; gap: 7px;
+    background: var(--surface-2); border: 0; border-left: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: var(--font-display); font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase;
+    padding: 9px 14px; cursor: pointer;
+  }
+  .seg button:first-child{ border-left: 0; }
+  .seg button svg{ width: 16px; height: 16px; }
+  .seg button:hover{ color: var(--text); }
+  .seg button[aria-pressed="true"]{ background: rgba(232,177,104,0.16); color: var(--bronze-bright); }
+
+  .check{ display: inline-flex; align-items: center; gap: 8px; font-size: 16px; color: var(--text-dim); cursor: pointer; user-select: none; }
+  .check input{ width: 17px; height: 17px; accent-color: var(--bronze-bright); margin: 0; }
+
+  .counter{ font-size: 16px; color: var(--text-dim); white-space: nowrap; margin-left: auto; }
+  .counter b{ color: var(--bronze-bright); font-size: 19px; font-family: var(--font-display); }
+
+  /* Onglets de catégorie */
+  .tb-nav{ flex-wrap: nowrap; align-items: flex-start; }
+  .tb-nav .btn{ flex-shrink: 0; padding-top: 8px; padding-bottom: 8px; }
+  .tabs{ flex: 1 1 auto; min-width: 0; flex-wrap: wrap; display: flex; gap: 6px; }
+  @media (max-width: 760px){ .tb-nav{ flex-wrap: wrap; } .tabs{ flex-wrap: nowrap; overflow-x: auto; scrollbar-width: thin; padding-bottom: 4px; flex-basis: 100%; } }
+  .tab{
+    --cat: var(--bronze-bright);
+    flex-shrink: 0;
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-bottom: 2px solid var(--border);
+    color: var(--text-dim);
+    font-family: var(--font-display); font-size: 12.5px; letter-spacing: 1.4px; text-transform: uppercase;
+    padding: 7px 12px;
+    cursor: pointer;
+    border-radius: 3px 3px 0 0;
+  }
+  .tab .n{ font-family: var(--font-body); font-size: 14px; letter-spacing: 0; color: var(--text-faint); }
+  .tab:hover{ color: var(--text); border-bottom-color: var(--cat); }
+  .tab.active{ color: var(--cat); border-color: var(--cat); background: color-mix(in srgb, var(--cat) 14%, var(--surface-2)); }
+  .tab.active .n{ color: var(--text); }
+  .tab.zero{ opacity: 0.45; }
+
+  /* Ligne des filtres actifs */
+  .btn{
+    display: inline-flex; align-items: center; gap: 7px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-bright);
+    color: var(--text-dim);
+    font-family: var(--font-display); font-size: 12px; letter-spacing: 1.4px; text-transform: uppercase;
+    padding: 7px 12px; border-radius: 3px; cursor: pointer;
+  }
+  .btn:hover{ color: var(--bronze-bright); border-color: var(--bronze-bright); }
+  .btn svg{ width: 15px; height: 15px; }
+  .btn .caret{ transition: transform 0.15s ease; }
+  .btn[aria-expanded="true"] .caret{ transform: rotate(180deg); }
+  .btn .badge{ background: var(--bronze-bright); color: #1a120a; font-family: var(--font-body); font-weight: 700; font-size: 13px; letter-spacing: 0; border-radius: 9px; padding: 0 7px; }
+  .btn.primary{ background: var(--bronze); border-color: var(--bronze-bright); color: #1a120a; font-weight: 700; }
+  .btn.primary:hover{ background: var(--bronze-bright); color: #1a120a; }
+  .btn.ghost{ border-color: var(--border); }
+  .btn:disabled{ opacity: 0.5; cursor: not-allowed; }
+  .active-filters{ display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .af{
+    --c: var(--bronze-bright);
+    display: inline-flex; align-items: center; gap: 6px;
+    background: color-mix(in srgb, var(--c) 20%, transparent);
+    border: 1px solid var(--c);
+    color: var(--text);
+    font-size: 15px; font-weight: 600;
+    padding: 2px 6px 2px 10px; border-radius: 3px; cursor: pointer;
+  }
+  .af small{ font-family: var(--font-display); font-size: 10.5px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-dim); font-weight: 500; }
+  .af .x{ display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 2px; color: var(--c); font-size: 15px; line-height: 1; }
+  .af:hover .x{ background: var(--c); color: #16110c; }
+  .hint{ color: var(--text-faint); font-style: italic; font-size: 15px; }
+
+  /* Panneau des filtres */
+  .filter-panel{
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+    display: grid; grid-template-columns: 110px 1fr; gap: 10px 14px; align-items: start;
+    max-height: min(36vh, 320px); overflow-y: auto;
+  }
+  .fp-hint{ grid-column: 1 / -1; margin: 0; }
+  .fp-label{ font-family: var(--font-display); font-size: 12px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--text-faint); padding-top: 6px; }
+  .fp-chips{ display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .fp-mode{ display: inline-flex; gap: 0; margin-right: 8px; }
+  .fp-mode button{ font-size: 11px; padding: 5px 9px; }
+  .s-chip{
+    --c: var(--vitales-bright);
+    display: inline-flex; align-items: center; gap: 6px;
+    background: color-mix(in srgb, var(--c) 9%, transparent);
+    border: 1px solid color-mix(in srgb, var(--c) 45%, transparent);
+    color: var(--c);
+    font-family: var(--font-body); font-size: 15px; font-weight: 600;
+    padding: 3px 9px; border-radius: 3px; cursor: pointer;
+  }
+  .s-chip small{ font-weight: 400; font-size: 13px; color: var(--text-faint); }
+  .s-chip:hover{ background: color-mix(in srgb, var(--c) 20%, transparent); border-color: var(--c); }
+  .s-chip[aria-pressed="true"]{ background: var(--c); color: #16110c; border-color: var(--c); box-shadow: 0 0 12px color-mix(in srgb, var(--c) 45%, transparent); }
+  .s-chip[aria-pressed="true"] small{ color: #16110c; opacity: 0.75; }
+  .s-chip .dot{ width: 8px; height: 8px; border-radius: 50%; background: var(--c); flex-shrink: 0; }
+  .s-chip[aria-pressed="true"] .dot{ background: #16110c; }
+
+  /* ================= Mise en page ================= */
+  .layout{ display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 26px; align-items: start; }
+  .layout.wide{ grid-template-columns: minmax(0, 1fr); }
+  .layout.wide .toc{ display: none; }
+  @media (max-width: 1000px){
+    .layout{ grid-template-columns: minmax(0, 1fr); }
+    .toc{ display: none; }
+  }
+
+  /* Sommaire */
+  .toc{
+    position: sticky; top: calc(var(--bar-h) + 12px);
+    max-height: calc(100vh - var(--bar-h) - 24px);
+    overflow-y: auto;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 12px 10px 10px;
+    font-size: 15.5px;
+    scrollbar-width: thin;
+  }
+  .toc-cat{
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-family: var(--font-display); font-size: 12.5px; font-weight: 700; letter-spacing: 1.8px; text-transform: uppercase;
+    color: var(--cat); text-decoration: none;
+    margin: 12px 0 4px; padding: 0 4px;
+  }
+  .toc > div:first-child .toc-cat{ margin-top: 0; }
+  .toc-group{
+    display: flex; justify-content: space-between; gap: 8px;
+    color: var(--text-dim); text-decoration: none;
+    padding: 3px 6px 3px 10px;
+    border-left: 2px solid var(--border);
+    line-height: 1.3;
+  }
+  .toc-group:hover{ color: var(--text); border-left-color: var(--cat); background: rgba(255,255,255,0.03); }
+  .toc-group.current{ color: var(--text); border-left-color: var(--cat); background: color-mix(in srgb, var(--cat) 12%, transparent); }
+  .toc-group .n, .toc-cat .n{ color: var(--text-faint); font-family: var(--font-body); font-size: 14px; font-weight: 400; letter-spacing: 0; }
+
+  /* Catégories & groupes */
+  .category{ margin-bottom: 40px; scroll-margin-top: calc(var(--bar-h) + 16px); }
+  .category-head{ border-left: 4px solid var(--cat); padding: 2px 0 2px 14px; margin-bottom: 16px; }
+  .category-title{
+    font-family: var(--font-deco); font-size: 26px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--cat); margin: 0;
+    display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+  }
+  .category-title small{ font-family: var(--font-body); font-size: 16px; letter-spacing: 0; color: var(--text-faint); text-transform: none; font-weight: 400; }
+  .category-desc{ color: var(--text-dim); font-style: italic; margin: 2px 0 0; font-size: 16.5px; }
+
+  .group{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 16px 18px 18px;
+    margin-bottom: 18px;
+    box-shadow: 0 8px 24px var(--shadow-deep);
+    scroll-margin-top: calc(var(--bar-h) + 16px);
+  }
+  .group-head{ display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin: 0 0 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .group-title{ font-family: var(--font-display); font-size: 16px; letter-spacing: 2.2px; text-transform: uppercase; font-weight: 700; color: var(--bronze-bright); margin: 0; }
+  .group-count{ font-size: 15px; color: var(--text-faint); }
+  .group-desc{ color: var(--text-dim); font-style: italic; font-size: 16px; flex-basis: 100%; margin: 0; }
+
+  /* ================= Vue fiches ================= */
+  .grid{ display: grid; grid-template-columns: repeat(auto-fill, minmax(min(350px, 100%), 1fr)); gap: 14px; }
+  .ability{
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--cat);
+    border-radius: 3px;
+    padding: 13px 15px 14px;
+    display: flex; flex-direction: column; gap: 10px;
+    min-width: 0;
+    scroll-margin-top: calc(var(--bar-h) + 20px);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .ability.in-cmp{ border-color: color-mix(in srgb, var(--bronze-bright) 60%, var(--border)); box-shadow: inset 0 0 0 1px rgba(232,177,104,0.35); }
+  .flash{ animation: flash 2.2s ease-out; }
+  @keyframes flash{
+    0%, 35%{ box-shadow: 0 0 0 2px var(--bronze-bright), 0 0 26px rgba(232,177,104,0.45); }
+    100%{ box-shadow: 0 0 0 0 transparent; }
+  }
+  .ab-head{ display: flex; align-items: flex-start; gap: 10px; }
+  .ab-title{ flex: 1 1 auto; min-width: 0; }
+  .ab-name{
+    font-family: var(--font-display); font-weight: 700; font-size: 18px; letter-spacing: 0.4px; line-height: 1.25;
+    color: var(--text); margin: 0; overflow-wrap: break-word;
+  }
+  .ab-badges{ display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
+  .ab-badges:empty{ display: none; }
+  .ab-tools{ display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .ab-id{ font-family: var(--font-mono); font-size: 13px; color: var(--text-faint); text-decoration: none; }
+  .ab-id:hover{ color: var(--bronze-bright); text-decoration: underline; }
+  .badge-type{
+    --c: var(--text-dim);
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: var(--font-display); font-size: 11.5px; font-weight: 700; letter-spacing: 1.3px; text-transform: uppercase;
+    color: var(--c); border: 1px solid color-mix(in srgb, var(--c) 60%, transparent);
+    background: color-mix(in srgb, var(--c) 14%, transparent);
+    padding: 1px 8px; border-radius: 2px;
+  }
+  .badge-type svg{ width: 13px; height: 13px; }
+  .badge-verify{ --c: var(--gold); }
+
+  .cmp-btn{
+    display: inline-flex; align-items: center; gap: 5px;
+    background: transparent; border: 1px solid var(--border); border-radius: 3px;
+    color: var(--text-faint);
+    font-family: var(--font-display); font-size: 10.5px; letter-spacing: 1.2px; text-transform: uppercase;
+    padding: 4px 7px; cursor: pointer; white-space: nowrap;
+  }
+  .cmp-btn svg{ width: 14px; height: 14px; }
+  .cmp-btn:hover{ color: var(--bronze-bright); border-color: var(--bronze-bright); }
+  .cmp-btn[aria-pressed="true"]{ background: var(--bronze); border-color: var(--bronze-bright); color: #1a120a; font-weight: 700; }
+
+  /* Bandeau des données clés : toujours dans le même ordre pour comparer d'un coup d'œil */
+  .facts{
+    display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+    border-radius: 3px;
+  }
+  .facts.cd3{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .fact{ padding: 7px 10px 8px; min-width: 0; border-left: 1px solid var(--border-soft); }
+  .fact.full{ grid-column: 1 / -1; border-left: 0; border-bottom: 1px solid var(--border-soft); }
+  .fact.first{ border-left: 0; }
+  .fact-label{
+    display: flex; align-items: center; gap: 5px;
+    font-family: var(--font-display); font-size: 10.5px; font-weight: 600; letter-spacing: 1.4px; text-transform: uppercase;
+    color: var(--text-faint); margin-bottom: 3px;
+  }
+  .fact-label svg{ width: 13px; height: 13px; color: var(--u, var(--text-faint)); }
+  .fact-val{ font-size: 16.5px; font-weight: 600; color: var(--text); line-height: 1.3; overflow-wrap: break-word; }
+  .fact-val .none{ color: var(--text-faint); font-weight: 400; }
+  .fact.range{ --u: #8fc7c0; }
+  .fact.target{ --u: #e0b07a; }
+  .fact.cooldown{ --u: #b9a4d6; }
+
+  .ab-desc{ margin: 0; font-size: 16.5px; line-height: 1.5; color: var(--text); }
+  .ab-todo{ margin: 0; color: var(--text-faint); font-style: italic; font-size: 15.5px; }
+
+  .rows{ margin: 0; display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 8px 12px; font-size: 16px; }
+  .rows dt{
+    font-family: var(--font-display); font-size: 11px; font-weight: 600; letter-spacing: 1.3px; text-transform: uppercase;
+    color: var(--text-faint); padding-top: 4px; line-height: 1.3;
+  }
+  .rows dd{ margin: 0; color: var(--text); min-width: 0; }
+  .rows .sep{ grid-column: 1 / -1; border-top: 1px dashed var(--border); margin: 2px 0; }
+
+  /* Pastilles */
+  .cost{
+    --c: var(--text-dim);
+    display: inline-flex; align-items: baseline; gap: 4px;
+    font-family: var(--font-display); font-weight: 700; font-size: 13.5px; letter-spacing: 0.4px;
+    color: var(--c);
+    border: 1px solid var(--c);
+    background: color-mix(in srgb, var(--c) 15%, transparent);
+    border-radius: 11px;
+    padding: 1px 9px;
+    white-space: nowrap;
+    margin: 2px 4px 2px 0;
+  }
+  .cost.item{
+    font-family: var(--font-body); font-weight: 600; font-size: 14.5px; letter-spacing: 0;
+    border-style: dashed; border-radius: 3px; white-space: normal;
+    color: var(--text-dim); border-color: var(--border-bright); background: rgba(122,90,46,0.12);
+  }
+  .cost.item b{ color: var(--bronze-bright); white-space: nowrap; }
+  .tbl .cost.item{ font-size: 14px; }
+  .filt{ cursor: pointer; transition: box-shadow 0.15s ease, background 0.15s ease; }
+  .filt:hover{ background: color-mix(in srgb, var(--c) 30%, transparent); }
+  .filt.hl{ background: color-mix(in srgb, var(--c) 34%, transparent); box-shadow: 0 0 0 1px var(--c), 0 0 12px color-mix(in srgb, var(--c) 55%, transparent); }
+
+  .pill{
+    --c: var(--text-dim);
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 15px; font-weight: 600; line-height: 1.35;
+    color: var(--c);
+    border: 1px solid color-mix(in srgb, var(--c) 55%, transparent);
+    background: color-mix(in srgb, var(--c) 12%, transparent);
+    border-radius: 3px;
+    padding: 1px 8px;
+    margin: 2px 4px 2px 0;
+  }
+  .pill.status::before{ content: "◆"; font-size: 9px; }
+  .pill.status.removed{ border-style: dashed; background: transparent; }
+  .pill.status.removed::before{ content: "✕"; font-size: 11px; font-weight: 700; }
+  .pill.dmg::before{ content: "✦"; font-size: 10px; }
+  .pill.eff{ font-size: 14px; font-weight: 600; padding: 0 6px; }
+  .pill.pos{ --c: var(--pos); }
+  .pill.neg{ --c: var(--neg); }
+  .pill.erp-pos{ --c: var(--erp-pos); }
+  .pill.erp-neg{ --c: var(--erp-neg); }
+  .st-line{ display: flex; flex-wrap: wrap; align-items: center; gap: 0; }
+  .st-line + .st-line{ margin-top: 2px; }
+  .st-line .eff-list{ display: inline-flex; flex-wrap: wrap; align-items: center; margin-left: 2px; padding-left: 8px; border-left: 1px solid var(--border); }
+
+  .tag{
+    display: inline-block;
+    font-size: 15px;
+    color: var(--text-dim);
+    background: rgba(122,107,78,0.14);
+    border: 1px solid rgba(122,107,78,0.42);
+    border-radius: 3px;
+    padding: 0 7px;
+    margin: 2px 4px 2px 0;
+  }
+  .tag b{ font-family: var(--font-display); font-size: 11px; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; color: var(--bronze-bright); margin-right: 4px; }
+  .tag.link{ text-decoration: none; color: var(--text); }
+  .tag.link:hover{ border-color: var(--bronze-bright); color: var(--bronze-bright); }
+  .bullets{ margin: 0; padding-left: 18px; }
+  .bullets li{ margin: 1px 0; }
+  .bullets li::marker{ color: var(--bronze); }
+  .cond li{ color: var(--text-dim); }
+  .resist b{ color: var(--bronze-bright); }
+  .notes{ color: var(--text-dim); font-style: italic; }
+
+  /* Aptitudes non documentées : liste compacte en bas de groupe */
+  .undoc{ margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--border); }
+  .grid[hidden] + .undoc, .group-head + .undoc{ margin-top: 0; padding-top: 0; border-top: 0; }
+  .undoc-title{ font-family: var(--font-display); font-size: 11.5px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--text-faint); margin: 0 0 8px; }
+  .undoc-list{ list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr)); gap: 6px; }
+  .undoc-item{
+    display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 8px;
+    background: var(--surface-2); border: 1px solid var(--border-soft); border-left: 2px solid color-mix(in srgb, var(--cat) 60%, transparent);
+    padding: 5px 10px; border-radius: 2px; font-size: 16px;
+    scroll-margin-top: calc(var(--bar-h) + 20px);
+  }
+  .undoc-item .ui-name{ color: var(--text-dim); font-weight: 600; flex: 1 1 auto; }
+  .undoc-item .ui-src{ flex-basis: 100%; font-size: 14px; color: var(--text-faint); }
+  .undoc-item .ui-src b{ font-family: var(--font-display); font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--bronze); margin-right: 3px; }
+  .undoc-item .badge-type{ font-size: 10px; padding: 0 6px; }
+
+  /* ================= Vue tableau ================= */
+  .tbl-wrap{ overflow-x: auto; border: 1px solid var(--border); border-radius: 3px; scrollbar-width: thin; }
+  .tbl{ width: 100%; min-width: 1180px; border-collapse: separate; border-spacing: 0; table-layout: fixed; font-size: 15.5px; }
+  .tbl th{
+    position: relative;
+    text-align: left; vertical-align: bottom;
+    font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 1.3px; text-transform: uppercase;
+    color: var(--text-dim);
+    background: var(--surface-3);
+    padding: 9px 10px;
+    border-bottom: 2px solid var(--border-bright);
+    white-space: nowrap;
+  }
+  .tbl th.sortable{ cursor: pointer; user-select: none; }
+  .tbl th.sortable:hover{ color: var(--bronze-bright); }
+  .tbl th .arrow{ display: inline-block; width: 12px; margin-left: 4px; color: var(--text-faint); }
+  .tbl th.sorted{ color: var(--bronze-bright); }
+  .tbl th.sorted .arrow{ color: var(--bronze-bright); }
+  .tbl td{ padding: 9px 10px; vertical-align: top; border-bottom: 1px solid var(--border-soft); background: var(--surface-2); min-width: 0; overflow-wrap: break-word; }
+  .tbl tbody tr:nth-child(even) td{ background: #1c150e; }
+  .tbl tbody tr:hover td{ background: #2a2015; }
+  .tbl tbody tr:last-child td{ border-bottom: 0; }
+  .tbl tr.in-cmp td{ background: #2c2114 !important; }
+  .tbl tr.in-cmp td:first-child{ box-shadow: inset 3px 0 0 var(--bronze-bright); }
+  .tbl th:first-child, .tbl td:first-child{ position: sticky; left: 0; z-index: 1; border-right: 1px solid var(--border); }
+  .tbl th:first-child{ z-index: 2; }
+  .tbl td:first-child{ box-shadow: inset 3px 0 0 var(--cat); }
+  .tbl tr{ scroll-margin-top: calc(var(--bar-h) + 20px); }
+  .tbl .t-name{ font-family: var(--font-display); font-weight: 700; font-size: 15.5px; line-height: 1.25; color: var(--text); }
+  .tbl .t-sub{ display: flex; flex-wrap: wrap; align-items: center; gap: 5px 8px; margin-top: 5px; }
+  .tbl .t-big{ font-weight: 600; font-size: 16px; }
+  .tbl .none{ color: var(--text-faint); opacity: 0.6; }
+  .tbl .todo{ color: var(--text-faint); font-style: italic; }
+  .tbl .pill, .tbl .cost{ font-size: 14px; }
+  .tbl .cost{ font-size: 12.5px; }
+  .tbl .tag{ font-size: 14px; }
+  .mini{ margin: 0 0 5px; font-size: 15px; }
+  .mini:last-child{ margin-bottom: 0; }
+  .mini-l{ display: block; font-family: var(--font-display); font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-faint); margin-bottom: 1px; }
+  .tbl .bullets{ padding-left: 15px; font-size: 14.5px; }
+
+  /* ================= Comparaison ================= */
+  .tray{
+    position: fixed; left: 50%; bottom: 14px; transform: translateX(-50%);
+    z-index: 40;
+    width: min(1100px, calc(100vw - 24px));
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;
+    background: rgba(32,24,16,0.98);
+    border: 1px solid var(--bronze-bright);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.75), 0 0 0 1px rgba(0,0,0,0.5);
+    padding: 10px 14px;
+    border-radius: 4px;
+  }
+  .tray-title{ font-family: var(--font-display); font-size: 12px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--bronze-bright); font-weight: 700; white-space: nowrap; }
+  .tray-items{ display: flex; flex-wrap: wrap; gap: 6px; flex: 1 1 300px; min-width: 0; }
+  .tray-item{
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface-3); border: 1px solid var(--border-bright); border-left: 3px solid var(--cat);
+    font-size: 15px; padding: 2px 4px 2px 8px; border-radius: 2px; cursor: pointer;
+  }
+  .tray-item .x{ color: var(--text-faint); width: 18px; text-align: center; }
+  .tray-item:hover .x{ color: var(--neg); }
+  .tray-msg{ color: var(--gold); font-style: italic; font-size: 15px; }
+
+  dialog.cmp-dialog{
+    width: min(1500px, calc(100vw - 24px));
+    max-width: none;
+    max-height: calc(100vh - 24px);
+    padding: 0;
+    background: var(--surface);
+    color: var(--text);
+    border: 1px solid var(--bronze-bright);
+    border-radius: 4px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+  }
+  dialog.cmp-dialog[open]{ display: flex; flex-direction: column; }
+  dialog.cmp-dialog::backdrop{ background: rgba(5,3,2,0.78); }
+  .dlg-head{ display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; padding: 14px 18px; border-bottom: 1px solid var(--border); background: var(--surface-2); }
+  .dlg-head h2{ font-family: var(--font-deco); font-size: 22px; letter-spacing: 2px; color: var(--bronze-bright); margin: 0; flex: 1 1 auto; }
+  .dlg-body{ overflow: auto; flex: 1 1 auto; scrollbar-width: thin; }
+  .cmp-table{ border-collapse: separate; border-spacing: 0; table-layout: fixed; font-size: 15.5px; }
+  .cmp-table th, .cmp-table td{ padding: 10px 12px; vertical-align: top; border-bottom: 1px solid var(--border-soft); border-left: 1px solid var(--border-soft); width: 280px; min-width: 240px; overflow-wrap: break-word; }
+  .cmp-table th.rl, .cmp-table td.rl{ position: sticky; left: 0; z-index: 2; width: 150px; min-width: 150px; border-left: 0; background: var(--surface-3); }
+  .cmp-table td.rl{ font-family: var(--font-display); font-size: 11px; font-weight: 700; letter-spacing: 1.3px; text-transform: uppercase; color: var(--text-faint); }
+  .cmp-table thead th{ position: sticky; top: 0; z-index: 3; background: var(--surface-3); text-align: left; border-bottom: 2px solid var(--border-bright); border-top: 3px solid var(--cat, var(--border)); }
+  .cmp-table thead th.rl{ z-index: 4; border-top-color: var(--surface-3); }
+  .cmp-table td{ background: var(--surface-2); }
+  .cmp-table tr.diff td.rl{ color: var(--bronze-bright); }
+  .cmp-table tr.diff td.rl::after{ content: " ≠"; color: var(--bronze-bright); }
+  .cmp-table tr.same td:not(.rl){ color: var(--text-dim); }
+  .cmp-table .cmp-name{ display: block; font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--text); text-decoration: none; line-height: 1.25; }
+  .cmp-table .cmp-name:hover{ color: var(--bronze-bright); }
+  .cmp-table .cmp-meta{ display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 4px; font-family: var(--font-body); font-size: 14px; letter-spacing: 0; text-transform: none; font-weight: 400; color: var(--text-faint); }
+  .cmp-table .cmp-rm{ background: none; border: 1px solid var(--border); color: var(--text-faint); border-radius: 3px; cursor: pointer; padding: 0 7px; font-size: 13px; }
+  .cmp-table .cmp-rm:hover{ color: var(--neg); border-color: var(--neg); }
+  .cmp-table .none{ color: var(--text-faint); opacity: 0.6; }
+  .cmp-dialog .filt{ cursor: default; }
+  .cmp-dialog .filt:hover{ background: color-mix(in srgb, var(--c) 15%, transparent); }
+  .cmp-dialog .pill.filt:hover{ background: color-mix(in srgb, var(--c) 12%, transparent); }
+
+  .empty{ text-align: center; color: var(--text-faint); font-style: italic; padding: 50px 0; font-size: 18px; }
+  .empty .btn{ margin-top: 12px; font-style: normal; }
+
+  @media (max-width: 760px){
+    body{ padding: 18px 16px 140px; font-size: 16px; }
+    .toolbar{ position: static; padding: 10px 12px; }
+    .counter{ margin-left: 0; }
+    .filter-panel{ grid-template-columns: 1fr; gap: 4px 0; max-height: none; }
+    .fp-hint{ grid-column: 1 / -1; margin: 0; }
+  .fp-label{ padding-top: 8px; }
+    .group{ padding: 12px 12px 14px; }
+    .rows{ grid-template-columns: 1fr; gap: 2px; }
+    .rows dd{ margin-bottom: 6px; }
+    .seg button span{ display: none; }
+    .tray{ bottom: 8px; padding: 8px 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="hero">
+    <svg class="hero-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M4 4.5h6.5a2 2 0 0 1 1.5.7 2 2 0 0 1 1.5-.7H20v14h-6.5a2 2 0 0 0-1.5.7 2 2 0 0 0-1.5-.7H4Z"/>
+      <path d="M12 5.2v14.5"/>
+    </svg>
+    <h1>Encyclopédie des Aptitudes</h1>
+    <p>Toutes les aptitudes du jeu, classées par usage</p>
+    <div class="hero-rule"><span class="diamond"></span></div>
+    <a class="back-link" href="index.html">← Simulateur d'Attributs</a>
+    <div class="legend" id="legend"></div>
+  </header>
+
+  <div class="toolbar" id="toolbar">
+    <div class="tb-row">
+      <label class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input class="search" id="search" type="search" placeholder="Rechercher : nom, n°, statut, dégâts, source…" autocomplete="off" aria-label="Rechercher une aptitude">
+        <kbd>/</kbd>
+      </label>
+      <div class="seg" role="group" aria-label="Affichage">
+        <button type="button" data-view="cards" aria-pressed="true" title="Vue en fiches">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="1"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="1"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="1"/></svg><span>Fiches</span>
+        </button>
+        <button type="button" data-view="table" aria-pressed="false" title="Vue en tableau, pour comparer ligne à ligne">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9.5h18M3 15h18M9 4v16"/></svg><span>Tableau</span>
+        </button>
+      </div>
+      <label class="check"><input type="checkbox" id="hide-undoc"> Masquer les non documentées</label>
+      <div class="counter" id="counter" aria-live="polite"></div>
+    </div>
+    <div class="tb-row tb-nav">
+      <button type="button" class="btn" id="filters-toggle" aria-expanded="false" aria-controls="filter-panel">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18l-7 8.5V19l-4 2v-7.5Z"/></svg>
+        Filtres <span class="badge" id="filters-badge" hidden></span>
+        <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </button>
+      <div class="tabs" id="tabs" role="tablist" aria-label="Catégories"></div>
+    </div>
+    <div class="tb-row" id="af-row" hidden>
+      <div class="active-filters" id="active-filters"></div>
+    </div>
+    <div class="filter-panel" id="filter-panel" hidden></div>
+  </div>
+
+  <div class="layout" id="layout">
+    <nav class="toc" id="toc" aria-label="Sommaire"></nav>
+    <main id="content"></main>
+  </div>
+</div>
+
+<div class="tray" id="tray" hidden></div>
+
+<dialog class="cmp-dialog" id="cmp-dialog" aria-labelledby="cmp-title">
+  <div class="dlg-head">
+    <h2 id="cmp-title">Comparaison</h2>
+    <label class="check"><input type="checkbox" id="cmp-diff"> Seulement les différences</label>
+    <button type="button" class="btn ghost" id="cmp-clear">Vider</button>
+    <button type="button" class="btn primary" id="cmp-close">Fermer</button>
+  </div>
+  <div class="dlg-body" id="cmp-body"></div>
+</dialog>
+
+<script src="data.js"></script>
+<script>
+// ============================================================================
+// DONNÉES
+// Chaque aptitude : [n° en jeu, 'Nom en jeu', { options }]
+// options possibles :
+//   verify: true   -> classement incertain, à confirmer
+// La documentation détaillée se remplit dans DETAILS (plus bas), indexée par n°.
+// ============================================================================
+const CATEGORIES = [
+  {
+    key: 'combat', label: 'Combat', color: 'var(--combat)',
+    desc: 'Aptitudes utilisées pendant un affrontement : déroulé du tour, déplacements, attaques et postures.',
+    groups: [
+      { label: 'Gestion du combat', abilities: [
+        [75, 'Initiative'], [76, 'Commencer le tour'], [77, 'Terminer le tour'],
+        [78, 'Terminer tour (Controle)'], [79, 'Terminer le combat'], [1989, 'Regle'],
+      ]},
+      { label: 'Mobilité', abilities: [
+        [81, 'Deplacement'], [82, 'Deplacement Monture'], [83, 'Deplacement supplémentaire'],
+        [86, 'Fuir'], [1986, 'Remonter à Cheval'],
+      ]},
+      { label: 'Actions de mêlée', abilities: [
+        [1987, "Changer d'arme"], [1724, 'Attrapper'], [1988, 'Couper liens'],
+      ]},
+      { label: 'Frappes de base', desc: "L'attaque standard de chaque type d'arme.", abilities: [
+        [1725, 'Coup de tête'], [596, 'Coup de Lame'], [2409, 'Coup de Lame (Bottes Dagues)'],
+        [2291, 'Coup de lame (Hache)'], [2295, 'Coup de lame (Dague)'], [709, 'Transpercer'],
+        [1785, 'Coup de Lance'], [710, 'Coup de masse'], [2299, 'Coup de masse (2M)'],
+        [720, 'Coup de hampe'], [2003, 'Coup de hampe (2M)'], [721, 'Coup de pommeau'],
+        [616, 'Coup de bouclier'],
+      ]},
+      { label: 'Techniques de mêlée', abilities: [
+        [711, 'Balayage'], [712, 'Coup Tourbillonnant'], [713, 'Empaler'], [2305, 'Empaler (2M)'],
+        [716, 'Fracassement (1M)'], [2292, 'Fracassement (2M)'], [1817, 'Coup Vicieux'],
+        [717, 'Faire Saigner'], [2293, 'Faire Saigner (Hache)'], [2294, 'Faire saigner (Katana)'],
+        [718, 'Renverser'], [1984, 'Désarçonner'], [719, 'Faucher les jambes'], [2004, 'Mordhau'],
+        [2433, 'Fouettement'], [2434, 'Emprise'],
+      ]},
+      { label: 'Combat à deux armes', abilities: [
+        [1939, 'Balayage (Deux armes)'], [1940, 'Fracassement (Deux Armes)'],
+        [1938, 'Coup Vicieux (Deux armes)'], [1946, 'Renversement (Deux armes)'],
+        [1941, 'Faucher les jambes (Deux armes)'], [1942, 'Double fente (Deux armes)'],
+      ]},
+      { label: "Charges d'interception", abilities: [
+        [1999, "Charge d'interception (Tranchante)"], [2000, "Charge d'interception (Perçante)"],
+        [2001, "Charge d'interception (Contondante)"],
+      ]},
+      { label: 'Frappes élémentaires & spéciales', abilities: [
+        [2341, 'Frappe Flamboyante'], [876, 'Coup Flamboyant (1M)'], [2342, "Lame d'air"],
+        [2345, 'Frappe Foudroyante'], [2346, 'Frappe Vampirique'], [1034, 'Enfoncer un pieu en argent'],
+      ]},
+      { label: 'Armes de lancer', abilities: [
+        [1013, 'Lancer de couteau'], [1943, 'Lancer de couteau (Toxique)'],
+        [1944, 'Lancer de couteau (Poison de Mana)'], [722, 'Lancer de hache'], [723, 'Lancer de javelot'],
+      ]},
+      { label: 'Tir — Arc', abilities: [
+        [724, 'Tir (Court)'], [1982, 'Tir (Long)'], [747, 'Tir Handicapant'], [748, 'Triple fleche'],
+        [2311, 'Tir Empoisonné (Toxique)'], [2312, 'Tir Empoisonné (Mana)'], [2335, 'Tir Pointe Barbelée'],
+        [2336, 'Viser'],
+      ]},
+      { label: 'Tir — Arbalète', abilities: [
+        [1983, 'Tir Arbalète (Court)'], [1756, 'Tir Arbalète (Long)'], [2337, 'Tir Ciblé (Arbalète)'],
+        [2313, 'Tir Empoisonné Ar. (Toxique)'], [2314, 'Tir Empoisonné Ar. (Mana)'],
+        [2339, 'Tir Pointe Barbelée (Ar)'],
+      ]},
+      { label: 'Armes à feu', abilities: [
+        [1991, 'Tir Fusil (Court)'], [1014, 'Tir de Fusil (Long)'], [1015, 'Tir Ciblé (Fusil)'],
+        [1017, 'Tir de semonce'], [2338, 'Tir balle explosive'], [1460, 'Tir de Pistolet'],
+        [1892, 'Rechargement Pistolet'],
+      ]},
+      { label: 'Postures', abilities: [
+        [1919, 'Utiliser posture offensive'], [1920, 'Utiliser posture defensive'],
+        [1921, 'Utiliser posture technique'], [1922, 'Utiliser posture mobile'],
+      ]},
+    ],
+  },
+  {
+    key: 'magie', label: 'Magie', color: 'var(--magie)',
+    desc: 'Sorts des différentes écoles de magie, et magie utilitaire.',
+    groups: [
+      { label: 'Pyromancie', abilities: [
+        [1451, 'Boule de Feu'], [1510, 'Embrasement'], [1511, "Feu d'artifice"], [1517, 'Flamboiement'],
+        [1597, 'Voile Ignite'], [1512, 'Chaleur Suffocante'],
+      ]},
+      { label: 'Hydromancie', abilities: [
+        [1546, "Fouet d'eau"], [1495, 'Ecume Apaisante'], [1514, 'Bulle Curatrice'], [1497, 'Gel'],
+        [1498, 'Glaciation'], [1499, 'Blizzard'], [1496, 'Geyser'],
+      ]},
+      { label: 'Aéromancie', abilities: [
+        [1503, 'Trait de Foudre'], [1548, 'Foudroiement'], [1765, 'Tornade'], [1509, 'Eclair Paralysant'],
+        [1507, 'Vent Toxique'], [1588, 'Bio-Electricite'], [1595, "Chaine d'éclairs"],
+      ]},
+      { label: 'Géomancie', abilities: [
+        [1492, 'Enchevetrement'], [1493, 'Peau de Pierre'], [1519, 'Toxines Etherique'], [1490, 'Ronce toxique'],
+        [1491, 'Chemin de lianes'], [1515, 'Anti-Toxines'], [1489, 'Photosynthese'], [1550, 'Lame de Roche'],
+      ]},
+      { label: 'Hématomancie', abilities: [
+        [1486, 'Projectile Sanglant'], [1478, 'Scarification'], [1488, 'Marionette Macabre'],
+        [1487, 'Liens de sang'], [1484, 'Suture'], [1589, 'Cicatrisation'],
+      ]},
+      { label: 'Luminomancie', abilities: [
+        [1513, 'Flash'], [1656, 'Salve de soin'], [1522, 'Bouclier Lumineux'], [1540, 'Rayonnement'],
+        [1541, 'Lames du jugement'], [1657, 'Terreur Diurne'], [1659, 'Trou Noir'],
+      ]},
+      { label: 'Arcane', abilities: [
+        [1665, 'Bouclier Arcanique'], [2363, 'Visage trouble'], [1554, 'Vision troublantes'],
+        [2496, 'Disruption Toxique'], [1555, 'Vol Etherique'], [1556, 'Liens Magiques'], [1557, 'Poids Arcanique'],
+        [1632, 'Visions'],
+      ]},
+      { label: 'Sorcellerie', abilities: [
+        [1624, 'Aura inquiétante'], [1630, 'Se mutiler'], [1631, 'Invocation'],
+        [1961, 'Visions (Sorcier)'], [1639, "Poids de l'âme"], [1642, 'Bouclier de corruption'],
+        [1643, 'Camoufler Corruption'],
+      ]},
+      { label: 'Magie utilitaire', abilities: [
+        [1367, 'Meditation'], [1771, 'Transfert de Mana'], [1772, 'Sort Utilitaire'],
+      ]},
+    ],
+  },
+  {
+    key: 'quotidien', label: 'Quotidien', color: 'var(--mobilite)',
+    desc: 'Aptitudes hors-combat : vie courante, métiers et rôles.',
+    groups: [
+      { label: 'Repos & hygiène', abilities: [
+        [328, 'Repos long'], [329, 'Repos court'], [1601, 'Se laver'], [1893, 'Se laver sans savon'],
+        [1602, "S'apprêter"], [1604, 'Cracher'],
+      ]},
+      { label: 'Discrétion & social', abilities: [
+        [1889, 'Vol à la tire'], [1995, 'Se dissimuler'], [1786, 'Détecter le mensonge'],
+        [2437, 'Observer en coin'], [1998, 'Jeu à Boire'],
+      ]},
+      { label: 'Prêtre / Foi — Prières', abilities: [
+        [349, 'Prier'], [1784, 'Stimulation de soin'], [355, 'Malediction'], [347, 'Apaisement'],
+        [348, 'Rompre une malediction'], [1622, 'Ferveur guerrière'],
+      ]},
+      { label: 'Prêtre / Foi — Cérémonies', abilities: [
+        [2215, 'Cérémonies de Grâces'], [2217, 'Cérémonies de châtiment'],
+        [2218, 'Rupture de contrôle mental'], [2219, 'Exorciser Maledictions'], [2222, 'Restauration Arcanique'],
+        [2227, 'Mets-Cendres'], [2244, 'Flétrissement de potions'], [2225, 'Purification'],
+        [2280, "Restauration d'âme"],
+      ]},
+      { label: 'Médecine', abilities: [
+        [476, 'Chirurgie'], [1385, 'Premiers Secours'], [1386, 'Chercher maladies'],
+        [1545, "Stabilisation d'urgence", { verify: true }], [478, 'Avortement'], [1887, 'Accoucher'],
+      ]},
+      { label: 'Artiste', abilities: [
+        [1780, 'Concert'], [479, 'Divertir son auditoire'], [480, 'Emouvoir son auditoire'],
+        [481, 'Humilier ses ennemis'],
+      ]},
+      { label: 'Esclavagiste', abilities: [
+        [1477, 'Briser esprit'], [1693, 'Faire Esclave'],
+      ]},
+      { label: 'Récolte', abilities: [
+        [2213, 'Recolter Essence', { verify: true }], [2267, 'Prélever du sang', { verify: true }],
+      ]},
+    ],
+  },
+  {
+    key: 'formes', label: 'Formes & Pouvoirs', color: 'var(--vitales)',
+    desc: 'Transformations, aptitudes raciales et pouvoirs liés aux malédictions et à la corruption.',
+    groups: [
+      { label: 'Changeforme', abilities: [
+        [333, 'Reprendre forme Humaine'], [334, 'Transformation Araignee'], [565, 'Transformation Cervide'],
+        [566, 'Transformation Lagomorphe'], [567, 'Transformation Felin'], [568, 'Transformation Canide'],
+        [569, 'Transformation Aviaire'], [570, 'Transformation Vulpes'], [571, 'Transformation Urside'],
+        [572, 'Transformation Aquatique'], [573, 'Transformation Reptile'], [575, 'Transformation Dragon'],
+        [576, 'Transformation Lycanthrope I'], [577, 'Transformation Demoniaque'],
+      ]},
+      { label: 'Aptitudes animales & raciales', abilities: [
+        [466, 'Tisser Toile'], [467, 'Bond'], [469, 'Bond Puissant'], [2002, 'Bond Ailé'],
+        [471, 'Coup de caudale'], [470, 'Coup de griffes'], [1867, 'Frappe de Geant'], [553, 'Morsure'],
+        [1787, 'Morsure de Bête'], [472, 'Crachat puissant'], [507, 'Produire Toxine'], [473, 'Souffle Enflammé'],
+      ]},
+      { label: 'Emprise & charme', abilities: [
+        [504, 'Frappe Télékinetique'], [503, 'Charme-Personne'], [2487, 'Commandement'],
+        [2412, 'Domination'], [2413, 'Suggestion'], [2414, 'Marionnetiste'],
+      ]},
+      { label: 'Maudits — Vampire, Démon, Lycan', abilities: [
+        [555, 'Sucer le sang'], [1069, "Boire sang de l'ainé"], [1096, 'Morsure Lycanthrope'],
+        [1428, 'Prendre essence'], [1408, 'Pacte Demoniaque'], [1371, 'Sentir proie'],
+      ]},
+      { label: 'Ténériffe', abilities: [
+        [1702, 'Choeur de Teneriffe'],
+      ]},
+    ],
+  },
+  {
+    key: 'consommables', label: 'Consommables', color: 'var(--gold)',
+    desc: "Aptitudes octroyées par l'utilisation d'un objet.",
+    groups: [
+      { label: 'Nourriture & boissons', abilities: [
+        [637, 'Manger casse-croute'], [638, 'Manger repas'], [639, 'Boire jus'], [640, 'Boire alcool doux'],
+        [642, 'Boire spiritueux'], [1061, 'Boire Lait'],
+      ]},
+      { label: 'Potions & soins', abilities: [
+        [619, 'Boire Potion de vie'], [620, 'Boire potion de Mana'], [1039, 'Consommer Antidote'],
+        [1040, 'Consommer anti poison de mana'], [621, 'Utiliser Baume'], [1036, 'Utiliser baume cicatrisant'],
+        [626, 'Boire remede Brume Ecarlate'], [1644, 'Boire Langueur des Tombes'], [1645, 'Boire Lenteur du Sang'],
+      ]},
+      { label: 'Drogues & infusions', abilities: [
+        [622, 'Consommer drogue récréative'], [623, 'Consommer drogue mystique'], [624, 'Consommer drogue physique'],
+        [2359, 'Infusion Incandescente'], [2360, 'Infusion de Tempête'], [2361, 'Infusion sanglante'],
+      ]},
+      { label: 'Cristaux & gemmes', abilities: [
+        [2253, 'Consommer Crystal de Feu'], [2260, 'Consommer Crystal Eau'], [2261, 'Consommer Crystal Terre'],
+        [2262, 'Consommer Crystal Air'], [2263, 'Consommer Crystal Sang'], [2264, 'Consommer Crystal  Lumiere'],
+        [2265, 'Consommer Gemme Arcanique'],
+      ]},
+      { label: 'Apparence', abilities: [
+        [1044, 'Utiliser Parfum'], [1885, 'Utiliser Cosmétiques'],
+      ]},
+      { label: 'Poisons & enchantements', abilities: [
+        [2309, 'Enduire Poison Toxique'], [2310, 'Enduire Poison de Mana'], [633, 'Activer Siphon de Mana'],
+      ]},
+      { label: 'Projectiles & explosifs', abilities: [
+        [634, 'Lancer filet'], [869, 'Bombe incendiaire'], [1459, "Pierre d'éclat"], [1821, "Lancer flasque d'acide"],
+      ]},
+      { label: 'Tomes & parchemins', abilities: [
+        [1871, 'Tome de malédictions'], [2157, 'Parchemin de Commandement', { verify: true }],
+      ]},
+    ],
+  },
+  {
+    key: 'armees', label: 'Armées', color: 'var(--defense)',
+    desc: 'Commandement de troupes, logistique et sacrifices.',
+    groups: [
+      { label: 'Ordres de troupe', abilities: [
+        [1789, 'Mettre en marche'], [1790, 'Mettre en marche (Elite)'], [1847, 'Levée de bouclier'],
+        [1848, 'Assaut Mêlée'], [382, 'Attaque bête'], [383, 'Salve de fleches'], [1981, 'Soin de troupe'],
+      ]},
+      { label: 'Logistique', abilities: [
+        [384, 'Cache de bien'], [1992, 'Poser Canon'], [1993, 'Retirer Canon'],
+      ]},
+      { label: 'Sacrifices', abilities: [
+        [860, 'Sacrifice de troupe'], [1737, 'Sacrifice de troupe (élite)'],
+        [2298, 'Sacrifice de troupe (Invocation Occulte)'], [1990, 'Sacrifice Escouade'],
+        [1738, 'Sacrifice Escouade (Elite)'],
+      ]},
+    ],
+  },
+  {
+    key: 'erp', label: 'ERP', color: 'var(--erp)',
+    desc: 'Aptitudes liées au jeu de rôle érotique.',
+    groups: [
+      { label: 'Menus ERP', abilities: [
+        [1976, 'Menu ERP'], [2288, 'Statistiques ERP'],
+      ]},
+      { label: 'Actions', abilities: [
+        [1603, 'Orgasme (F)'], [1605, 'Orgasme (M)'], [2436, 'Pudeur Renversée'], [2411, 'Jeter culotte sale'],
+        [2167, 'Transformer en concubi'],
+      ]},
+      { label: 'Consommables ERP', abilities: [
+        [1041, 'Consommer Aphrodisiaque'], [1042, 'Consommer Philtre de fertilité'],
+        [1043, "Consommer Philtre d'infertilité"], [1883, 'Boire Serum de lactation'], [2431, 'Boire Gokkun'],
+      ]},
+      { label: 'Accessoires', abilities: [
+        [2130, 'Mettre Plug Vaginal S'], [2131, 'Mettre Plug Vaginal M'], [2132, 'Mettre Plug Vaginal L'],
+        [2133, 'Mettre Plug Vaginal XL'], [2134, 'Mettre Plug Vaginal XXL'], [2143, 'Retirer Plug Vaginal'],
+        [2135, 'Mettre Plug Anal S'], [2139, 'Mettre Plug Anal M'], [2138, 'Mettre Plug Anal L'],
+        [2140, 'Mettre Plug Anal XL'], [2141, 'Mettre Plug Anal XXL'], [2142, 'Retirer Plug Anal'],
+        [2432, 'Enfiler perles anales'], [2424, 'Utiliser sac de bondage'], [2425, 'Utiliser sac de jouets'],
+      ]},
+      { label: 'Tomes', abilities: [
+        [2422, 'Ouvrir Tome Succubique'], [2423, 'Ouvrir Tome de Métamorphose Charnelle'],
+        [2470, 'Ouvrir Tome de Domination'], [2471, 'Ouvrir Tome de Conjuration Obscène'],
+        [2472, "Ouvrir Tome D'Impudicité"],
+      ]},
+    ],
+  },
+  {
+    key: 'systeme', label: 'Système', color: 'var(--text-faint)',
+    desc: 'Menus, validation de fiche et aptitudes déclenchées automatiquement par le jeu.',
+    groups: [
+      { label: 'Fiche & menus', abilities: [
+        [1739, 'Valider ma fiche !'], [475, 'Menu Artisanat'],
+      ]},
+      { label: 'Automatiques', desc: 'Déclenchées par le jeu, pas par le joueur.', abilities: [
+        [750, 'Infliger Blessure'], [1379, 'Régénerer blessure'], [1462, 'Remplir ceinture de potion'],
+      ]},
+      { label: 'Affinités élémentaires (auto)', abilities: [
+        [2449, 'autoafinfeu'], [2450, 'autoafineau'], [2451, 'autoafinair'], [2452, 'autoafinterre'],
+        [2453, 'autoafinsang'], [2454, 'autoafinlum'], [2455, 'autoafinarcane'],
+      ]},
+    ],
+  },
+];
+
+// ============================================================================
+// DOCUMENTATION DÉTAILLÉE, indexée par n° d'aptitude. Tous les champs sont facultatifs :
+//   type    : 'Attaque', 'Soin', 'Buff'…               (affiché à côté de la portée)
+//   cout    : { PA: 1, PS: 1, PM: 2, Mana: 10, PV: 5 }  (pastilles colorées dans l'en-tête)
+//             un objet consommé s'ajoute aussi au coût : { PA: 1, "Pierre d'éclat": 1 }
+//   recharge: { PA: 1, AT: '1/1 · 3/3 avec armée' }   (ressources remises au maximum ; texte libre accepté)
+//   gain    : { Mana: 50 }                             (ressources rendues)
+//   perte   : { Hygiène: 10 }                          (ressources retirées à la cible)
+//   cooldown: '5 h'                                    (délai avant réutilisation)
+//   portee  : '1 Tile'
+//   cible   : '1 cible'
+//   degats  : ['Tranchants']                           (types de dégâts ; « Physiques » est ajouté d'office aux dégâts d'arme, sauf « … fixes »)
+//   resistance: [['Poison de Mana', 'Métabolisme']]    (jet de résistance explicite : 3d6 + attribut contre 15)
+//   physiques: false                                   (les Dégâts Physiques ne comptent pas : « Physiques » n'est pas ajouté)
+//   statuts : ['Confus']                               (statuts appliqués à la cible)
+//   retire  : ['Immobile']                             (statuts retirés)
+//   jet     : '3d6 + Capacité de Combat'
+//   conditions : ['Points de Mouvement > 0']           (prérequis pour lancer l'aptitude)
+//   desc    : 'Description libre'
+//   effets  : ['Autre effet']
+//   sources : ['Source supplémentaire']   (les sources connues du simulateur sont ajoutées automatiquement)
+//   menus   : ['Sous-menu 1', 'Sous-menu 2']          (catégories d'un menu)
+//   affiche : { 'Onglet': ['Info 1', 'Info 2'] }       (informations affichées, par onglet)
+//   notes   : 'Remarques diverses'
+// ============================================================================
+const PREMIER_TOUR_COND = 'Ne pas avoir le statut Premier Tour';
+// Jets de résistance automatiques (3d6 + attribut contre 15), seulement si l'aptitude fait aussi des dégâts
+const RESIST_RULES = [['Brûlure', 'Résilience'], ['Saignement', 'Résilience'], ['Poison', 'Métabolisme'], ['Poison de Mana', 'Métabolisme']];
+const DETAILS = {
+  475: { // Menu Artisanat
+    desc: "Ouvre le menu d'artisanat du personnage.",
+    effets: [
+      'Fabriquer certains objets selon son ou ses métiers',
+      'Avancer ses points de projet, une fois toutes les 20 h (selon son Savoir-Faire et les points alloués à ses métiers)',
+      "Ou Aider quelqu'un : lui offrir ses points de projet de la journée à la place (même délai de 20 h)",
+    ],
+  },
+  1739: { // Valider ma fiche !
+    desc: 'Marque le personnage comme validé et lui débloque les menus d\'actions (quotidiennes et autres) ainsi que sa barre de Projet.',
+  },
+  2288: { // Statistiques ERP
+    desc: 'Affiche les statistiques générales et de Corps du système Désir lubrique.',
+    affiche: {
+      'Stats Générales': ['Luxure', 'XP Luxure', 'Inhibition', 'Stimulation', 'Essence de désir', 'Dominance', 'Douleur', 'Humiliation'],
+      'Corps': ['Oral', 'Dilatation Anale', 'Gaping Anal'],
+    },
+  },
+  1976: { // Menu ERP
+    desc: 'Ouvre le menu des actions lubriques que le personnage peut effectuer.',
+    menus: ['Orgasmes', 'Stimulations', 'BDSM', 'Souillures', 'Exhibitionnisme'],
+  },
+  1642: { // Bouclier de corruption
+    cout: { PS: 1, Corruption: 10 },
+    cible: 'Soi',
+    statuts: ["Bouclier Magique (jusqu'au prochain Commencer le tour)"],
+    conditions: ['Ne pas avoir le statut En mouvement'],
+  },
+  1631: { // Invocation
+    cout: { Corruption: 100 },
+    cooldown: '48 h',
+    cible: 'Soi',
+    effets: ["Produit une Invocation Occulte (troupe) et la place dans l'inventaire"],
+    conditions: ['Avoir Déchéance corruptrice'],
+  },
+  1643: { // Camoufler Corruption
+    cout: { PV: 10 },
+    cooldown: '20 h',
+    cible: 'Soi',
+    effets: ['Descend d\'un stade de corruption'],
+  },
+  1630: { // Se mutiler
+    cout: { PV: 10 },
+    cible: 'Soi',
+    gain: { Corruption: 5 },
+  },
+  1624: { // Aura inquiétante
+    cout: { PS: 1, Corruption: 5 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    statuts: ['Confus'],
+    conditions: ['Ne pas avoir le statut En mouvement'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1639: { // Poids de l'âme
+    cout: { PS: 1, Corruption: 5 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    statuts: ['Ralenti'],
+    conditions: ['Ne pas avoir le statut En mouvement'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  634: { // Lancer filet
+    cout: { PS: 1, 'Filet de Capture': 1 },
+    portee: '3 Tiles',
+    cible: '1 cible',
+    statuts: ['Ralenti'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1514: { // Bulle Curatrice
+    type: 'Soin',
+    cout: { PA: 1, Mana: 10 },
+    portee: '3 Tiles',
+    cible: '1 cible',
+    degats: ['Magiques', 'Eau'],
+    effets: ['Soigne la cible selon les Dégâts Magiques et la stat Eau du lanceur'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Eau)'],
+    sources: ['Hydromancie'],
+  },
+  1495: { // Ecume Apaisante
+    cout: { PA: 1, PS: 1, Mana: 10 },
+    portee: '4 Tiles',
+    cible: '1 cible',
+    retire: ['Brûlure'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Eau)'],
+    sources: ['Hydromancie'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1512: { // Chaleur Suffocante
+    type: 'Attaque',
+    cout: { PA: 1, PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: 'Tout le monde sauf le lanceur',
+    degats: ['Magiques', 'Feu'],
+    statuts: ['Brûlure'],
+    conditions: ['Être dans une zone chaude', 'Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Feu)'],
+    sources: ['Pyromancie'],
+    notes: 'Si la cible brûle déjà : Brûlure aggravée, des dégâts supplémentaires résistés par la Résilience.',
+  },
+  1597: { // Voile Ignite
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    statuts: ["Bouclier Magique (M) (jusqu'au prochain Commencer le tour)"],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Feu)'],
+    sources: ['Pyromancie'],
+  },
+  1517: { // Flamboiement
+    cout: { PS: 1, Mana: 10 },
+    cible: 'Soi',
+    statuts: ["Flamboiement (jusqu'au prochain Commencer le tour)"],
+    retire: ['En mêlée'],
+    effets: ['Fait reculer le lanceur de 1.5 Tiles'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir de Posture', 'Ne pas avoir le statut Incantation Interdite (Feu)'],
+    sources: ['Pyromancie'],
+  },
+  1451: { // Boule de Feu
+    type: 'Attaque',
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: 'Zone · 1.5 Tiles de rayon autour du point choisi',
+    degats: ['Magiques', 'Feu'],
+    statuts: ['Brûlure'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Feu)'],
+    sources: ['Pyromancie'],
+    notes: 'Le lanceur peut être touché s\'il est dans la zone. Si la cible brûle déjà : Brûlure aggravée, des dégâts supplémentaires résistés par la Résilience.',
+  },
+  1510: { // Embrasement
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    statuts: ['Brûlure'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Feu)'],
+    sources: ['Pyromancie'],
+    notes: 'Brûlure appliquée sans jet de Résilience. Ne fait pas de dégâts, sauf si la cible brûle déjà : Brûlure aggravée, des dégâts supplémentaires résistés par la Résilience.',
+  },
+  1511: { // Feu d'artifice
+    type: 'Attaque',
+    cout: { PA: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    degats: ['Magiques', 'Feu'],
+    statuts: ['Brûlure'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Feu)'],
+    sources: ['Pyromancie'],
+    notes: 'Si la cible brûle déjà : Brûlure aggravée, des dégâts supplémentaires résistés par la Résilience.',
+  },
+  1498: { // Glaciation
+    conditions: ['Être dans une zone froide'],
+    sources: ['Hydromancie'],
+  },
+  1499: { // Blizzard
+    type: 'Attaque',
+    cout: { PS: 1, Mana: 10 },
+    portee: '5 Tiles',
+    cible: 'Tout le monde sauf le lanceur',
+    degats: ['Magiques', 'Eau'],
+    conditions: ['Être dans une zone froide', 'Ne pas être transformé', 'Ne pas avoir le statut En mouvement', 'Ne pas avoir le statut Incantation Interdite (Eau)'],
+    sources: ['Hydromancie'],
+  },
+  1497: { // Gel
+    cout: { PA: 1, PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: 'Tout le monde sauf le lanceur',
+    statuts: ['Immobile'],
+    conditions: ['Être dans une zone froide', 'Ne pas être transformé', 'Ne pas avoir le statut En mouvement', 'Ne pas avoir le statut Incantation Interdite (Eau)'],
+    sources: ['Hydromancie'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1496: { // Geyser
+    type: 'Attaque',
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    degats: ['Magiques', 'Eau'],
+    conditions: ["Avoir le statut Dans l'eau", 'Ne pas être transformé', 'Ne pas avoir le statut En mouvement', 'Ne pas avoir le statut Incantation Interdite (Eau)'],
+    sources: ['Hydromancie'],
+  },
+  1546: { // Fouet d'eau
+    type: 'Attaque',
+    cout: { PA: 1, Mana: 10 },
+    portee: '4 Tiles',
+    cible: '1 cible',
+    degats: ['Magiques', 'Eau'],
+    conditions: ['Ne pas avoir le statut Incantation Interdite (Eau)'],
+    sources: ['Hydromancie'],
+  },
+  1507: { // Vent Toxique
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: 'Zone · 1.5 Tiles de rayon autour du point choisi',
+    statuts: ['Poison'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Air)'],
+    sources: ['Aéromancie'],
+    notes: "Poison appliqué sans jet. Ne fait pas de dégâts, sauf si la cible est déjà empoisonnée : Poison aggravé, des dégâts supplémentaires résistés par le Métabolisme. Le lanceur peut être touché s'il est dans la zone.",
+  },
+  1595: { // Chaine d'éclairs
+    type: 'Attaque',
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    degats: ['Magiques', 'Air'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Air)'],
+    sources: ['Aéromancie'],
+  },
+  1588: { // Bio-Electricite
+    cout: { PS: 1, Mana: 10 },
+    cible: 'Soi',
+    statuts: ["Bio-Electricite (jusqu'au prochain Commencer le tour)"],
+    retire: ['En mêlée'],
+    effets: ['Fait reculer le lanceur de 1.5 Tiles'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir de Posture', 'Ne pas avoir le statut Incantation Interdite (Air)'],
+    sources: ['Aéromancie'],
+  },
+  1509: { // Eclair Paralysant
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    statuts: ['Controle'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Air)'],
+    sources: ['Aéromancie'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1765: { // Tornade
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: 'Zone · 2 Tiles de rayon autour du point choisi',
+    statuts: ['Confus'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Air)'],
+    sources: ['Aéromancie'],
+    notes: "Ne fait pas de dégâts. Le lanceur peut être touché s'il est dans la zone.",
+  },
+  1548: { // Foudroiement
+    type: 'Attaque',
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: 'Zone · 1.5 Tiles de rayon autour du point choisi',
+    degats: ['Magiques', 'Air'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Air)'],
+    sources: ['Aéromancie'],
+    notes: "Le lanceur peut être touché s'il est dans la zone.",
+  },
+  1503: { // Trait de Foudre
+    type: 'Attaque',
+    cout: { PA: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Magiques', 'Air'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Air)'],
+    sources: ['Aéromancie'],
+  },
+  1657: { // Terreur Diurne
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles · Maudits uniquement',
+    statuts: ['Controle'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Lumière)', 'La cible doit avoir une malédiction Démon, Vampire ou Lycan (pas Mort Vivant)'],
+    sources: ['Luminomancie'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1659: { // Trou Noir
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: 'Zone · 1.5 Tiles de rayon autour du point choisi',
+    statuts: ['Confus'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Lumière)'],
+    sources: ['Luminomancie'],
+    notes: "Ne fait pas de dégâts. Le lanceur peut être touché s'il est dans la zone.",
+  },
+  1541: { // Lames du jugement
+    type: 'Attaque',
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    degats: ['Magiques', 'Lumière'],
+    statuts: ['Brûlure'],
+    conditions: ['Être de jour', 'Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Lumière)'],
+    sources: ['Luminomancie'],
+    notes: 'Si la cible brûle déjà : Brûlure aggravée, des dégâts supplémentaires résistés par la Résilience.',
+  },
+  1540: { // Rayonnement
+    type: 'Attaque',
+    cout: { PA: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Magiques', 'Lumière'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Lumière)'],
+    sources: ['Luminomancie'],
+  },
+  1522: { // Bouclier Lumineux
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    statuts: ["Bouclier Magique (jusqu'au prochain Commencer le tour)"],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Lumière)'],
+    sources: ['Luminomancie'],
+  },
+  1656: { // Salve de soin
+    type: 'Soin',
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    degats: ['Magiques', 'Lumière'],
+    effets: ['Soigne les cibles selon les Dégâts Magiques et la stat Lumière du lanceur', 'Une cible Maudite subit à la place des dégâts Magiques + Lumière'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Lumière)'],
+    sources: ['Luminomancie'],
+  },
+  1513: { // Flash
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: 'Tout le monde sauf le lanceur',
+    statuts: ['Confus'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Lumière)'],
+    sources: ['Luminomancie'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1489: { // Photosynthese
+    type: 'Soin',
+    cout: { PA: 1, PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Magiques', 'Terre'],
+    effets: ['Soigne la cible selon les Dégâts Magiques et la stat Terre du lanceur'],
+    conditions: ['Être de jour', 'Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Terre)'],
+    sources: ['Géomancie'],
+  },
+  1515: { // Anti-Toxines
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    retire: ['Poison', 'Poison de Mana'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Terre)'],
+    sources: ['Géomancie'],
+  },
+  1491: { // Chemin de lianes
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    statuts: ['Ralenti'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Terre)'],
+    sources: ['Géomancie'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1490: { // Ronce toxique
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    statuts: ['Poison'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Terre)'],
+    sources: ['Géomancie'],
+    notes: 'Ne fait pas de dégâts, sauf si la cible est déjà empoisonnée : Poison aggravé, des dégâts supplémentaires résistés par le Métabolisme.',
+  },
+  1519: { // Toxines Etherique
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    statuts: ['Poison de Mana'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Terre)'],
+    sources: ['Géomancie'],
+    notes: 'Ne fait pas de dégâts. Si la cible a déjà le Poison de Mana : Poison de Mana aggravé, qui retire du Mana (pas des PV), résisté par le Métabolisme.',
+  },
+  1493: { // Peau de Pierre
+    cout: { PS: 1, Mana: 10 },
+    cible: 'Soi',
+    statuts: ["Bouclier Magique (P) (jusqu'au prochain Commencer le tour)"],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Terre)'],
+    sources: ['Géomancie'],
+  },
+  1492: { // Enchevetrement
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    statuts: ['Immobile'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Terre)'],
+    sources: ['Géomancie'],
+
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1488: { // Marionette Macabre
+    cout: { PS: 1, Mana: 10 },
+    portee: '5 Tiles',
+    cible: '1 cible',
+    jet: '3d6 + Résilience (cible et lanceur, chacun le sien)',
+    statuts: ['Blessure (Normale, Majeure, Grave ou Critique selon le jet)'],
+    effets: ['Le lanceur reçoit aussi une Blessure, selon son propre jet'],
+    conditions: ['Avoir le statut Saignement', 'Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Sang)'],
+    sources: ['Hématomancie'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1487: { // Liens de sang
+    type: 'Attaque',
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: 'Tout le monde sauf le lanceur',
+    degats: ['Magiques', 'Sang'],
+    effets: ['Absorbe la vie des cibles : le lanceur récupère 15 PV par cible touchée'],
+    conditions: ['Avoir le statut Saignement', 'Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Sang)'],
+    sources: ['Hématomancie'],
+  },
+  1589: { // Cicatrisation
+    type: 'Soin',
+    cout: { PS: 1, Mana: 10 },
+    cible: 'Soi',
+    retire: ['Blessure Normale'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Sang)'],
+    sources: ['Hématomancie'],
+    notes: 'Soigne uniquement une Blessure normale : sans effet sur les blessures Majeure, Grave ou Critique.',
+  },
+  1484: { // Suture
+    cout: { PS: 1, Mana: 10 },
+    cible: 'Soi',
+    retire: ['Saignement'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Sang)'],
+    sources: ['Hématomancie'],
+  },
+  1478: { // Scarification
+    cout: { PA: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    statuts: ['Saignement'],
+    effets: ['Le lanceur reçoit aussi Saignement'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Sang)'],
+    sources: ['Hématomancie'],
+    notes: 'Ne fait pas de dégâts, sauf si la cible saigne déjà : Saignement aggravé, des dégâts de Sang supplémentaires résistés par la Résilience.',
+  },
+  1486: { // Projectile Sanglant
+    type: 'Attaque',
+    cout: { PA: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Magiques', 'Sang'],
+    effets: ['Rend au lanceur la moitié des dégâts infligés en PV'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Sang)'],
+    sources: ['Hématomancie'],
+  },
+  1550: { // Lame de Roche
+    type: 'Attaque',
+    cout: { PA: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Magiques', 'Terre'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Terre)'],
+    sources: ['Géomancie'],
+  },
+  1556: { // Liens Magiques
+    cout: { PA: 1, PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    statuts: ['Controle'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Arcane)'],
+    sources: ['Arcaniste'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  2310: { // Enduire Poison de Mana
+    cout: { 'Flèches/Carreaux ou Lames de jet': 1, 'Poison de Mana': 1 },
+    effets: ['Produit 1 Flèches/Carreaux (Poison de Mana) ou 1 Lames de jet empoisonnés (Poison de Mana), selon la munition consommée'],
+  },
+  2309: { // Enduire Poison Toxique
+    cout: { 'Flèches/Carreaux ou Lames de jet': 1, 'Poison toxique': 1 },
+    effets: ['Produit 1 Flèches/Carreaux (Toxique) ou 1 Lames de jet empoisonnés (Toxique), selon la munition consommée'],
+  },
+  1557: { // Poids Arcanique
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    statuts: ['Ralenti'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Arcane)'],
+    sources: ['Arcaniste'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1555: { // Vol Etherique
+    cout: { PS: 1, PV: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    perte: { Mana: 15 },
+    gain: { Mana: 15 },
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Arcane)'],
+    sources: ['Arcaniste'],
+  },
+  2496: { // Disruption Toxique
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    statuts: ['Poison'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Arcane)'],
+    sources: ['Arcaniste'],
+    notes: 'Ne fait pas de dégâts, sauf si la cible est déjà empoisonnée : Poison aggravé, des dégâts supplémentaires résistés par le Métabolisme.',
+  },
+  1554: { // Vision troublantes
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    statuts: ['Confus'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Arcane)'],
+    sources: ['Arcaniste'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  2363: { // Visage trouble
+    cout: { Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    statuts: ['Visage Trouble (7 h 20)'],
+    conditions: ['Ne pas avoir le statut Incantation Interdite (Arcane)', 'Ne pas avoir le statut Visage Trouble'],
+    sources: ['Arcaniste'],
+  },
+  1665: { // Bouclier Arcanique
+    cout: { PS: 1, Mana: 10 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    statuts: ["Bouclier Magique (jusqu'au prochain Commencer le tour)"],
+    conditions: ['Ne pas être transformé', "Ne pas avoir le statut Incantation Interdite (Arcane)"],
+    sources: ['Arcaniste'],
+  },
+  1604: { // Cracher
+    portee: '4 Tiles',
+    cible: '1 cible',
+    perte: { Hygiène: 10 },
+  },
+  620: { // Boire potion de Mana
+    cout: { PS: 1, 'Potion de Mana': 1, 'Ceinture de potion': 1 },
+    cible: 'Soi',
+    gain: { Mana: 30 },
+  },
+  619: { // Boire Potion de vie
+    cout: { PS: 1, 'Potion de Vie': 1, 'Ceinture de potion': 1 },
+    cible: 'Soi',
+    gain: { PV: 30 },
+  },
+  1602: { // S'apprêter (le statut Maquillé(e) et ses effets viennent du consommable lié)
+    cout: { 'Cosmétique': 1 },
+    gain: { 'Santé mentale': 5 },
+  },
+  1601: { // Se laver
+    cout: { Savon: 1 },
+    gain: { 'Hygiène': 100, 'Santé mentale': 5 },
+    statuts: ['Propre'],
+    conditions: ["Avoir le statut Dans l'eau"],
+  },
+  1893: { // Se laver sans savon
+    gain: { 'Hygiène': 25 },
+    conditions: ["Avoir le statut Dans l'eau"],
+  },
+  328: { // Repos long
+    cooldown: '20 h',
+    recharge: { PV: 'au maximum' },
+    statuts: ['Bon repos (20 h)'],
+    conditions: ['Hors combat', "Être à l'intérieur"],
+  },
+  329: { // Repos court
+    cooldown: '5 h',
+    gain: { PV: 50, Mana: 50 },
+    conditions: ['Hors combat'],
+  },
+  1367: { // Meditation
+    cooldown: '5 h',
+    gain: { Mana: 50 },
+    conditions: ['Hors combat'],
+    sources: ['Avoir débloqué au moins une magie'],
+  },
+  1459: { // Pierre d'éclat
+    cout: { PA: 1, "Pierre d'éclat": 1 },
+    portee: '3 Tiles',
+    cible: '3 cibles',
+    statuts: ['Controle'],
+    sources: ["Rune Pierre d'éclat (équipée)"],
+  },
+  717: { // Faire Saigner
+    cout: { PS: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    statuts: ['Saignement'],
+    notes: 'Ne fait pas de dégâts, sauf si la cible saigne déjà : Saignement aggravé, des dégâts de Sang supplémentaires résistés par la Résilience.',
+  },
+  1817: { // Coup Vicieux
+    cout: { PS: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    statuts: ['Vulnérable'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  722: { // Lancer de hache
+    type: 'Attaque',
+    cout: { PA: 1, PS: 1 },
+    portee: '3 Tiles',
+    cible: '1 cible',
+    degats: ['Tranchants'],
+    statuts: ['Immobile'],
+  },
+  719: { // Faucher les jambes
+    cout: { PA: 1, PS: 1 },
+    portee: '1 Tile',
+    cible: '3 cibles',
+    statuts: ['Controle'],
+
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1999: { // Charge d'interception (Tranchante)
+    type: 'Attaque',
+    cout: { PA: 1, PS: 1 },
+    portee: '3 Tiles',
+    cible: '1 cible',
+    degats: ['Tranchants'],
+    statuts: ['Immobile'],
+    effets: ['Projette son personnage de 3 Tiles en avant vers la cible'],
+  },
+  2000: { // Charge d'interception (Perçante)
+    type: 'Attaque',
+    cout: { PA: 1, PS: 1 },
+    portee: '3 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    statuts: ['Immobile'],
+    effets: ['Projette son personnage de 3 Tiles en avant vers la cible'],
+  },
+  2001: { // Charge d'interception (Contondante)
+    type: 'Attaque',
+    cout: { PA: 1, PS: 1 },
+    portee: '3 Tiles',
+    cible: '1 cible',
+    degats: ['Contondants'],
+    statuts: ['Immobile'],
+    effets: ['Projette son personnage de 3 Tiles en avant vers la cible'],
+  },
+  718: { // Renverser
+    cout: { PS: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    statuts: ['Controle'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1946: { // Renversement (Deux armes)
+    cout: { PS: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    statuts: ['Controle'],
+    conditions: ['Ne pas avoir une arme à deux mains équipée'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1939: { // Balayage (Deux armes)
+    type: 'Attaque',
+    cout: { PS: 1 },
+    portee: '1 Tile',
+    cible: '3 cibles',
+    degats: ['Tranchants fixes'],
+    conditions: ['Avoir Voie Jumelle', 'Ne pas avoir une arme à deux mains équipée'],
+    notes: "Dégâts fixes : pas influencés par l'arme ni par les Dégâts Physiques.",
+  },
+  1940: { // Fracassement (Deux Armes)
+    cout: { PA: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    statuts: ['Vulnérable'],
+    conditions: ['Avoir Voie Jumelle', 'Ne pas avoir une arme à deux mains équipée'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1941: { // Faucher les jambes (Deux armes)
+    cout: { PA: 1, PS: 1 },
+    portee: '1 Tile',
+    cible: '3 cibles',
+    statuts: ['Controle'],
+    conditions: ['Ne pas avoir une arme à deux mains équipée'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1942: { // Double fente (Deux armes)
+    type: 'Attaque',
+    cout: { PA: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    degats: ['Contondants'],
+    statuts: ['Confus'],
+    conditions: ['Avoir Voie Jumelle','Ne pas avoir une arme à deux mains équipée'],
+  },
+  1725: { // Coup de tête
+    type: 'Attaque',
+    cout: { PA: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    degats: ['Contondants'],
+    notes: 'Les bonus de Dégâts Contondants (arme, consommables…) ne sont pas pris en compte.',
+  },
+  1919: { // Utiliser posture offensive
+    cout: { PP: 1 },
+    cible: 'Soi',
+    conditions: ['Ne pas avoir le statut Buff Magique'],
+  },
+  1920: { // Utiliser posture defensive
+    cout: { PP: 1 },
+    cible: 'Soi',
+    conditions: ['Ne pas avoir le statut Buff Magique'],
+  },
+  1921: { // Utiliser posture technique
+    cout: { PP: 1 },
+    cible: 'Soi',
+    conditions: ['Ne pas avoir le statut Buff Magique'],
+  },
+  1922: { // Utiliser posture mobile
+    cout: { PP: 1 },
+    cible: 'Soi',
+    conditions: ['Ne pas avoir le statut Buff Magique'],
+  },
+  471: { // Coup de caudale
+    type: 'Attaque',
+    cout: { PA: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    degats: ['Contondants fixes', 'Physiques'],
+    notes: "30 dégâts Contondants fixes (pas influencés par l'arme ni par les bonus Contondants) + les Dégâts Physiques.",
+  },
+  1867: { // Frappe de Geant
+    type: 'Attaque',
+    cout: { PA: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    degats: ['Contondants fixes', 'Physiques'],
+    notes: "30 dégâts Contondants fixes (pas influencés par l'arme ni par les bonus Contondants) + les Dégâts Physiques.",
+  },
+  467: { // Bond
+    cout: { PS: 1 },
+    cible: 'Soi',
+    retire: ['En mêlée'],
+    effets: ['Fait reculer automatiquement le personnage en arrière de 2.68 Tiles'],
+  },
+  2002: { // Bond Ailé
+    cout: { PS: 1 },
+    cible: 'Soi',
+    effets: ['Permet de se déplacer d\'autant de Tiles que la stat Déplacement du personnage'],
+  },
+  1724: { // Attrapper
+    cout: { PS: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    statuts: ['Immobile'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1013: { // Lancer de couteau
+    type: 'Attaque',
+    cout: { PS: 1, 'Lames de jet': 1 },
+    portee: '3 Tiles',
+    cible: '1 cible',
+    degats: ['Tranchants fixes'],
+    notes: "Dégâts fixes : pas influencés par l'arme ni par les Dégâts Physiques.",
+  },
+  1943: { // Lancer de couteau (Toxique)
+    type: 'Attaque',
+    cout: { PS: 1, 'Lames de jet empoisonnés (Toxique)': 1 },
+    portee: '3 Tiles',
+    cible: '1 cible',
+    degats: ['Tranchants fixes'],
+    statuts: ['Poison'],
+    notes: "Dégâts fixes : pas influencés par l'arme ni par les Dégâts Physiques. Si la cible est déjà empoisonnée : Poison aggravé, des dégâts supplémentaires résistés par le Métabolisme.",
+  },
+  1944: { // Lancer de couteau (Poison de Mana)
+    type: 'Attaque',
+    cout: { PS: 1, 'Lames de jet empoisonnés (Poison de Mana)': 1 },
+    portee: '3 Tiles',
+    cible: '1 cible',
+    degats: ['Tranchants fixes'],
+    statuts: ['Poison de Mana'],
+    notes: "Dégâts fixes : pas influencés par l'arme ni par les Dégâts Physiques. Si la cible a déjà le Poison de Mana : Poison de Mana aggravé, qui retire du Mana (pas des PV), résisté par le Métabolisme.",
+  },
+  723: { // Lancer de javelot
+    type: 'Attaque',
+    cout: { PA: 1, PS: 1 },
+    portee: '3 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    statuts: ['Immobile'],
+  },
+  724: { // Tir (Court)
+    type: 'Attaque',
+    cout: { PA: 1, 'Flèches/Carreaux': 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Tranchants'],
+    physiques: false,
+    notes: 'Les Dégâts Physiques ne comptent pas.',
+  },
+  1982: { // Tir (Long)
+    type: 'Attaque',
+    cout: { PA: 1, 'Flèches/Carreaux': 1 },
+    portee: '10 Tiles',
+    cible: '1 cible',
+    degats: ['Tranchants'],
+    physiques: false,
+    conditions: ['Ne pas avoir le statut En mouvement'],
+    notes: 'Les Dégâts Physiques ne comptent pas.',
+  },
+  748: { // Triple fleche
+    type: 'Attaque',
+    cout: { PA: 1, PS: 1, 'Flèches/Carreaux': 3 },
+    portee: '6 Tiles',
+    cible: '3 cibles',
+    degats: ['Tranchants'],
+    physiques: false,
+    notes: 'Les Dégâts Physiques ne comptent pas.',
+  },
+  2311: { // Tir Empoisonné (Toxique)
+    type: 'Attaque',
+    cout: { PS: 1, 'Flèches/Carreaux (Toxique)': 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Tranchants'],
+    physiques: false,
+    statuts: ['Poison'],
+    notes: 'Les Dégâts Physiques ne comptent pas. Si la cible est déjà empoisonnée : Poison aggravé, des dégâts supplémentaires résistés par le Métabolisme.',
+  },
+  2312: { // Tir Empoisonné (Mana)
+    type: 'Attaque',
+    cout: { PS: 1, 'Flèches/Carreaux (Poison de Mana)': 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Tranchants'],
+    physiques: false,
+    statuts: ['Poison de Mana'],
+    notes: 'Les Dégâts Physiques ne comptent pas. Si la cible a déjà le Poison de Mana : Poison de Mana aggravé, qui retire du Mana (pas des PV), résisté par le Métabolisme.',
+  },
+  2335: { // Tir Pointe Barbelée
+    type: 'Attaque',
+    cout: { PS: 1, 'Flèches Barbelées': 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Tranchants'],
+    physiques: false,
+    statuts: ['Saignement'],
+    notes: 'Les Dégâts Physiques ne comptent pas. Si la cible saigne déjà : Saignement aggravé, des dégâts de Sang supplémentaires résistés par la Résilience.',
+  },
+  2336: { // Viser
+    type: 'Buff',
+    cout: { PA: 1 },
+    cible: 'Soi',
+    effets: ["Capacité de Tir +3 (jusqu'au prochain Commencer le tour)"],
+  },
+  747: { // Tir Handicapant
+    cout: { PS: 1, 'Flèches/Carreaux': 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    statuts: ['Immobile'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1991: { // Tir Fusil (Court)
+    type: 'Attaque',
+    cout: { PA: 1, Munitions: 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    physiques: false,
+    notes: 'Les Dégâts Physiques ne comptent pas.',
+  },
+  1014: { // Tir de Fusil (Long)
+    type: 'Attaque',
+    cout: { PA: 1, Munitions: 1 },
+    portee: '10 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    physiques: false,
+    conditions: ['Ne pas avoir le statut En mouvement'],
+    notes: 'Les Dégâts Physiques ne comptent pas.',
+  },
+  1983: { // Tir Arbalète (Court)
+    type: 'Attaque',
+    cout: { PA: 1, 'Flèches/Carreaux': 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    physiques: false,
+    notes: 'Les Dégâts Physiques ne comptent pas.',
+  },
+  1756: { // Tir Arbalète (Long)
+    type: 'Attaque',
+    cout: { PA: 1, 'Flèches/Carreaux': 1 },
+    portee: '10 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    physiques: false,
+    conditions: ['Ne pas avoir le statut En mouvement'],
+    notes: 'Les Dégâts Physiques ne comptent pas.',
+  },
+  2313: { // Tir Empoisonné Ar. (Toxique)
+    type: 'Attaque',
+    cout: { PS: 1, 'Flèches/Carreaux (Toxique)': 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    physiques: false,
+    statuts: ['Poison'],
+    notes: 'Les Dégâts Physiques ne comptent pas. Si la cible est déjà empoisonnée : Poison aggravé, des dégâts supplémentaires résistés par le Métabolisme.',
+  },
+  2314: { // Tir Empoisonné Ar. (Mana)
+    type: 'Attaque',
+    cout: { PS: 1, 'Flèches/Carreaux (Poison de Mana)': 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    physiques: false,
+    statuts: ['Poison de Mana'],
+    notes: 'Les Dégâts Physiques ne comptent pas. Si la cible a déjà le Poison de Mana : Poison de Mana aggravé, qui retire du Mana (pas des PV), résisté par le Métabolisme.',
+  },
+  2339: { // Tir Pointe Barbelée (Ar)
+    type: 'Attaque',
+    cout: { PS: 1, 'Flèches Barbelées': 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    physiques: false,
+    statuts: ['Saignement'],
+    notes: 'Les Dégâts Physiques ne comptent pas. Si la cible saigne déjà : Saignement aggravé, des dégâts de Sang supplémentaires résistés par la Résilience.',
+  },
+  2337: { // Tir Ciblé (Arbalète)
+    type: 'Attaque',
+    cout: { PA: 1, PS: 1, 'Flèches/Carreaux': 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    physiques: false,
+    statuts: ['Immobile'],
+    conditions: ['Ne pas avoir le statut En mouvement'],
+    notes: 'Les Dégâts Physiques ne comptent pas.',
+  },
+  1015: { // Tir Ciblé (Fusil)
+    type: 'Attaque',
+    cout: { PA: 1, PS: 1, Munitions: 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    physiques: false,
+    statuts: ['Immobile'],
+    conditions: ['Ne pas avoir le statut En mouvement'],
+    notes: 'Les Dégâts Physiques ne comptent pas.',
+  },
+  1017: { // Tir de semonce
+    cout: { PA: 1, PS: 1, Munitions: 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    statuts: ['Controle'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  2338: { // Tir balle explosive
+    type: 'Attaque',
+    cout: { PS: 1, 'Munitions explosives': 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    physiques: false,
+    statuts: ['Brûlure'],
+    notes: 'Les Dégâts Physiques ne comptent pas. Si la cible brûle déjà : Brûlure aggravée, des dégâts supplémentaires résistés par la Résilience.',
+  },
+  1892: { // Rechargement Pistolet
+    cout: { PS: 1 },
+    gain: { Recharge: 1 },
+    notes: 'Maximum 2 points de Recharge.',
+  },
+  1460: { // Tir de Pistolet
+    type: 'Attaque',
+    cout: { Recharge: 1, Munitions: 1 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants fixes'],
+    notes: "Dégâts fixes : pas influencés par l'arme ni par les Dégâts Physiques.",
+  },
+  616: { // Coup de bouclier
+    cout: { PA: 1, PS: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    statuts: ['Controle'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  2292: { // Fracassement (2M)
+    cout: { PS: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    statuts: ['Vulnérable'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  711: { // Balayage
+    type: 'Attaque',
+    cout: { PA: 1 },
+    portee: '1 Tile',
+    cible: '3 cibles',
+    degats: ['Tranchants'],
+  },
+  712: { // Coup Tourbillonnant
+    type: 'Attaque',
+    cout: { PA: 1 },
+    portee: '1 Tile',
+    cible: '3 cibles',
+    degats: ['Contondants'],
+  },
+  1785: { // Coup de Lance
+    type: 'Attaque',
+    cout: { PA: 1 },
+    portee: '1.5 Tiles',
+    cible: '1 cible',
+    degats: ['Perforants'],
+  },
+  1989: { // Regle
+    portee: '20 Tiles',
+    desc: 'Affiche la distance en Tiles des autres personnages autour.',
+  },
+  713: { // Empaler
+    type: 'Attaque',
+    cout: { PA: 1, PS: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    degats: ['Perforants'],
+    effets: ['Défense −10 sur la cible pendant le coup (à confirmer)'],
+  },
+  2004: { // Mordhau
+    type: 'Attaque',
+    cout: { PS: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    degats: ['Contondants'],
+    statuts: ['Confus'],
+  },
+  710: { // Coup de masse
+    type: 'Attaque',
+    cout: { PA: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    degats: ['Contondants'],
+  },
+  596: { // Coup de Lame
+    type: 'Attaque',
+    cout: { PA: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    degats: ['Tranchants'],
+  },
+  1988: { // Couper liens
+    cout: { PM: 1 },
+    cible: 'Soi',
+    retire: ['Ralenti'],
+  },
+  1987: { // Changer d'arme
+    cout: { PA: 1 },
+    desc: 'Change en même temps son arme principale et son arme secondaire.',
+  },
+  1986: { // Remonter à Cheval
+    cout: { PM: 1 },
+    desc: 'Permet de remonter en selle sur sa monture.',
+  },
+  82: { // Deplacement Monture
+    cout: { PM: 1 },
+    jet: '(1d2 + Déplacement) × 3',
+    statuts: ['En mouvement'],
+    desc: 'Le résultat du jet donne le nombre de Tiles dont le personnage peut se déplacer.',
+    conditions: ['Être à dos de monture'],
+    sources: ['Rune Monture (équipée)'],
+  },
+  86: { // Fuir
+    cout: { PM: 1 },
+    portee: '20 Tiles',
+    cible: "Tous les adversaires (jusqu'à 10)",
+    desc: "Permet de sortir d'un combat.",
+    notes: "Une seule tentative : en cas d'échec, impossible de relancer. Il faut alors fuir autrement (s'éloigner très loin ou sacrifier un garde).",
+  },
+  83: { // Deplacement supplémentaire
+    cout: { PA: 1 },
+    cible: 'Soi',
+    desc: 'Permet de se déplacer de 3 Tiles.',
+    statuts: ['En mouvement'],
+  },
+  81: { // Deplacement
+    cout: { PM: 1 },
+    cible: 'Soi',
+    jet: '1d2 + Déplacement',
+    desc: 'Le résultat du jet donne le nombre de Tiles dont le personnage peut se déplacer.',
+    statuts: ['En mouvement'],
+  },
+  79: { // Terminer le combat
+    cible: 'Soi',
+    desc: "Met fin au combat uniquement pour le personnage qui l'utilise et lui retire les statuts temporaires liés au combat.",
+    retire: ['Confus', 'Controle', 'Incontrolable', 'Immobile', 'Ralenti', 'En mouvement'],
+    notes: 'Liste des statuts retirés non exhaustive.',
+  },
+  78: { // Terminer tour (Controle)
+    desc: 'Termine son tour sans rien faire.',
+    retire: ['Controle'],
+    statuts: ['Incontrolable (3 tours)'],
+  },
+  77: { // Terminer le tour
+    desc: 'Met fin au tour du personnage.',
+    retire: ['Confus', 'Immobile', 'En mouvement'],
+  },
+  76: { // Commencer le tour
+    desc: 'Déclare le début du tour du personnage et lui rend tous ses points.',
+    recharge: { PA: 1, PM: 1, PS: 1, AT: '1/1 · 3/3 avec armée', PP: 1 },
+    retire: ['Posture en cours', 'Flamboiement', 'Bio-Electricite', 'Bouclier Magique', 'Bouclier Magique (M)', 'Bouclier Magique (P)'],
+  },
+  75: { // Initiative
+    portee: '~16 Tiles',
+    cible: 'Tous les joueurs à portée',
+    jet: '3d6 + Initiative',
+    desc: "Marque le début d'un combat. Tous les joueurs à portée lancent un jet d'Initiative, basé sur leur statistique d'Initiative.",
+  },
+  721: { // Coup de pommeau
+    type: 'Attaque',
+    cout: { PS: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    degats: ['Contondants'],
+    statuts: ['Confus'],
+  },
+  720: { // Coup de hampe : équivalent du Coup de pommeau pour les lances
+    type: 'Attaque',
+    cout: { PS: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    degats: ['Contondants'],
+    statuts: ['Confus'],
+  },
+};
+// Variantes qui fonctionnent exactement comme une autre aptitude
+DETAILS[2293] = DETAILS[717]; // Faire Saigner (Hache)
+DETAILS[2294] = DETAILS[717]; // Faire saigner (Katana)
+DETAILS[1885] = DETAILS[1602]; // Utiliser Cosmétiques = S'apprêter
+DETAILS[2003] = DETAILS[720]; // Coup de hampe (2M) = Coup de hampe
+DETAILS[2291] = DETAILS[596]; // Coup de lame (Hache) = Coup de Lame
+DETAILS[716] = DETAILS[2292]; // Fracassement (1M) = Fracassement (2M)
+DETAILS[2305] = DETAILS[713]; // Empaler (2M) = Empaler
+
+
+// ============================================================================
+// OUTILS
+// ============================================================================
+function esc(s){
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+// recherche insensible aux accents et à la casse
+function norm(s){
+  return String(s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+function slug(s){
+  return norm(s).replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
+// Préférences d'affichage propres à ce navigateur (sans effet si le stockage est indisponible)
+const store = {
+  get(k, def){ try { const v = localStorage.getItem('aptitudes:' + k); return v === null ? def : JSON.parse(v); } catch (e) { return def; } },
+  set(k, v){ try { localStorage.setItem('aptitudes:' + k, JSON.stringify(v)); } catch (e) { /* stockage indisponible */ } },
+};
+
+// ============================================================================
+// LIENS AVEC LE SIMULATEUR (data.js)
+// ============================================================================
+// Aptitudes dont les effets sont décrits par une entrée du simulateur : [collection, clé]
+const DATA_LINKS = {
+  1919: ['POSTURES', 'Posture Offensive'], 1920: ['POSTURES', 'Posture Defensive'],
+  1921: ['POSTURES', 'Posture Technique'], 1922: ['POSTURES', 'Posture Mobile'],
+  334: ['TRANSFORMATIONS_CHANGEFORME', 'Araignée'], 565: ['TRANSFORMATIONS_CHANGEFORME', 'Cervidé'],
+  566: ['TRANSFORMATIONS_CHANGEFORME', 'Lagomorphe'], 567: ['TRANSFORMATIONS_CHANGEFORME', 'Félin'],
+  568: ['TRANSFORMATIONS_CHANGEFORME', 'Canidé'], 569: ['TRANSFORMATIONS_CHANGEFORME', 'Aviaire'],
+  570: ['TRANSFORMATIONS_CHANGEFORME', 'Vulpes'], 571: ['TRANSFORMATIONS_CHANGEFORME', 'Urside'],
+  572: ['TRANSFORMATIONS_CHANGEFORME', 'Aquatique'], 573: ['TRANSFORMATIONS_CHANGEFORME', 'Reptile'],
+  575: ['TRANSFORMATIONS_CHANGEFORME', 'Dragon'],
+  576: ['TRANSFORMATIONS', 'Lycanthrope I'], 577: ['TRANSFORMATIONS', 'Démoniaque'],
+  637: ['CONSUMABLES', 'Casse-Croûte'], 638: ['CONSUMABLES', 'Repas'], 639: ['CONSUMABLES', 'Jus'],
+  640: ['CONSUMABLES', 'Alcool doux'], 642: ['CONSUMABLES', 'Spiritueux (Alcool Fort)'],
+  622: ['CONSUMABLES', 'Récréatif'], 623: ['CONSUMABLES', 'Dopant Psychique'], 624: ['CONSUMABLES', 'Dopant Physique'],
+  1044: ['CONSUMABLES', 'Parfum (Sent Bon)'], 1602: ['CONSUMABLES', 'Cosmétique (Maquillage)'], 1601: ['CONSUMABLES', 'Savon (Propre)'], 1885: ['CONSUMABLES', 'Cosmétique (Maquillage)'],
+};
+const DATA_COLLECTIONS = { POSTURES, TRANSFORMATIONS, TRANSFORMATIONS_CHANGEFORME, CONSUMABLES };
+
+// Libellés des stats pour l'affichage des effets
+const ATTR_LABELS = Object.fromEntries(ATTRIBUTES.map(a => [a.key, a.label]));
+function statLabel(k){
+  return TALENT_STAT_LABELS[k] || STATS[k] || PARENT_LABELS_SHORT[k] || ATTR_LABELS[k]
+    || EXTRA_STATS[k] || OTHER_STATS[k] || ELEMENTAL_STATS[k] || ERP_STATS[k] || k;
+}
+
+// Clé de comparaison des noms d'aptitude (accents, casse, ligatures et espaces ignorés)
+function nameKey(s){
+  return norm(String(s).replace(/œ/g, 'oe').replace(/Œ/g, 'Oe')).replace(/\s+/g, ' ').trim();
+}
+// Noms utilisés dans le simulateur qui diffèrent du nom en jeu
+const NAME_ALIASES = {
+  'couper les liens': 'couper liens',
+  'sacrifice invocation occulte': 'sacrifice de troupe (invocation occulte)',
+};
+
+const ABILITY_BY_KEY = {};
+CATEGORIES.forEach(c => c.groups.forEach(g => g.abilities.forEach(([id, name]) => { ABILITY_BY_KEY[nameKey(name)] = id; })));
+function abilityIdFor(name){
+  const k = nameKey(name);
+  return ABILITY_BY_KEY[NAME_ALIASES[k] || k];
+}
+
+// Notes du simulateur : 'Octroie : X' (aptitude) et 'Octroie le statut : X'
+function grantedAbilities(notes){ return (notes || []).map(n => /^Octroie\s*:\s*(.+)$/.exec(n)).filter(Boolean).map(m => m[1]); }
+function grantedStatuses(notes){ return (notes || []).map(n => /^Octroie le statut\s*:\s*(.+)$/i.exec(n)).filter(Boolean).map(m => m[1]); }
+
+// Index inverse : pour chaque aptitude, ce qui l'octroie dans le simulateur
+const GRANTED_BY = {};
+const UNMATCHED_GRANTS = new Set();
+function addGrant(abilityName, kind, label){
+  const id = abilityIdFor(abilityName);
+  if (!id) { UNMATCHED_GRANTS.add(abilityName); return; }
+  const list = GRANTED_BY[id] = GRANTED_BY[id] || [];
+  if (!list.some(x => x.kind === kind && x.label === label)) list.push({ kind, label });
+}
+function indexSource(kind, entries){
+  Object.entries(entries).forEach(([key, data]) => grantedAbilities(data.notes).forEach(a => addGrant(a, kind, key)));
+}
+Object.entries(EQUIPMENT).forEach(([slot, items]) => {
+  Object.entries(items).forEach(([item, data]) => {
+    // perk principal de l'objet (ex. « Lames 1M »), hors perks génériques ; les perks d'armure ne sont pas des noms d'objet
+    const perk = slot !== 'armure' && (data.notes || []).map(n => /^Octroie le Perk\s*:\s*(.+)$/.exec(n)).filter(Boolean).map(m => m[1])
+      .find(p => !['Arme', 'Deux Mains'].includes(p));
+    const label = perk && perk !== item ? `${item} (${perk})` : item;
+    grantedAbilities(data.notes).forEach(a => addGrant(a, SLOT_LABELS[slot] || slot, label));
+  });
+});
+indexSource('Espèce', SPECIES);
+indexSource('Malédiction', CURSES);
+indexSource('Corruption', CORRUPTION);
+indexSource('Transformation', TRANSFORMATIONS);
+indexSource('Changeforme', TRANSFORMATIONS_CHANGEFORME);
+indexSource('Statut', STATUSES);
+indexSource('Consommable', CONSUMABLES);
+indexSource('Environnement', ENVIRONMENTS);
+grantedAbilities(TENERIFFE.notes).forEach(a => addGrant(a, 'Lignée', 'Ténériffe'));
+grantedAbilities(ESCLAVE.notes).forEach(a => addGrant(a, 'Statut', 'Esclave'));
+TALENTS.forEach(t => grantedAbilities(t.notes).forEach(a => addGrant(a, 'Talent', t.name)));
+// les formes du Changeforme nécessitent le talent du même nom
+Object.entries(DATA_LINKS).forEach(([id, [coll]]) => {
+  if (coll === 'TRANSFORMATIONS_CHANGEFORME') (GRANTED_BY[id] = GRANTED_BY[id] || []).push({ kind: 'Talent', label: 'ChangeForme' });
+});
+if (UNMATCHED_GRANTS.size) console.warn('Aptitudes du simulateur introuvables dans l\'encyclopédie :', [...UNMATCHED_GRANTS]);
+
+// Effets chiffrés d'une entrée du simulateur : [[libellé, valeur], …]
+function dataEffects(data){
+  const entries = [];
+  ['parentDelta', 'attrDelta', 'flatStats', 'extraStats', 'otherStats', 'elemental', 'erpStats'].forEach(field => {
+    Object.entries(data[field] || {}).forEach(([k, v]) => { if (v) entries.push([statLabel(k), v, field === 'erpStats']); });
+  });
+  return entries;
+}
+function effectPills(entries){
+  return entries.map(([label, v, erp]) =>
+    `<span class="pill eff ${erp ? 'erp-' : ''}${v > 0 ? 'pos' : 'neg'}">${esc(label)} ${v > 0 ? '+' : ''}${esc(v)}</span>`).join('');
+}
+
+// ============================================================================
+// COULEURS & PASTILLES
+// ============================================================================
+// Code couleur des statuts (les statuts inconnus reçoivent une teinte stable dérivée de leur nom)
+const STATUS_COLORS = {
+  'Confus': '#e8d25f',
+  'Controle': '#ef7d5e',
+  'Incontrolable': '#c9a0e8',
+  'Immobile': '#6fa8e6',
+  'Ralenti': '#8aa0c8',
+  'En mouvement': '#5fd0b8',
+  'Vulnérable': '#ec7fb6',
+  'Saignement': '#e05555',
+  'Poison': '#98cc5c',
+  'Poison de Mana': '#a487f0',
+  'Brûlure': '#f5a54a',
+  'Bouclier Magique': '#6ccbee',
+  'Bouclier Magique (M)': '#ff9f6b',
+  'Bouclier Magique (P)': '#c9a777',
+  'Bon repos': '#b4d48f',
+  'Propre': '#7cc7b8',
+  'Blessure': '#c76b6b',
+  'Visage Trouble': '#b08ee0',
+  'Flamboiement': '#ffb347',
+  'Bio-Electricite': '#c79bf2',
+  'En mêlée': '#d98c6a',
+  'Maquillé': '#f2a9cf',
+  'Parfum': '#f0c89a',
+  'Posture en cours': '#c9a46e',
+};
+// Retire une durée finale « (20 h) », « (jusqu'au …) » ; garde un suffixe court qui fait partie du nom, ex. « Bouclier Magique (M) »
+// Variantes affichées qui se rangent sous un même statut (couleur, filtre)
+const STATUS_GROUPS = { 'blessure normale': 'Blessure' };
+const statusBase = name => {
+  const base = name.replace(/\s*\([^)]*\s[^)]*\)\s*$/, '');
+  return STATUS_GROUPS[nameKey(base)] || base;
+};
+function statusColor(name){
+  const k = nameKey(statusBase(name));
+  const known = Object.entries(STATUS_COLORS).find(([n]) => nameKey(n) === k);
+  if (known) return known[1];
+  let h = 0;
+  for (const ch of k) h = (h * 31 + ch.charCodeAt(0)) % 360;
+  return `hsl(${h} 62% 66%)`;
+}
+function statusPill(name, removed){
+  const base = statusBase(name);
+  return `<span class="pill status filt${removed ? ' removed' : ''}" data-status="${esc(nameKey(base))}" style="--c:${statusColor(name)}" title="${removed ? 'Retire' : 'Applique'} le statut ${esc(base)} — cliquer pour filtrer">${esc(name)}</span>`;
+}
+// Statut appliqué + ses effets s'il existe dans le simulateur (statuts, puis buffs de consommation).
+function statusLine(name){
+  const k = nameKey(statusBase(name));
+  const src = [STATUSES, CONSUMABLES].map(c => Object.entries(c).find(([key]) => nameKey(key) === k)).find(Boolean);
+  const effects = src ? effectPills(dataEffects(src[1])) : '';
+  return `<div class="st-line">${statusPill(name, false)}${effects ? `<span class="eff-list">${effects}</span>` : ''}</div>`;
+}
+function abilityLink(name){
+  const id = abilityIdFor(name);
+  return id ? `<a class="tag link" href="#a${id}">${esc(name)}</a>` : `<span class="tag">${esc(name)}</span>`;
+}
+
+const ICONS = {
+  type: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 6-6M16 16l4 4M19 21l2-2"/></svg>',
+  heal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+  range: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h18M3 12l4-4M3 12l4 4M21 12l-4-4M21 12l-4 4"/></svg>',
+  cooldown: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12M6 21h12M7 3c0 5 10 5 10 9s-10 4-10 9M17 3c0 5-10 5-10 9s10 4 10 9"/></svg>',
+  target: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg>',
+  cost: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M9 12h6"/></svg>',
+  compare: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3 4 7l4 4M4 7h16M16 21l4-4-4-4M20 17H4"/></svg>',
+};
+
+// Ressources dépensées : libellé complet (infobulle) + couleur
+const COSTS = {
+  PA: { label: "Points d'Action", color: 'var(--gold)' },
+  PS: { label: 'Action Spéciale', color: 'var(--ps)' },
+  PM: { label: 'Points de Mouvement', color: 'var(--mobilite-bright)' },
+  Mana: { label: 'Mana', color: 'var(--magie-bright)' },
+  PV: { label: 'Points de Vie', color: 'var(--vitales-bright)' },
+  AT: { label: 'Action de Troupe', color: 'var(--defense-bright)' },
+  PP: { label: 'Points de Posture', color: 'var(--combat-bright)' },
+  'Hygiène': { label: 'Hygiène', color: '#7cc7b8' },
+  'Santé mentale': { label: 'Santé mentale', color: '#d79ad0' },
+  Corruption: { label: 'Corruption', color: '#9c6fc4' },
+};
+// Coûts filtrables (les ressources d'action uniquement)
+const COST_FILTER_KEYS = ['PA', 'PS', 'PM', 'AT', 'PP'];
+// Types de dégâts : couleur par mot-clé (la première correspondance l'emporte)
+const DAMAGE_COLORS = [
+  [/^fixes$/i, '#d8c9a8'],
+  [/magi/i, 'var(--magie-bright)'],
+  [/physi/i, 'var(--combat-bright)'],
+  [/contond/i, 'var(--dmg-contondant)'],
+  [/tranch/i, 'var(--dmg-tranchant)'],
+  [/per[cf]/i, 'var(--dmg-perforant)'],
+  [/terre/i, '#c4955a'],
+  [/feu/i, '#f2793f'],
+  [/eau/i, '#5aaee8'],
+  [/air/i, '#b7e0ee'],
+  [/lumi/i, '#f3e08a'],
+  [/sang/i, '#d84a5a'],
+  [/arcane/i, '#b88cf0'],
+];
+const DMG_ORDER = ['Physiques', 'Tranchants', 'Perforants', 'Contondants', 'Magiques', 'Terre', 'Feu', 'Eau', 'Air', 'Lumière', 'Sang', 'Arcane', 'Fixes'];
+// Types de dégâts filtrables d'une étiquette : « Tranchants fixes » -> Tranchants + Fixes
+function damageTypes(t){
+  const base = t.replace(/\s*fixes?\s*$/i, '').trim();
+  return /fixe/i.test(t) ? [base, 'Fixes'] : [base];
+}
+function damageColor(t){
+  const m = DAMAGE_COLORS.find(([re]) => re.test(t));
+  return m ? m[1] : 'var(--text-dim)';
+}
+// Ciblage : classe d'une aptitude d'après son champ « cible »
+const CIBLAGES = [
+  ['soi',   { name: 'Soi',            color: '#9fd07a', title: 'Le lanceur uniquement' }, c => /^soi\b/i.test(c)],
+  ['mono',  { name: 'Monocible',      color: '#e0b07a', title: 'Une seule cible choisie' }, c => /^1 cible\b/i.test(c)],
+  ['multi', { name: 'Multicible',     color: '#e08a4f', title: 'Plusieurs cibles choisies une à une (ex. 3 cibles)' }, c => /^\d+ cibles\b/i.test(c)],
+  ['zone',  { name: 'Zone',           color: '#6fb0d4', title: 'Toutes les cibles dans un rayon autour du point choisi' }, c => /^zone\b/i.test(c)],
+  ['tous',  { name: 'Tous à portée',  color: '#b48ae0', title: 'Tout le monde à portée, sans choisir de cible' }, c => /^tou[ts]\b/i.test(c)],
+];
+function ciblageOf(c){
+  if (!c) return null;
+  const m = CIBLAGES.find(([, , test]) => test(c));
+  if (!m) console.warn('Ciblage non classé :', c);
+  return m ? m[0] : null;
+}
+const TYPE_COLORS = { Attaque: 'var(--combat-bright)', Soin: 'var(--pos)' };
+
+// Pastille de ressource (coût, recharge, gain, perte). Un objet consommé s'affiche à part, en pointillés.
+function resourcePill(k, text, filterable){
+  const c = COSTS[k];
+  if (!c) return `<span class="cost item" title="Objet consommé">${text}</span>`;
+  return filterable && COST_FILTER_KEYS.includes(k)
+    ? `<span class="cost filt" data-cout="${k}" style="--c:${c.color}" title="${esc(c.label)} — cliquer pour filtrer">${text}</span>`
+    : `<span class="cost" style="--c:${c.color}" title="${esc(c.label)}">${text}</span>`;
+}
+const isResource = k => !!COSTS[k];
+
+// ============================================================================
+// MODÈLE : toutes les infos d'une aptitude, calculées une seule fois
+// ============================================================================
+function firstNumber(s){
+  const m = /\d+(?:[.,]\d+)?/.exec(s || '');
+  return m ? parseFloat(m[0].replace(',', '.')) : null;
+}
+
+function buildModel([id, name, opts = {}], cat, group){
+  const d = DETAILS[id] || {};
+  const link = DATA_LINKS[id];
+  const linked = link ? DATA_COLLECTIONS[link[0]][link[1]] : null;
+
+  // les dégâts d'arme (tranchants, perforants, contondants) sont toujours aussi des dégâts physiques
+  const degats = [...(d.degats || [])];
+  if (d.physiques !== false && degats.some(t => /contond|tranch|per[cf]/i.test(t) && !/fixe/i.test(t)) && !degats.some(t => /physi/i.test(t))) degats.push('Physiques');
+  const statuts = [...(d.statuts || []), ...(linked ? grantedStatuses(linked.notes) : [])];
+  const retire = [...(d.retire || [])];
+  const grants = linked ? grantedAbilities(linked.notes) : [];
+  const effects = linked ? dataEffects(linked) : [];
+  const sources = [...(GRANTED_BY[id] || []), ...(d.sources || []).map(t => ({ kind: '', label: t }))];
+  const cout = Object.entries(d.cout || {});
+  const recharge = Object.entries(d.recharge || {});
+  const gain = Object.entries(d.gain || {});
+  const perte = Object.entries(d.perte || {});
+  const effets = [...(d.effets || [])];
+
+  // Règle du jeu : un statut posé par une aptitude qui fait aussi des dégâts se résiste (3d6 + attribut contre 15)
+  const resist = [...(d.resistance || [])];
+  if (degats.length) RESIST_RULES.forEach(([st, attr]) => {
+    if ((d.statuts || []).some(x => nameKey(statusBase(x)) === nameKey(st)) && !resist.some(([r]) => nameKey(r) === nameKey(st))) resist.push([st, attr]);
+  });
+  // Règle du jeu : une aptitude qui applique Immobile ou Controle ne peut pas être lancée avec Premier Tour
+  const conditions = [...(d.conditions || [])];
+  if ((d.statuts || []).some(st => /^(Immobile|Controle)\b/.test(st)) && !conditions.includes(PREMIER_TOUR_COND)) conditions.push(PREMIER_TOUR_COND);
+
+  // « Documentée » dès qu'il y a une description, un coût, un usage ou un effet connu
+  const documented = !!(d.affiche || (d.menus && d.menus.length) || d.desc || d.type || d.portee || d.cible || d.cooldown
+    || cout.length || recharge.length || gain.length || perte.length || retire.length || degats.length
+    || effects.length || statuts.length || grants.length);
+  // Fiche complète dès qu'il y a la moindre information à afficher (sinon : ligne compacte)
+  const hasInfo = documented || !!(d.jet || conditions.length || effets.length || d.notes || resist.length);
+
+  const applies = statuts.map(t => nameKey(statusBase(t)));
+  const removes = retire.map(t => nameKey(statusBase(t)));
+  const search = norm([name, id, d.desc, d.type, ...degats, ...statuts, ...retire, ...grants, ...effets,
+    ...cout.map(([k]) => k), ...sources.map(x => x.kind + ' ' + x.label)].filter(Boolean).join(' '));
+
+  // Clés de tri du tableau
+  const num = k => { const e = cout.find(([c]) => c === k); return e && typeof e[1] === 'number' ? e[1] : 0; };
+  const costSort = cout.length ? (num('PA') + num('PS') + num('PM') + num('AT')) * 1000 + num('Mana') + num('PV') + num('Corruption') : null;
+
+  return {
+    id, name, verify: !!opts.verify, cat, group, d,
+    degats, statuts, retire, grants, effects, sources, cout, recharge, gain, perte, effets, resist, conditions,
+    documented, hasInfo, applies, removes, search,
+    couts: cout.map(([k]) => k).filter(k => COST_FILTER_KEYS.includes(k)),
+    ciblage: ciblageOf(d.cible),
+    degatKeys: [...new Set(degats.flatMap(damageTypes).map(nameKey))],
+    sortKeys: { name: name, id, cout: costSort, portee: firstNumber(d.portee) },
+  };
+}
+
+const MODELS = [];
+const MODEL_BY_ID = {};
+CATEGORIES.forEach(cat => cat.groups.forEach(g => {
+  g.gid = `${cat.key}-${slug(g.label)}`;
+  g.models = g.abilities.map(a => buildModel(a, cat, g));
+  g.models.forEach(m => {
+    if (MODEL_BY_ID[m.id]) console.warn('N° d\'aptitude en double :', m.id);
+    MODELS.push(m); MODEL_BY_ID[m.id] = m;
+  });
+}));
+
+// ============================================================================
+// FRAGMENTS HTML PARTAGÉS (fiches, tableau, comparaison)
+// ============================================================================
+const H = {
+  type: m => m.d.type ? `<span class="badge-type" style="--c:${TYPE_COLORS[m.d.type] || 'var(--text-dim)'}">${m.d.type === 'Soin' ? ICONS.heal : ICONS.type}${esc(m.d.type)}</span>` : '',
+  verify: m => m.verify ? `<span class="badge-type badge-verify" title="Le classement de cette aptitude reste à confirmer">Classement à vérifier</span>` : '',
+  cout: m => m.cout.map(([k, v]) => isResource(k)
+    ? resourcePill(k, `${esc(v)} ${esc(k)}`, true)
+    : resourcePill(k, `<b>${esc(v)} ×</b> ${esc(k)}`, false)).join(''),
+  // nombre -> « 1/1 » ; texte -> affiché tel quel (ex. maximum variable)
+  recharge: m => m.recharge.map(([k, v]) => resourcePill(k, `${esc(k)} ${esc(typeof v === 'number' ? `${v}/${v}` : v)}`)).join(''),
+  gain: m => m.gain.map(([k, v]) => resourcePill(k, `+${esc(v)} ${esc(k)}`)).join(''),
+  perte: m => m.perte.map(([k, v]) => resourcePill(k, `−${esc(v)} ${esc(k)}`)).join(''),
+  degats: m => m.degats.map(t => `<span class="pill dmg filt" data-degat="${esc(nameKey(damageTypes(t)[0]))}"${/fixe/i.test(t) ? ' data-fixe="1"' : ''} style="--c:${damageColor(t)}" title="Dégâts ${esc(t)} — cliquer pour filtrer">${esc(t)}</span>`).join(''),
+  applique: m => m.statuts.map(statusLine).join(''),
+  retire: m => m.retire.map(t => statusPill(t, true)).join(''),
+  effects: m => effectPills(m.effects),
+  octroie: m => m.grants.map(abilityLink).join(''),
+  jet: m => m.d.jet ? esc(m.d.jet) : '',
+  resist: m => m.resist.map(([st, attr]) => `<div class="resist">${esc(st)} : la cible lance <b>3d6 + ${esc(attr)}</b> contre <b>15</b></div>`).join(''),
+  effets: m => m.effets.length ? `<ul class="bullets">${m.effets.map(e => `<li>${esc(e)}</li>`).join('')}</ul>` : '',
+  conditions: m => m.conditions.length ? `<ul class="bullets cond">${m.conditions.map(c => `<li>${esc(c)}</li>`).join('')}</ul>` : '',
+  sources: m => m.sources.map(x => `<span class="tag">${x.kind ? `<b>${esc(x.kind)}</b>` : ''}${esc(x.label)}</span>`).join(''),
+  desc: m => m.d.desc ? esc(m.d.desc) : '',
+  notes: m => m.d.notes ? `<span class="notes">${esc(m.d.notes)}</span>` : '',
+  affiche: m => Object.entries(m.d.affiche || {}).map(([tab, items]) => [esc(tab), items.map(i => `<span class="tag">${esc(i)}</span>`).join('')]),
+  menus: m => (m.d.menus || []).map(x => `<span class="tag">${esc(x)}</span>`).join(''),
+  portee: m => m.d.portee ? esc(m.d.portee) : '',
+  cible: m => m.d.cible ? esc(m.d.cible) : '',
+  cooldown: m => m.d.cooldown ? esc(m.d.cooldown) : '',
+  cmpBtn: (m, compact) => `<button type="button" class="cmp-btn" data-cmp="${m.id}" aria-pressed="false" title="Ajouter à la comparaison">${ICONS.compare}${compact ? '' : '<span>Comparer</span>'}</button>`,
+};
+const NONE = '<span class="none">—</span>';
+
+// Lignes détaillées d'une fiche, dans un ordre fixe : [libellé, html]
+function detailRows(m){
+  const rows = [];
+  const push = (label, html) => { if (html) rows.push([label, html]); };
+  push('Dégâts', H.degats(m));
+  push('Applique', H.applique(m));
+  push('Retire', H.retire(m));
+  push('Effets', H.effects(m));
+  push('Rend', H.gain(m));
+  push('Recharge', H.recharge(m));
+  push('Fait perdre', H.perte(m));
+  push('Jet', H.jet(m));
+  push('Résistance', H.resist(m));
+  push('Octroie', H.octroie(m));
+  // effets en texte libre (« Autres effets » si des effets chiffrés sont déjà affichés)
+  push(m.effects.length ? 'Autres effets' : 'Effets', H.effets(m));
+  push('Conditions', H.conditions(m));
+  push('Obtenue via', H.sources(m));
+  H.affiche(m).forEach(([tab, html]) => push(tab, html));
+  push('Sous-menus', H.menus(m));
+  push('Notes', H.notes(m));
+  return rows;
+}
+
+// ============================================================================
+// VUE FICHES
+// ============================================================================
+function fact(cls, label, icon, html){
+  return `<div class="fact ${cls}"><div class="fact-label">${icon || ''}${label}</div><div class="fact-val">${html || NONE}</div></div>`;
+}
+function cardHTML(m){
+  const d = m.d;
+  // Bandeau des données clés : Coût en haut, puis Portée · Cible (· Cooldown) toujours au même endroit
+  const hasFacts = m.cout.length || d.portee || d.cible || d.cooldown;
+  const facts = hasFacts ? `<div class="facts${d.cooldown ? ' cd3' : ''}">
+      ${fact('full', 'Coût', ICONS.cost, H.cout(m))}
+      ${fact('range first', 'Portée', ICONS.range, H.portee(m))}
+      ${fact('target', 'Cible', ICONS.target, H.cible(m))}
+      ${d.cooldown ? fact('cooldown', 'Cooldown', ICONS.cooldown, H.cooldown(m)) : ''}
+    </div>` : '';
+  const rows = detailRows(m);
+  return `
+    <article class="ability" id="a${m.id}" data-id="${m.id}" style="--cat:${m.cat.color}">
+      <div class="ab-head">
+        <div class="ab-title">
+          <h4 class="ab-name">${esc(m.name)}</h4>
+          <div class="ab-badges">${H.type(m)}${H.verify(m)}</div>
+        </div>
+        <div class="ab-tools"><a class="ab-id" href="#a${m.id}" title="Lien direct">#${m.id}</a>${H.cmpBtn(m)}</div>
+      </div>
+      ${facts}
+      ${d.desc ? `<p class="ab-desc">${H.desc(m)}</p>` : ''}
+      ${m.documented ? '' : `<p class="ab-todo">À documenter</p>`}
+      ${rows.length ? `<dl class="rows">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>` : ''}
+    </article>`;
+}
+function undocItemHTML(m){
+  const src = m.sources.length
+    ? `<span class="ui-src">via ${m.sources.map(x => `${x.kind ? `<b>${esc(x.kind)}</b>` : ''}${esc(x.label)}`).join(' · ')}</span>` : '';
+  return `<li class="undoc-item" id="a${m.id}" data-id="${m.id}" style="--cat:${m.cat.color}">
+      <span class="ui-name">${esc(m.name)}</span>${H.verify(m)}<a class="ab-id" href="#a${m.id}" title="Lien direct">#${m.id}</a>${src}
+    </li>`;
+}
+function groupCardsHTML(g){
+  const full = g.models.filter(m => m.hasInfo);
+  const compact = g.models.filter(m => !m.hasInfo);
+  return `${full.length ? `<div class="grid">${full.map(cardHTML).join('')}</div>` : ''}
+    ${compact.length ? `<div class="undoc"><p class="undoc-title">À documenter · <span class="undoc-n">${compact.length}</span></p>
+      <ul class="undoc-list">${compact.map(undocItemHTML).join('')}</ul></div>` : ''}`;
+}
+
+// ============================================================================
+// VUE TABLEAU
+// ============================================================================
+const TABLE_COLS = [
+  { key: 'name', label: 'Aptitude', width: '17%', sort: 'name' },
+  { key: 'cout', label: 'Coût', width: '10%', sort: 'cout' },
+  { key: 'portee', label: 'Portée', width: '7%', sort: 'portee' },
+  { key: 'cible', label: 'Cible', width: '10%' },
+  { key: 'degats', label: 'Dégâts', width: '10%' },
+  { key: 'applique', label: 'Applique', width: '12%' },
+  { key: 'retire', label: 'Retire', width: '9%' },
+  { key: 'details', label: 'Effets & détails', width: '15%' },
+  { key: 'conditions', label: 'Conditions', width: '10%' },
+];
+function mini(label, html){ return html ? `<div class="mini"><span class="mini-l">${label}</span>${html}</div>` : ''; }
+function rowHTML(m){
+  const nameCell = `<td><div class="t-name">${esc(m.name)}</div>
+      <div class="t-sub"><a class="ab-id" href="#a${m.id}" title="Lien direct">#${m.id}</a>${H.type(m)}${H.verify(m)}${H.cmpBtn(m, true)}</div></td>`;
+  if (!m.hasInfo) {
+    const src = H.sources(m);
+    return `<tr id="a${m.id}" data-id="${m.id}" style="--cat:${m.cat.color}">${nameCell}
+      <td colspan="${TABLE_COLS.length - 1}"><span class="todo">À documenter</span>${src ? ` · <span class="mini-l" style="display:inline">Obtenue via</span> ${src}` : ''}</td></tr>`;
+  }
+  const details = [
+    m.d.desc ? `<div class="mini">${H.desc(m)}</div>` : '',
+    mini('Effets', H.effects(m)),
+    mini('Rend', H.gain(m)),
+    mini('Recharge', H.recharge(m)),
+    mini('Fait perdre', H.perte(m)),
+    mini('Cooldown', H.cooldown(m)),
+    mini('Jet', H.jet(m)),
+    mini('Résistance', H.resist(m)),
+    mini('Octroie', H.octroie(m)),
+    mini(m.effects.length ? 'Autres effets' : 'Effets', H.effets(m)),
+    ...H.affiche(m).map(([tab, html]) => mini(tab, html)),
+    mini('Sous-menus', H.menus(m)),
+    mini('Notes', H.notes(m)),
+    mini('Obtenue via', H.sources(m)),
+    m.documented ? '' : '<div class="mini todo">À documenter</div>',
+  ].join('');
+  const cell = h => `<td>${h || NONE}</td>`;
+  return `<tr id="a${m.id}" data-id="${m.id}" style="--cat:${m.cat.color}">${nameCell}
+    ${cell(H.cout(m))}${cell(m.d.portee ? `<span class="t-big">${H.portee(m)}</span>` : '')}${cell(H.cible(m))}
+    ${cell(H.degats(m))}${cell(H.applique(m))}${cell(H.retire(m))}${cell(details)}${cell(H.conditions(m))}</tr>`;
+}
+function sortedModels(list){
+  const { key, dir } = state.sort;
+  if (!key) return list;
+  return [...list].sort((a, b) => {
+    const va = a.sortKeys[key], vb = b.sortKeys[key];
+    // les valeurs absentes restent toujours en bas
+    if (va === null && vb === null) return 0;
+    if (va === null) return 1;
+    if (vb === null) return -1;
+    const r = typeof va === 'string' ? va.localeCompare(vb, 'fr') : va - vb;
+    return r * dir;
+  });
+}
+function groupTableHTML(g){
+  const head = TABLE_COLS.map(c => {
+    if (!c.sort) return `<th scope="col">${c.label}</th>`;
+    const on = state.sort.key === c.sort;
+    return `<th scope="col" class="sortable${on ? ' sorted' : ''}" data-sort="${c.sort}" title="Trier par ${c.label.toLowerCase()}" aria-sort="${on ? (state.sort.dir > 0 ? 'ascending' : 'descending') : 'none'}">${c.label}<span class="arrow">${on ? (state.sort.dir > 0 ? '▲' : '▼') : '↕'}</span></th>`;
+  }).join('');
+  return `<div class="tbl-wrap"><table class="tbl">
+      <colgroup>${TABLE_COLS.map(c => `<col style="width:${c.width}">`).join('')}</colgroup>
+      <thead><tr>${head}</tr></thead>
+      <tbody>${sortedModels(g.models).map(rowHTML).join('')}</tbody>
+    </table></div>`;
+}
+
+// ============================================================================
+// ÉTAT & RENDU
+// ============================================================================
+const $ = id => document.getElementById(id);
+const content = $('content'), toc = $('toc'), tabsEl = $('tabs'), counterEl = $('counter'), searchEl = $('search');
+const panelEl = $('filter-panel'), activeEl = $('active-filters'), trayEl = $('tray'), dialogEl = $('cmp-dialog');
+const MAX_COMPARE = 6;
+
+const state = {
+  cat: 'all',
+  q: '',
+  status: null, statusMode: 'any', // any | applique | retire
+  degat: null,
+  cout: null,
+  ciblage: null,
+  view: store.get('view', 'cards') === 'table' ? 'table' : 'cards',
+  hideUndoc: !!store.get('hideUndoc', false),
+  filtersOpen: !!store.get('filtersOpen', false),
+  compare: [],
+  sort: { key: null, dir: 1 },
+};
+state.compare = (store.get('compare', []) || []).filter(id => MODEL_BY_ID[id]).slice(0, MAX_COMPARE);
+
+function render(){
+  let html = '';
+  let tocHtml = '';
+  CATEGORIES.forEach(cat => {
+    const count = cat.groups.reduce((s, g) => s + g.models.length, 0);
+    html += `<section class="category" id="${cat.key}" data-cat="${cat.key}" style="--cat:${cat.color}">
+      <div class="category-head">
+        <h2 class="category-title">${esc(cat.label)} <small class="cat-count">${count} aptitudes</small></h2>
+        <p class="category-desc">${esc(cat.desc)}</p>
+      </div>`;
+    tocHtml += `<div data-cat="${cat.key}" style="--cat:${cat.color}"><a class="toc-cat" href="#${cat.key}">${esc(cat.label)} <span class="n"></span></a>`;
+    cat.groups.forEach(g => {
+      html += `<div class="group" id="${g.gid}" data-gid="${g.gid}" style="--cat:${cat.color}">
+        <div class="group-head">
+          <h3 class="group-title">${esc(g.label)}</h3>
+          <span class="group-count"></span>
+          ${g.desc ? `<p class="group-desc">${esc(g.desc)}</p>` : ''}
+        </div>
+        ${state.view === 'table' ? groupTableHTML(g) : groupCardsHTML(g)}
+      </div>`;
+      tocHtml += `<a class="toc-group" href="#${g.gid}" data-gid="${g.gid}">${esc(g.label)} <span class="n"></span></a>`;
+    });
+    html += `</section>`;
+    tocHtml += `</div>`;
+  });
+  html += `<div class="empty" id="empty" hidden>Aucune aptitude ne correspond à ces critères.<br><button type="button" class="btn" data-action="reset">Réinitialiser les filtres</button></div>`;
+  content.innerHTML = html;
+  toc.innerHTML = tocHtml;
+  $('layout').classList.toggle('wide', state.view === 'table');
+  document.querySelectorAll('.seg [data-view]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === state.view)));
+  observeGroups();
+}
+
+// Panneau de filtres : construit une seule fois, comptes sur l'ensemble des aptitudes
+function buildFilterPanel(){
+  const statusCount = new Map();
+  MODELS.forEach(m => {
+    const seen = new Set();
+    [...m.statuts, ...m.retire].forEach(t => {
+      const base = statusBase(t), k = nameKey(base);
+      if (seen.has(k)) return;
+      seen.add(k);
+      if (!statusCount.has(k)) statusCount.set(k, { name: base, color: statusColor(t), n: 0 });
+      statusCount.get(k).n++;
+    });
+  });
+  const statuses = [...statusCount.entries()].sort((a, b) => a[1].name.localeCompare(b[1].name, 'fr'));
+
+  const dmg = new Map();
+  MODELS.forEach(m => m.degatKeys.forEach(k => dmg.set(k, (dmg.get(k) || 0) + 1)));
+  const dmgName = k => DMG_ORDER.find(n => nameKey(n) === k) || k.charAt(0).toUpperCase() + k.slice(1);
+  const dmgRank = k => { const i = DMG_ORDER.findIndex(n => nameKey(n) === k); return i < 0 ? 99 : i; };
+  const dmgSorted = [...dmg.entries()].sort((a, b) => dmgRank(a[0]) - dmgRank(b[0]) || a[0].localeCompare(b[0], 'fr'));
+
+  FILTER_LABELS.status = Object.fromEntries(statuses.map(([k, s]) => [k, { name: s.name, color: s.color }]));
+  FILTER_LABELS.degat = Object.fromEntries(dmgSorted.map(([k]) => [k, { name: dmgName(k), color: damageColor(dmgName(k)) }]));
+  FILTER_LABELS.cout = Object.fromEntries(COST_FILTER_KEYS.map(k => [k, { name: k, color: COSTS[k].color, title: COSTS[k].label }]));
+  FILTER_LABELS.ciblage = Object.fromEntries(CIBLAGES.map(([k, info]) => [k, info]));
+
+  const chip = (f, k, info, n) => `<button type="button" class="s-chip" data-f="${f}" data-v="${esc(k)}" aria-pressed="false" style="--c:${info.color}"${info.title ? ` title="${esc(info.title)}"` : ''}><span class="dot"></span>${esc(info.name)}<small>${n}</small></button>`;
+  panelEl.innerHTML = `
+    <p class="hint fp-hint">Astuce : cliquez aussi sur un coût, un type de dégâts ou un statut directement dans une fiche pour filtrer.</p>
+    <div class="fp-label">Coût</div>
+    <div class="fp-chips">${COST_FILTER_KEYS.map(k => [k, MODELS.filter(m => m.couts.includes(k)).length]).filter(([, n]) => n).map(([k, n]) => chip('cout', k, FILTER_LABELS.cout[k], n)).join('')}</div>
+    <div class="fp-label">Ciblage</div>
+    <div class="fp-chips">${CIBLAGES.map(([k, info]) => [k, info, MODELS.filter(m => m.ciblage === k).length]).filter(([, , n]) => n).map(([k, info, n]) => chip('ciblage', k, info, n)).join('')}</div>
+    <div class="fp-label">Dégâts</div>
+    <div class="fp-chips">${dmgSorted.map(([k, n]) => chip('degat', k, FILTER_LABELS.degat[k], n)).join('')}</div>
+    <div class="fp-label">Statuts</div>
+    <div class="fp-chips">
+      <div class="seg fp-mode" role="group" aria-label="Le statut est…">
+        <button type="button" data-mode="any" aria-pressed="true" title="Aptitudes qui appliquent ou retirent le statut">Appliqué ou retiré</button>
+        <button type="button" data-mode="applique" aria-pressed="false" title="Aptitudes qui appliquent le statut">◆ Appliqué</button>
+        <button type="button" data-mode="retire" aria-pressed="false" title="Aptitudes qui retirent le statut">✕ Retiré</button>
+      </div>
+      ${statuses.map(([k, s]) => chip('status', k, s, s.n)).join('')}
+    </div>`;
+}
+const FILTER_LABELS = { status: {}, degat: {}, cout: {}, ciblage: {} };
+
+function matches(m, ignoreCat){
+  if (!ignoreCat && state.cat !== 'all' && m.cat.key !== state.cat) return false;
+  if (state.hideUndoc && !m.documented) return false;
+  if (state.q && !m.search.includes(state.q)) return false;
+  if (state.status) {
+    const a = m.applies.includes(state.status), r = m.removes.includes(state.status);
+    if (state.statusMode === 'applique' ? !a : state.statusMode === 'retire' ? !r : !(a || r)) return false;
+  }
+  if (state.degat && !m.degatKeys.includes(state.degat)) return false;
+  if (state.cout && !m.couts.includes(state.cout)) return false;
+  if (state.ciblage && m.ciblage !== state.ciblage) return false;
+  return true;
+}
+
+function applyFilters(){
+  let shown = 0;
+  const catCounts = {};
+  MODELS.forEach(m => { if (matches(m, true)) catCounts[m.cat.key] = (catCounts[m.cat.key] || 0) + 1; });
+
+  CATEGORIES.forEach(cat => {
+    let secShown = 0;
+    cat.groups.forEach(g => {
+      let gShown = 0, undocShown = 0;
+      g.models.forEach(m => {
+        const ok = matches(m);
+        const el = document.getElementById('a' + m.id);
+        if (el) el.hidden = !ok;
+        if (ok) { gShown++; if (!m.hasInfo) undocShown++; }
+      });
+      const gEl = content.querySelector(`[data-gid="${g.gid}"]`);
+      gEl.hidden = gShown === 0;
+      const total = g.models.length;
+      gEl.querySelector('.group-count').textContent = gShown === total ? `${total} aptitude${total > 1 ? 's' : ''}` : `${gShown} sur ${total}`;
+      const undoc = gEl.querySelector('.undoc');
+      if (undoc) { undoc.hidden = undocShown === 0; undoc.querySelector('.undoc-n').textContent = undocShown; }
+      const grid = gEl.querySelector('.grid');
+      if (grid) grid.hidden = gShown - undocShown === 0;
+      const t = toc.querySelector(`.toc-group[data-gid="${g.gid}"]`);
+      t.hidden = gShown === 0;
+      t.querySelector('.n').textContent = gShown;
+      secShown += gShown;
+    });
+    const sec = content.querySelector(`.category[data-cat="${cat.key}"]`);
+    sec.hidden = secShown === 0;
+    const total = cat.groups.reduce((s, g) => s + g.models.length, 0);
+    sec.querySelector('.cat-count').textContent = secShown === total ? `${total} aptitudes` : `${secShown} sur ${total} aptitudes`;
+    const tc = toc.querySelector(`[data-cat="${cat.key}"]`);
+    tc.hidden = secShown === 0;
+    tc.querySelector('.toc-cat .n').textContent = secShown;
+    shown += secShown;
+  });
+  $('empty').hidden = shown !== 0;
+
+  // Onglets de catégorie : nombre d'aptitudes qui correspondent aux autres critères
+  const allCount = Object.values(catCounts).reduce((s, n) => s + n, 0);
+  tabsEl.querySelectorAll('.tab').forEach(t => {
+    const n = t.dataset.cat === 'all' ? allCount : (catCounts[t.dataset.cat] || 0);
+    t.querySelector('.n').textContent = n;
+    t.classList.toggle('active', state.cat === t.dataset.cat);
+    t.classList.toggle('zero', !n);
+    t.setAttribute('aria-selected', String(state.cat === t.dataset.cat));
+  });
+
+  const documented = MODELS.filter(m => m.documented).length;
+  counterEl.innerHTML = `<b>${shown}</b> / ${MODELS.length} aptitudes · ${documented} documentées`;
+
+  // Mise en évidence des pastilles correspondant aux filtres
+  content.querySelectorAll('.pill.status').forEach(p => p.classList.toggle('hl', !!state.status && p.dataset.status === state.status
+    && (state.statusMode === 'any' || (state.statusMode === 'retire') === p.classList.contains('removed'))));
+  content.querySelectorAll('.pill.dmg').forEach(p => p.classList.toggle('hl', !!state.degat
+    && (p.dataset.degat === state.degat || (state.degat === 'fixes' && p.dataset.fixe === '1'))));
+  content.querySelectorAll('.cost.filt').forEach(p => p.classList.toggle('hl', p.dataset.cout === state.cout));
+
+  // Panneau et résumé des filtres
+  panelEl.querySelectorAll('.s-chip').forEach(c => c.setAttribute('aria-pressed', String(state[c.dataset.f] === c.dataset.v)));
+  panelEl.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === state.statusMode)));
+  const af = [];
+  const MODE_LABEL = { any: 'Statut', applique: 'Applique', retire: 'Retire' };
+  if (state.q) af.push(['q', 'Recherche', `« ${searchEl.value.trim()} »`, 'var(--bronze-bright)']);
+  if (state.cout) af.push(['cout', 'Coût', state.cout, FILTER_LABELS.cout[state.cout].color]);
+  if (state.ciblage) af.push(['ciblage', 'Ciblage', FILTER_LABELS.ciblage[state.ciblage].name, FILTER_LABELS.ciblage[state.ciblage].color]);
+  if (state.degat) af.push(['degat', 'Dégâts', FILTER_LABELS.degat[state.degat]?.name || state.degat, FILTER_LABELS.degat[state.degat]?.color]);
+  if (state.status) af.push(['status', MODE_LABEL[state.statusMode], FILTER_LABELS.status[state.status]?.name || state.status, FILTER_LABELS.status[state.status]?.color]);
+  activeEl.innerHTML = af.length
+    ? af.map(([f, label, val, color]) => `<button type="button" class="af" data-clear="${f}" style="--c:${color || 'var(--bronze-bright)'}" title="Retirer ce filtre"><small>${label}</small>${esc(val)}<span class="x" aria-hidden="true">×</span></button>`).join('')
+      + (af.length > 1 ? `<button type="button" class="btn ghost" data-action="reset">Tout effacer</button>` : '')
+    : '';
+  $('af-row').hidden = af.length === 0;
+  const nFilters = [state.cout, state.ciblage, state.degat, state.status].filter(Boolean).length;
+  const badge = $('filters-badge');
+  badge.hidden = !nFilters;
+  badge.textContent = nFilters;
+
+  syncCompare();
+}
+
+// ============================================================================
+// COMPARAISON
+// ============================================================================
+const CMP_ROWS = [
+  ['Catégorie', m => `${esc(m.cat.label)} › ${esc(m.group.label)}`],
+  ['Type', H.type],
+  ['Coût', H.cout],
+  ['Portée', H.portee],
+  ['Cible', H.cible],
+  ['Cooldown', H.cooldown],
+  ['Dégâts', H.degats],
+  ['Applique', H.applique],
+  ['Retire', H.retire],
+  ['Effets chiffrés', H.effects],
+  ['Rend', H.gain],
+  ['Recharge', H.recharge],
+  ['Fait perdre', H.perte],
+  ['Jet', H.jet],
+  ['Résistance', H.resist],
+  ['Octroie', H.octroie],
+  ['Effets', H.effets],
+  ['Conditions', H.conditions],
+  ['Description', H.desc],
+  ['Notes', H.notes],
+  ['Obtenue via', H.sources],
+];
+function saveCompare(){ store.set('compare', state.compare); }
+let trayMsg = '';
+function toggleCompare(id){
+  const i = state.compare.indexOf(id);
+  if (i >= 0) state.compare.splice(i, 1);
+  else if (state.compare.length >= MAX_COMPARE) { trayMsg = `Maximum ${MAX_COMPARE} aptitudes : retirez-en une d'abord.`; }
+  else state.compare.push(id);
+  saveCompare();
+  syncCompare();
+}
+function syncCompare(){
+  content.querySelectorAll('[data-cmp]').forEach(b => {
+    const on = state.compare.includes(+b.dataset.cmp);
+    b.setAttribute('aria-pressed', String(on));
+    b.title = on ? 'Retirer de la comparaison' : 'Ajouter à la comparaison';
+    const lbl = b.querySelector('span');
+    if (lbl) lbl.textContent = on ? 'Comparée' : 'Comparer';
+    b.closest('[data-id]')?.classList.toggle('in-cmp', on);
+  });
+  trayEl.hidden = state.compare.length === 0;
+  if (state.compare.length) {
+    trayEl.innerHTML = `<span class="tray-title">Comparaison ${state.compare.length}/${MAX_COMPARE}</span>
+      <div class="tray-items">${state.compare.map(id => {
+        const m = MODEL_BY_ID[id];
+        return `<span class="tray-item" style="--cat:${m.cat.color}" data-rm="${id}" title="Retirer de la comparaison">${esc(m.name)}<span class="x" aria-hidden="true">×</span></span>`;
+      }).join('')}</div>
+      ${trayMsg ? `<span class="tray-msg">${esc(trayMsg)}</span>` : ''}
+      <button type="button" class="btn ghost" data-action="cmp-clear">Vider</button>
+      <button type="button" class="btn primary" data-action="cmp-open"${state.compare.length < 2 ? ' disabled title="Sélectionnez au moins 2 aptitudes"' : ''}>${ICONS.compare} Comparer</button>`;
+  }
+  trayMsg = '';
+  if (dialogEl.open) renderCompare();
+}
+function renderCompare(){
+  const models = state.compare.map(id => MODEL_BY_ID[id]);
+  if (models.length === 0) { dialogEl.close(); return; }
+  const onlyDiff = $('cmp-diff').checked;
+  const head = `<tr><th class="rl"></th>${models.map(m => `<th style="--cat:${m.cat.color}">
+      <a class="cmp-name" href="#a${m.id}" data-goto="${m.id}">${esc(m.name)}</a>
+      <div class="cmp-meta"><span>#${m.id}</span><button type="button" class="cmp-rm" data-rm="${m.id}" title="Retirer de la comparaison">Retirer ×</button></div>
+    </th>`).join('')}</tr>`;
+  const body = CMP_ROWS.map(([label, fn]) => {
+    const cells = models.map(m => fn(m) || '');
+    if (cells.every(c => !c)) return '';
+    const same = cells.every(c => c === cells[0]);
+    if (onlyDiff && same) return '';
+    return `<tr class="${same ? 'same' : 'diff'}"><td class="rl">${label}</td>${cells.map(c => `<td>${c || NONE}</td>`).join('')}</tr>`;
+  }).join('');
+  $('cmp-body').innerHTML = `<table class="cmp-table"><thead>${head}</thead><tbody>${body || `<tr><td class="rl"></td><td colspan="${models.length}" class="none">Aucune différence.</td></tr>`}</tbody></table>`;
+  $('cmp-title').textContent = `Comparaison · ${models.length} aptitude${models.length > 1 ? 's' : ''}`;
+}
+
+// ============================================================================
+// NAVIGATION
+// ============================================================================
+// Affiche une aptitude ciblée par l'URL (#a123), même si les filtres la masquaient
+function revealHash(){
+  const m = /^#a(\d+)$/.exec(location.hash);
+  if (!m || !MODEL_BY_ID[+m[1]]) return;
+  let el = document.getElementById('a' + m[1]);
+  if (!el || el.hidden || el.closest('[hidden]')) { resetFilters(); el = document.getElementById('a' + m[1]); }
+  if (!el) return;
+  el.scrollIntoView({ block: 'center' });
+  el.classList.remove('flash');
+  void el.offsetWidth;
+  el.classList.add('flash');
+}
+function resetFilters(){
+  state.cat = 'all'; state.q = ''; state.status = null; state.statusMode = 'any'; state.degat = null; state.cout = null; state.ciblage = null;
+  state.hideUndoc = false; $('hide-undoc').checked = false; store.set('hideUndoc', false);
+  searchEl.value = '';
+  applyFilters();
+}
+function scrollToContent(){
+  const bar = $('toolbar');
+  const top = content.getBoundingClientRect().top + window.scrollY - (getComputedStyle(bar).position === 'sticky' ? bar.offsetHeight + 12 : 12);
+  if (window.scrollY > top) window.scrollTo({ top });
+}
+
+// Hauteur de la barre d'outils collante -> décalage des ancres et du sommaire
+const barRO = new ResizeObserver(() => {
+  const bar = $('toolbar');
+  const h = getComputedStyle(bar).position === 'sticky' ? bar.offsetHeight : 0;
+  document.documentElement.style.setProperty('--bar-h', h + 'px');
+});
+barRO.observe($('toolbar'));
+
+// Sommaire : met en évidence le groupe en cours de lecture
+let groupIO = null;
+function observeGroups(){
+  if (groupIO) groupIO.disconnect();
+  if (!('IntersectionObserver' in window)) return;
+  const visible = new Map();
+  groupIO = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) visible.set(e.target.dataset.gid, e.boundingClientRect.top); else visible.delete(e.target.dataset.gid); });
+    let best = null, bestTop = Infinity;
+    visible.forEach((_, gid) => {
+      const top = content.querySelector(`[data-gid="${gid}"]`).getBoundingClientRect().top;
+      if (Math.abs(top) < bestTop) { bestTop = Math.abs(top); best = gid; }
+    });
+    toc.querySelectorAll('.toc-group').forEach(a => a.classList.toggle('current', a.dataset.gid === best));
+    const cur = toc.querySelector('.toc-group.current');
+    if (cur) {
+      const r = cur.getBoundingClientRect(), tr = toc.getBoundingClientRect();
+      if (r.top < tr.top || r.bottom > tr.bottom) toc.scrollTop += r.top - tr.top - tr.height / 2;
+    }
+  }, { rootMargin: '-25% 0px -55% 0px' });
+  content.querySelectorAll('.group').forEach(g => groupIO.observe(g));
+}
+
+// ============================================================================
+// ÉVÉNEMENTS
+// ============================================================================
+function setFilter(f, v){
+  state[f] = v && v !== state[f] ? v : null;
+  applyFilters();
+}
+searchEl.addEventListener('input', () => { state.q = norm(searchEl.value.trim()); applyFilters(); });
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName) && !dialogEl.open) {
+    e.preventDefault(); searchEl.focus(); searchEl.select();
+  }
+  if (e.key === 'Escape' && document.activeElement === searchEl && searchEl.value) {
+    searchEl.value = ''; state.q = ''; applyFilters();
+  }
+});
+document.querySelector('.seg[aria-label="Affichage"]').addEventListener('click', e => {
+  const b = e.target.closest('[data-view]');
+  if (!b || b.dataset.view === state.view) return;
+  state.view = b.dataset.view;
+  store.set('view', state.view);
+  render();
+  applyFilters();
+});
+$('hide-undoc').addEventListener('change', e => { state.hideUndoc = e.target.checked; store.set('hideUndoc', state.hideUndoc); applyFilters(); });
+tabsEl.addEventListener('click', e => {
+  const b = e.target.closest('.tab');
+  if (!b) return;
+  state.cat = b.dataset.cat;
+  applyFilters();
+  scrollToContent();
+});
+$('filters-toggle').addEventListener('click', () => {
+  state.filtersOpen = !state.filtersOpen;
+  store.set('filtersOpen', state.filtersOpen);
+  panelEl.hidden = !state.filtersOpen;
+  $('filters-toggle').setAttribute('aria-expanded', String(state.filtersOpen));
+});
+panelEl.addEventListener('click', e => {
+  const mode = e.target.closest('[data-mode]');
+  if (mode) { state.statusMode = mode.dataset.mode; applyFilters(); return; }
+  const c = e.target.closest('.s-chip');
+  if (c) { setFilter(c.dataset.f, c.dataset.v); scrollToContent(); }
+});
+activeEl.addEventListener('click', e => {
+  if (e.target.closest('[data-action="reset"]')) { resetFilters(); return; }
+  const b = e.target.closest('[data-clear]');
+  if (!b) return;
+  if (b.dataset.clear === 'q') { searchEl.value = ''; state.q = ''; }
+  else state[b.dataset.clear] = null;
+  applyFilters();
+});
+content.addEventListener('click', e => {
+  if (e.target.closest('[data-action="reset"]')) { resetFilters(); return; }
+  const cmp = e.target.closest('[data-cmp]');
+  if (cmp) { toggleCompare(+cmp.dataset.cmp); return; }
+  const th = e.target.closest('th[data-sort]');
+  if (th) {
+    const k = th.dataset.sort;
+    // 1er clic : croissant · 2e : décroissant · 3e : ordre d'origine
+    if (state.sort.key !== k) state.sort = { key: k, dir: 1 };
+    else if (state.sort.dir === 1) state.sort.dir = -1;
+    else state.sort = { key: null, dir: 1 };
+    const y = th.getBoundingClientRect().top;
+    render(); applyFilters();
+    const nth = content.querySelector(`[data-gid="${th.closest('.group').dataset.gid}"] th[data-sort="${k}"]`);
+    if (nth) window.scrollBy(0, nth.getBoundingClientRect().top - y);
+    return;
+  }
+  const pill = e.target.closest('.filt[data-status], .filt[data-degat], .filt[data-cout]');
+  if (!pill) return;
+  if (pill.dataset.cout !== undefined) setFilter('cout', pill.dataset.cout);
+  else if (pill.dataset.status !== undefined) {
+    // depuis une fiche : un statut retiré filtre sur « Retiré », un statut appliqué sur « Appliqué »
+    const k = pill.dataset.status;
+    const mode = pill.classList.contains('removed') ? 'retire' : 'applique';
+    if (state.status === k && state.statusMode === mode) state.status = null;
+    else { state.status = k; state.statusMode = mode; }
+    applyFilters();
+  }
+  else setFilter('degat', pill.dataset.degat);
+  scrollToContent();
+});
+trayEl.addEventListener('click', e => {
+  const a = e.target.closest('[data-action]');
+  if (a && a.dataset.action === 'cmp-clear') { state.compare = []; saveCompare(); syncCompare(); return; }
+  if (a && a.dataset.action === 'cmp-open') { renderCompare(); dialogEl.showModal(); return; }
+  const rm = e.target.closest('[data-rm]');
+  if (rm) toggleCompare(+rm.dataset.rm);
+});
+dialogEl.addEventListener('click', e => {
+  if (e.target === dialogEl) { dialogEl.close(); return; }
+  const rm = e.target.closest('[data-rm]');
+  if (rm) { toggleCompare(+rm.dataset.rm); return; }
+  const go = e.target.closest('[data-goto]');
+  if (go) {
+    e.preventDefault();
+    dialogEl.close();
+    if (location.hash === '#a' + go.dataset.goto) revealHash(); else location.hash = 'a' + go.dataset.goto;
+  }
+});
+$('cmp-diff').addEventListener('change', renderCompare);
+$('cmp-close').addEventListener('click', () => dialogEl.close());
+$('cmp-clear').addEventListener('click', () => { state.compare = []; saveCompare(); syncCompare(); dialogEl.close(); });
+window.addEventListener('hashchange', revealHash);
+
+// Légende
+$('legend').innerHTML = Object.entries(COSTS)
+  .map(([k, c]) => `<span><span class="cost" style="--c:${c.color}">${k}</span>${esc(c.label)}</span>`).join('')
+  + `<span><span class="cost item"><b>1 ×</b> Objet</span>objet consommé</span>`
+  + `<span><span class="pill status" style="--c:var(--vitales-bright)">Statut</span>appliqué</span>`
+  + `<span><span class="pill status removed" style="--c:var(--vitales-bright)">Statut</span>retiré</span>`
+  + `<span><span class="pill dmg" style="--c:var(--combat-bright)">Dégâts</span>type de dégâts</span>`;
+
+// Initialisation
+$('hide-undoc').checked = state.hideUndoc;
+panelEl.hidden = !state.filtersOpen;
+$('filters-toggle').setAttribute('aria-expanded', String(state.filtersOpen));
+tabsEl.innerHTML = [{ key: 'all', label: 'Toutes', color: 'var(--bronze-bright)' }, ...CATEGORIES].map(c =>
+  `<button type="button" role="tab" class="tab" data-cat="${c.key}" aria-selected="false" style="--cat:${c.color}">${esc(c.label)} <span class="n"></span></button>`).join('');
+buildFilterPanel();
+render();
+applyFilters();
+if (location.hash) requestAnimationFrame(revealHash);
+</script>
+</body>
+</html>

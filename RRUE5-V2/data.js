@@ -24,6 +24,8 @@ const ATTRIBUTES = [
   { key: 'commerce', label: 'Commerce', rp: true },
   { key: 'commandement', label: 'Commandement' },
   { key: 'deguisement', label: 'Déguisement', rp: true },
+  { key: 'metier1', label: 'Metier 1', rp: true },
+  { key: 'metier2', label: 'Metier 2', rp: true },
 ];
 
 // ---- Formules des caractéristiques, telles que dans l'éditeur du jeu (onglet Stats) ----
@@ -88,7 +90,7 @@ const PARENT_TO_ATTR = {
 
 // Structure d'affichage : stat parente -> sous-attributs correspondants dans ce simulateur
 const PARENT_GROUPS = [
-  { key: 'savoirFaire', label: 'Savoir Faire', children: [] },
+  { key: 'savoirFaire', label: 'Savoir Faire', children: ['metier1', 'metier2'] },
   { key: 'conditionPhysique', label: 'Condition Physique', children: ['endurance', 'force', 'metabolisme', 'resilience'] },
   { key: 'esprit', label: 'Esprit', children: ['analyse', 'enseignement', 'perceptionMagique', 'volonte'] },
   { key: 'reflexes', label: 'Réflexes', children: ['addresse', 'discretion', 'perception', 'vitesse'] },

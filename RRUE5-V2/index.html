@@ -1230,8 +1230,8 @@
 
   <div class="toolbar">
     <div class="points-group">
-      <div class="total-points">Points investis&nbsp; <b id="totalPoints">0</b></div>
-      <div class="total-points">Points investis (Parents)&nbsp; <b id="parentPoints">0</b></div>
+      <div class="total-points">Points investis&nbsp; <b id="totalPoints">0</b> / 23</div>
+      <div class="total-points">Points investis (Parents)&nbsp; <b id="parentPoints">0</b> / 2</div>
     </div>
     <button class="reset" id="resetBtn">Réinitialiser</button>
   </div>
@@ -1420,6 +1420,18 @@ Object.keys(EXTRA_STATS).forEach(k => attrExtraStatBonus[k] = 0);
 let otherStatBonus = {};
 Object.keys(OTHER_STATS).forEach(k => otherStatBonus[k] = 0);
 const parentState = { savoirFaire: 0, conditionPhysique: 0, esprit: 0, reflexes: 0, presence: 0 };
+const MAX_ATTR_POINTS = 23;   // points investis au total dans les sous-attributs
+const MAX_POINTS_PER_ATTR = 5; // points investis max dans un même sous-attribut
+const MAX_PARENT_POINTS = 2;  // points investis au total dans les stats parentes
+// Ramène une valeur dans les limites autorisées, compte tenu des points déjà placés ailleurs
+function clampAttrPoints(key, v){
+  const others = ATTRIBUTES.reduce((s, a) => s + (a.key === key ? 0 : state[a.key]), 0);
+  return Math.max(0, Math.min(v, MAX_POINTS_PER_ATTR, MAX_ATTR_POINTS - others));
+}
+function clampParentPoints(key, v){
+  const others = Object.entries(parentState).reduce((s, [k, x]) => s + (k === key ? 0 : x), 0);
+  return Math.max(0, Math.min(v, MAX_PARENT_POINTS - others));
+}
 ATTRIBUTES.forEach(a => {
   state[a.key] = 0;
   bonusSources.temperament[a.key] = 0;
@@ -2802,7 +2814,7 @@ function buildChildRow(a){
     <div class="attr-controls">
       <div class="stepper">
         <button data-key="${a.key}" data-dir="-1">−</button>
-        <input type="number" min="0" max="99" value="0" data-key="${a.key}" />
+        <input type="number" min="0" max="5" value="0" data-key="${a.key}" />
         <button data-key="${a.key}" data-dir="1">+</button>
       </div>
       <span class="attr-total" id="total-${a.key}">0</span>
@@ -2828,7 +2840,7 @@ PARENT_GROUPS.forEach(group => {
     <div class="attr-controls">
       <div class="stepper">
         <button data-parent="${group.key}" data-dir="-1">−</button>
-        <input type="number" min="0" max="99" value="0" data-parent="${group.key}" />
+        <input type="number" min="0" max="2" value="0" data-parent="${group.key}" />
         <button data-parent="${group.key}" data-dir="1">+</button>
       </div>
       <span class="attr-total" id="ptotal-${group.key}">0</span>
@@ -2871,7 +2883,7 @@ attrTree.addEventListener('click', e => {
   if (pbtn) {
     const key = pbtn.dataset.parent;
     const dir = parseInt(pbtn.dataset.dir, 10);
-    parentState[key] = Math.max(0, Math.min(99, parentState[key] + dir));
+    parentState[key] = clampParentPoints(key, parentState[key] + dir);
     attrTree.querySelector(`input[data-parent="${key}"]`).value = parentState[key];
     applyParentBonuses('parentAlloc', parentState);
     renderParentRows();
@@ -2882,7 +2894,7 @@ attrTree.addEventListener('click', e => {
   if (!btn) return;
   const key = btn.dataset.key;
   const dir = parseInt(btn.dataset.dir, 10);
-  state[key] = Math.max(0, Math.min(99, state[key] + dir));
+  state[key] = clampAttrPoints(key, state[key] + dir);
   attrTree.querySelector(`input[data-key="${key}"]`).value = state[key];
   compute();
 });
@@ -2892,7 +2904,7 @@ attrTree.addEventListener('input', e => {
   if (pinput) {
     let v = parseInt(pinput.value, 10);
     if (isNaN(v)) v = 0;
-    v = Math.max(0, Math.min(99, v));
+    v = clampParentPoints(pinput.dataset.parent, v);
     parentState[pinput.dataset.parent] = v;
     pinput.value = v;
     applyParentBonuses('parentAlloc', parentState);
@@ -2904,7 +2916,7 @@ attrTree.addEventListener('input', e => {
   if (!input) return;
   let v = parseInt(input.value, 10);
   if (isNaN(v)) v = 0;
-  v = Math.max(0, Math.min(99, v));
+  v = clampAttrPoints(input.dataset.key, v);
   state[input.dataset.key] = v;
   input.value = v;
   compute();
@@ -3566,12 +3578,12 @@ function loadBuildData(data){
   resetAllState();
 
   ATTRIBUTES.forEach(a => {
-    const v = (data.state && data.state[a.key]) || 0;
+    const v = clampAttrPoints(a.key, (data.state && data.state[a.key]) || 0);
     state[a.key] = v;
     attrTree.querySelector(`input[data-key="${a.key}"]`).value = v;
   });
   Object.keys(parentState).forEach(k => {
-    const v = (data.parentState && data.parentState[k]) || 0;
+    const v = clampParentPoints(k, (data.parentState && data.parentState[k]) || 0);
     parentState[k] = v;
     attrTree.querySelector(`input[data-parent="${k}"]`).value = v;
   });

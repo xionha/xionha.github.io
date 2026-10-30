@@ -1383,6 +1383,7 @@ function statusEffectText(data){
   Object.entries(data.parentDelta || {}).forEach(([k, v]) => entries.push([PARENT_LABELS_SHORT[k] || k, v]));
   Object.entries(data.attrDelta || {}).forEach(([k, v]) => entries.push([ATTR_LABELS[k] || k, v]));
   Object.entries(data.flatStats).forEach(([k, v]) => entries.push([TALENT_STAT_LABELS[k] || k, v]));
+  Object.entries(data.extraStats || {}).forEach(([k, v]) => entries.push([EXTRA_STATS[k] || k, v]));
   Object.entries(data.elemental).forEach(([k, v]) => entries.push([ELEMENTAL_STATS[k] || k, v]));
   let html = statChipsHTML(entries);
   (data.notes || []).forEach(n => { html += `<span class="stat-chip neutral">${n}</span>`; });
@@ -1619,6 +1620,7 @@ function recalcStatuses(){
       if (attrKey in bonusSources.statuses) bonusSources.statuses[attrKey] += val;
     });
   });
+  recalcExtraStats();
 }
 
 function recalcOtherStats(){
@@ -1655,6 +1657,9 @@ function recalcExtraStats(){
   Object.keys(EXTRA_STATS).forEach(k => extraStatBonus[k] = 0);
   Object.entries(equipmentExtraStats).forEach(([k, v]) => { extraStatBonus[k] = (extraStatBonus[k] || 0) + v; });
   Object.entries(consumablesExtraStats).forEach(([k, v]) => { extraStatBonus[k] = (extraStatBonus[k] || 0) + v; });
+  selectedStatuses.forEach(name => {
+    Object.entries((STATUSES[name] && STATUSES[name].extraStats) || {}).forEach(([k, v]) => { extraStatBonus[k] = (extraStatBonus[k] || 0) + v; });
+  });
   if (currentTransformation && TRANSFORMATIONS[currentTransformation] && TRANSFORMATIONS[currentTransformation].extraStats) {
     Object.entries(TRANSFORMATIONS[currentTransformation].extraStats).forEach(([k, v]) => { extraStatBonus[k] = (extraStatBonus[k] || 0) + v; });
   }

@@ -276,6 +276,7 @@ const STATUSES = {
   "Flamboiement": { flatStats: { deplacement: 2, esquive: 2, parade: 2 }, elemental: {}, notes: [] },
   "Bio-Electricite": { flatStats: { deplacement: 2, esquive: 2, parade: 2 }, elemental: {}, notes: [] },
   "Benediction": { flatStats: { defenseMagique: 2, forceMentale: 1 }, elemental: {}, notes: [] },
+  "Ferveur guerrière": { flatStats: {}, extraStats: { puissanceTroupe: 10 }, elemental: {}, notes: [] },
   "Controle": { flatStats: { pointsAction: -2, pointsMouvement: -2, actionSpeciale: -2, esquive: -10, parade: -10 }, elemental: {}, notes: ['Octroie : Terminer tour (Controle)'] },
 };
 
@@ -443,6 +444,8 @@ const EQUIPMENT = {
     "Potion de vie": { flatStats: {}, extraStats: {}, notes: ['Octroie : Boire Potion de vie'] },
     "Baume cicatrisant": { flatStats: {}, extraStats: {}, notes: ['Octroie : Utiliser baume cicatrisant'] },
     "Baume apaisant": { flatStats: {}, extraStats: {}, notes: ['Octroie : Utiliser Baume'] },
+    "Antidote poison toxique": { flatStats: {}, extraStats: {}, notes: ['Octroie : Consommer Antidote'] },
+    "Antidote poison de mana": { flatStats: {}, extraStats: {}, notes: ['Octroie : Consommer anti poison de mana'] },
     "Tome Feu": { flatStats: {}, extraStats: {}, notes: ['Octroie le Perk : Tome Feu'] },
     "Tome Eau": { flatStats: {}, extraStats: {}, notes: ['Octroie le Perk : Tome Eau'] },
     "Tome Air": { flatStats: {}, extraStats: {}, notes: ['Octroie le Perk : Tome Air'] },

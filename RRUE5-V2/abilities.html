@@ -819,7 +819,7 @@ const CATEGORIES = [
         [348, 'Rompre une malediction'], [1622, 'Ferveur guerrière'],
       ]},
       { label: 'Prêtre / Foi — Cérémonies', abilities: [
-        [2215, 'Cérémonies de Grâces'], [2217, 'Cérémonies de châtiment'],
+        [9001, 'Cérémonies'], [9002, 'Rituels de grâces'], [2215,'Cérémonies de Grâces'], [2217, 'Cérémonies de châtiment'],
         [2218, 'Rupture de contrôle mental'], [2219, 'Exorciser Maledictions'], [2222, 'Restauration Arcanique'],
         [2227, 'Mets-Cendres'], [2244, 'Flétrissement de potions'], [2225, 'Purification'],
         [2280, "Restauration d'âme"],
@@ -989,7 +989,7 @@ const CATEGORIES = [
 //   jet     : '3d6 + Capacité de Combat'
 //   conditions : ['Points de Mouvement > 0']           (prérequis pour lancer l'aptitude)
 //   desc    : 'Description libre'
-//   effets  : ['Autre effet']
+//   effets  : ['Autre effet', ['Effet avec sous-liste :', ['Sous-point 1', 'Sous-point 2']]]
 //   sources : ['Source supplémentaire']   (les sources connues du simulateur sont ajoutées automatiquement)
 //   menus   : ['Sous-menu 1', 'Sous-menu 2']          (catégories d'un menu)
 //   affiche : { 'Onglet': ['Info 1', 'Info 2'] }       (informations affichées, par onglet)
@@ -1558,6 +1558,13 @@ const DETAILS = {
     conditions: ['Hors combat'],
     sources: ['Avoir débloqué au moins une magie'],
   },
+  1771: { // Transfert de Mana
+    cout: { PA: 1, Mana: 20 },
+    portee: '6 Tiles',
+    cible: '1 cible',
+    gain: { Mana: 20 },
+    notes: 'Le lanceur perd 20 Mana et la cible en gagne 20.',
+  },
   1459: { // Pierre d'éclat
     cout: { PA: 1, "Pierre d'éclat": 1 },
     portee: '3 Tiles',
@@ -1595,6 +1602,58 @@ const DETAILS = {
 
     notes: 'Ne fait pas de dégâts.',
   },
+  349: { // Prier
+    cooldown: '20 h',
+    portee: '5 Tiles',
+    cible: '1 cible',
+    gain: { Foi: 20 },
+    statuts: ['Benediction (durée à remplir)'],
+    conditions: ['Ne pas avoir le statut Priere', 'La cible doit être un Prêtre (le lanceur peut se cibler lui-même s\'il est Prêtre)'],
+    notes: 'Le buff Benediction s\'applique au lanceur et à la cible.',
+  },
+  347: { // Apaisement
+    cout: { Foi: 10 },
+    portee: '3 Tiles',
+    cible: '1 cible',
+    gain: { 'Santé mentale': 10 },
+  },
+  9001: { // Cérémonies (n° provisoire : n° en jeu inconnu)
+    cible: 'Soi',
+    statuts: ['Celebration Faite (20 h)'],
+    conditions: ['Ne pas avoir le statut Celebration Faite', 'Avoir le statut Pretre'],
+    effets: [
+      'Permet de choisir entre deux célébrations :',
+      ['Célébration de châtiments : Colère divine, qui octroie :', ['Rituels de Châtiment']],
+      ['Célébrations de grâces : Grâces Divine, qui octroie :', ['Stimulation de soin', 'Apaisement', 'Ferveur guerrière', 'Rituels de grâces']],
+    ],
+  },
+  9002: { // Rituels de grâces (n° provisoire : n° en jeu inconnu)
+    cible: 'Soi',
+    conditions: ['Avoir le statut Pretre'],
+    effets: [
+      ['Permet de choisir de lancer un de ces sorts :', ['Rupture de Contrôle Mental', 'Exorciser Malédictions', 'Restauration Arcanique', 'Purification', "Restauration d'âme"]],
+    ],
+    sources: ['Grâces Divine (Cérémonies)'],
+  },
+  1995: { // Se dissimuler
+    portee: '10 Tiles',
+    cible: 'Tout le monde à portée',
+    jet: '3d6 + Discrétion contre 3d6 + Perception de chaque personne à portée',
+    desc: 'À utiliser pour espionner discrètement, sans être vu.',
+    effets: [
+      'Le message « Vous tentez un jet de Discrétion contre : Votre cible. » s\'affiche à l\'espion, qui doit en fournir un screen en cas de litige',
+      'Une personne qui réussit voit le message « Vous sentez la présence de quelqu\'un qui se dissimule aux alentours. »',
+      'L\'espion fait aussi un jet de Perception contre une difficulté de 14. S\'il réussit et qu\'au moins une personne l\'a repéré, il voit le message « Vous sentez que votre infiltration a été repérée »',
+    ],
+    notes: 'Tous les jets sont cachés, pour limiter le méta.',
+  },
+  2437: { // Observer en coin
+    cooldown: '15 min',
+    portee: '2 Tiles',
+    cible: '1 cible',
+    jet: '3d6 + Perception contre 3d6 + Déguisement de la cible',
+    effets: ["Permet d'obtenir des informations sur la cible : son espèce, son tempérament, sa morphologie, sa corruption et ses Talents"],
+  },
   1999: { // Charge d'interception (Tranchante)
     type: 'Attaque',
     cout: { PA: 1, PS: 1 },
@@ -1629,6 +1688,14 @@ const DETAILS = {
     statuts: ['Controle'],
     notes: 'Ne fait pas de dégâts.',
   },
+  1938: { // Coup Vicieux (Deux armes)
+    cout: { PA: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    statuts: ['Vulnérable'],
+    conditions: ['Avoir le statut En Combat', 'Avoir Voie Jumelle', 'Ne pas avoir une arme à deux mains équipée'],
+    notes: 'Ne fait pas de dégâts.',
+  },
   1946: { // Renversement (Deux armes)
     cout: { PS: 1 },
     portee: '1 Tile',
@@ -1642,9 +1709,9 @@ const DETAILS = {
     cout: { PS: 1 },
     portee: '1 Tile',
     cible: '3 cibles',
-    degats: ['Tranchants fixes'],
+    degats: ['Tranchants fixes', 'Physiques'],
     conditions: ['Avoir Voie Jumelle', 'Ne pas avoir une arme à deux mains équipée'],
-    notes: "Dégâts fixes : pas influencés par l'arme ni par les Dégâts Physiques.",
+    notes: "Dégâts Tranchants fixes (pas influencés par l'arme) + les Dégâts Physiques.",
   },
   1940: { // Fracassement (Deux Armes)
     cout: { PA: 1 },
@@ -1738,26 +1805,26 @@ const DETAILS = {
     cout: { PS: 1, 'Lames de jet': 1 },
     portee: '3 Tiles',
     cible: '1 cible',
-    degats: ['Tranchants fixes'],
-    notes: "Dégâts fixes : pas influencés par l'arme ni par les Dégâts Physiques.",
+    degats: ['Tranchants fixes', 'Physiques'],
+    notes: "Dégâts Tranchants fixes (pas influencés par l'arme) + les Dégâts Physiques.",
   },
   1943: { // Lancer de couteau (Toxique)
     type: 'Attaque',
     cout: { PS: 1, 'Lames de jet empoisonnés (Toxique)': 1 },
     portee: '3 Tiles',
     cible: '1 cible',
-    degats: ['Tranchants fixes'],
+    degats: ['Tranchants fixes', 'Physiques'],
     statuts: ['Poison'],
-    notes: "Dégâts fixes : pas influencés par l'arme ni par les Dégâts Physiques. Si la cible est déjà empoisonnée : Poison aggravé, des dégâts supplémentaires résistés par le Métabolisme.",
+    notes: "Dégâts Tranchants fixes (pas influencés par l'arme) + les Dégâts Physiques. Si la cible est déjà empoisonnée : Poison aggravé, des dégâts supplémentaires résistés par le Métabolisme.",
   },
   1944: { // Lancer de couteau (Poison de Mana)
     type: 'Attaque',
     cout: { PS: 1, 'Lames de jet empoisonnés (Poison de Mana)': 1 },
     portee: '3 Tiles',
     cible: '1 cible',
-    degats: ['Tranchants fixes'],
+    degats: ['Tranchants fixes', 'Physiques'],
     statuts: ['Poison de Mana'],
-    notes: "Dégâts fixes : pas influencés par l'arme ni par les Dégâts Physiques. Si la cible a déjà le Poison de Mana : Poison de Mana aggravé, qui retire du Mana (pas des PV), résisté par le Métabolisme.",
+    notes: "Dégâts Tranchants fixes (pas influencés par l'arme) + les Dégâts Physiques. Si la cible a déjà le Poison de Mana : Poison de Mana aggravé, qui retire du Mana (pas des PV), résisté par le Métabolisme.",
   },
   723: { // Lancer de javelot
     type: 'Attaque',
@@ -1772,58 +1839,58 @@ const DETAILS = {
     cout: { PA: 1, 'Flèches/Carreaux': 1 },
     portee: '6 Tiles',
     cible: '1 cible',
-    degats: ['Tranchants'],
+    degats: ['Tranchants', 'Adresse'],
     physiques: false,
-    notes: 'Les Dégâts Physiques ne comptent pas.',
+    notes: 'Les Dégâts Physiques ne comptent pas : à la place, Dégâts d\'Adresse (Adresse × 2) en plus des dégâts de type.',
   },
   1982: { // Tir (Long)
     type: 'Attaque',
     cout: { PA: 1, 'Flèches/Carreaux': 1 },
     portee: '10 Tiles',
     cible: '1 cible',
-    degats: ['Tranchants'],
+    degats: ['Tranchants', 'Adresse'],
     physiques: false,
     conditions: ['Ne pas avoir le statut En mouvement'],
-    notes: 'Les Dégâts Physiques ne comptent pas.',
+    notes: 'Les Dégâts Physiques ne comptent pas : à la place, Dégâts d\'Adresse (Adresse × 2) en plus des dégâts de type.',
   },
   748: { // Triple fleche
     type: 'Attaque',
     cout: { PA: 1, PS: 1, 'Flèches/Carreaux': 3 },
     portee: '6 Tiles',
     cible: '3 cibles',
-    degats: ['Tranchants'],
+    degats: ['Tranchants', 'Adresse'],
     physiques: false,
-    notes: 'Les Dégâts Physiques ne comptent pas.',
+    notes: 'Les Dégâts Physiques ne comptent pas : à la place, Dégâts d\'Adresse (Adresse × 2) en plus des dégâts de type.',
   },
   2311: { // Tir Empoisonné (Toxique)
     type: 'Attaque',
     cout: { PS: 1, 'Flèches/Carreaux (Toxique)': 1 },
     portee: '6 Tiles',
     cible: '1 cible',
-    degats: ['Tranchants'],
+    degats: ['Tranchants', 'Adresse'],
     physiques: false,
     statuts: ['Poison'],
-    notes: 'Les Dégâts Physiques ne comptent pas. Si la cible est déjà empoisonnée : Poison aggravé, des dégâts supplémentaires résistés par le Métabolisme.',
+    notes: 'Les Dégâts Physiques ne comptent pas : à la place, Dégâts d\'Adresse (Adresse × 2) en plus des dégâts de type. Si la cible est déjà empoisonnée : Poison aggravé, des dégâts supplémentaires résistés par le Métabolisme.',
   },
   2312: { // Tir Empoisonné (Mana)
     type: 'Attaque',
     cout: { PS: 1, 'Flèches/Carreaux (Poison de Mana)': 1 },
     portee: '6 Tiles',
     cible: '1 cible',
-    degats: ['Tranchants'],
+    degats: ['Tranchants', 'Adresse'],
     physiques: false,
     statuts: ['Poison de Mana'],
-    notes: 'Les Dégâts Physiques ne comptent pas. Si la cible a déjà le Poison de Mana : Poison de Mana aggravé, qui retire du Mana (pas des PV), résisté par le Métabolisme.',
+    notes: 'Les Dégâts Physiques ne comptent pas : à la place, Dégâts d\'Adresse (Adresse × 2) en plus des dégâts de type. Si la cible a déjà le Poison de Mana : Poison de Mana aggravé, qui retire du Mana (pas des PV), résisté par le Métabolisme.',
   },
   2335: { // Tir Pointe Barbelée
     type: 'Attaque',
     cout: { PS: 1, 'Flèches Barbelées': 1 },
     portee: '6 Tiles',
     cible: '1 cible',
-    degats: ['Tranchants'],
+    degats: ['Tranchants', 'Adresse'],
     physiques: false,
     statuts: ['Saignement'],
-    notes: 'Les Dégâts Physiques ne comptent pas. Si la cible saigne déjà : Saignement aggravé, des dégâts de Sang supplémentaires résistés par la Résilience.',
+    notes: 'Les Dégâts Physiques ne comptent pas : à la place, Dégâts d\'Adresse (Adresse × 2) en plus des dégâts de type. Si la cible saigne déjà : Saignement aggravé, des dégâts de Sang supplémentaires résistés par la Résilience.',
   },
   2336: { // Viser
     type: 'Buff',
@@ -1843,90 +1910,90 @@ const DETAILS = {
     cout: { PA: 1, Munitions: 1 },
     portee: '6 Tiles',
     cible: '1 cible',
-    degats: ['Perforants'],
+    degats: ['Perforants', 'Adresse'],
     physiques: false,
-    notes: 'Les Dégâts Physiques ne comptent pas.',
+    notes: 'Les Dégâts Physiques ne comptent pas : à la place, Dégâts d\'Adresse (Adresse × 2) en plus des dégâts de type.',
   },
   1014: { // Tir de Fusil (Long)
     type: 'Attaque',
     cout: { PA: 1, Munitions: 1 },
     portee: '10 Tiles',
     cible: '1 cible',
-    degats: ['Perforants'],
+    degats: ['Perforants', 'Adresse'],
     physiques: false,
     conditions: ['Ne pas avoir le statut En mouvement'],
-    notes: 'Les Dégâts Physiques ne comptent pas.',
+    notes: 'Les Dégâts Physiques ne comptent pas : à la place, Dégâts d\'Adresse (Adresse × 2) en plus des dégâts de type.',
   },
   1983: { // Tir Arbalète (Court)
     type: 'Attaque',
     cout: { PA: 1, 'Flèches/Carreaux': 1 },
     portee: '6 Tiles',
     cible: '1 cible',
-    degats: ['Perforants'],
+    degats: ['Perforants', 'Adresse'],
     physiques: false,
-    notes: 'Les Dégâts Physiques ne comptent pas.',
+    notes: 'Les Dégâts Physiques ne comptent pas : à la place, Dégâts d\'Adresse (Adresse × 2) en plus des dégâts de type.',
   },
   1756: { // Tir Arbalète (Long)
     type: 'Attaque',
     cout: { PA: 1, 'Flèches/Carreaux': 1 },
     portee: '10 Tiles',
     cible: '1 cible',
-    degats: ['Perforants'],
+    degats: ['Perforants', 'Adresse'],
     physiques: false,
     conditions: ['Ne pas avoir le statut En mouvement'],
-    notes: 'Les Dégâts Physiques ne comptent pas.',
+    notes: 'Les Dégâts Physiques ne comptent pas : à la place, Dégâts d\'Adresse (Adresse × 2) en plus des dégâts de type.',
   },
   2313: { // Tir Empoisonné Ar. (Toxique)
     type: 'Attaque',
     cout: { PS: 1, 'Flèches/Carreaux (Toxique)': 1 },
     portee: '6 Tiles',
     cible: '1 cible',
-    degats: ['Perforants'],
+    degats: ['Perforants', 'Adresse'],
     physiques: false,
     statuts: ['Poison'],
-    notes: 'Les Dégâts Physiques ne comptent pas. Si la cible est déjà empoisonnée : Poison aggravé, des dégâts supplémentaires résistés par le Métabolisme.',
+    notes: 'Les Dégâts Physiques ne comptent pas : à la place, Dégâts d\'Adresse (Adresse × 2) en plus des dégâts de type. Si la cible est déjà empoisonnée : Poison aggravé, des dégâts supplémentaires résistés par le Métabolisme.',
   },
   2314: { // Tir Empoisonné Ar. (Mana)
     type: 'Attaque',
     cout: { PS: 1, 'Flèches/Carreaux (Poison de Mana)': 1 },
     portee: '6 Tiles',
     cible: '1 cible',
-    degats: ['Perforants'],
+    degats: ['Perforants', 'Adresse'],
     physiques: false,
     statuts: ['Poison de Mana'],
-    notes: 'Les Dégâts Physiques ne comptent pas. Si la cible a déjà le Poison de Mana : Poison de Mana aggravé, qui retire du Mana (pas des PV), résisté par le Métabolisme.',
+    notes: 'Les Dégâts Physiques ne comptent pas : à la place, Dégâts d\'Adresse (Adresse × 2) en plus des dégâts de type. Si la cible a déjà le Poison de Mana : Poison de Mana aggravé, qui retire du Mana (pas des PV), résisté par le Métabolisme.',
   },
   2339: { // Tir Pointe Barbelée (Ar)
     type: 'Attaque',
     cout: { PS: 1, 'Flèches Barbelées': 1 },
     portee: '6 Tiles',
     cible: '1 cible',
-    degats: ['Perforants'],
+    degats: ['Perforants', 'Adresse'],
     physiques: false,
     statuts: ['Saignement'],
-    notes: 'Les Dégâts Physiques ne comptent pas. Si la cible saigne déjà : Saignement aggravé, des dégâts de Sang supplémentaires résistés par la Résilience.',
+    notes: 'Les Dégâts Physiques ne comptent pas : à la place, Dégâts d\'Adresse (Adresse × 2) en plus des dégâts de type. Si la cible saigne déjà : Saignement aggravé, des dégâts de Sang supplémentaires résistés par la Résilience.',
   },
   2337: { // Tir Ciblé (Arbalète)
     type: 'Attaque',
     cout: { PA: 1, PS: 1, 'Flèches/Carreaux': 1 },
     portee: '6 Tiles',
     cible: '1 cible',
-    degats: ['Perforants'],
+    degats: ['Perforants', 'Adresse'],
     physiques: false,
     statuts: ['Immobile'],
     conditions: ['Ne pas avoir le statut En mouvement'],
-    notes: 'Les Dégâts Physiques ne comptent pas.',
+    notes: 'Les Dégâts Physiques ne comptent pas : à la place, Dégâts d\'Adresse (Adresse × 2) en plus des dégâts de type.',
   },
   1015: { // Tir Ciblé (Fusil)
     type: 'Attaque',
     cout: { PA: 1, PS: 1, Munitions: 1 },
     portee: '6 Tiles',
     cible: '1 cible',
-    degats: ['Perforants'],
+    degats: ['Perforants', 'Adresse'],
     physiques: false,
     statuts: ['Immobile'],
     conditions: ['Ne pas avoir le statut En mouvement'],
-    notes: 'Les Dégâts Physiques ne comptent pas.',
+    notes: 'Les Dégâts Physiques ne comptent pas : à la place, Dégâts d\'Adresse (Adresse × 2) en plus des dégâts de type.',
   },
   1017: { // Tir de semonce
     cout: { PA: 1, PS: 1, Munitions: 1 },
@@ -1940,10 +2007,10 @@ const DETAILS = {
     cout: { PS: 1, 'Munitions explosives': 1 },
     portee: '6 Tiles',
     cible: '1 cible',
-    degats: ['Perforants'],
+    degats: ['Perforants', 'Adresse'],
     physiques: false,
     statuts: ['Brûlure'],
-    notes: 'Les Dégâts Physiques ne comptent pas. Si la cible brûle déjà : Brûlure aggravée, des dégâts supplémentaires résistés par la Résilience.',
+    notes: 'Les Dégâts Physiques ne comptent pas : à la place, Dégâts d\'Adresse (Adresse × 2) en plus des dégâts de type. Si la cible brûle déjà : Brûlure aggravée, des dégâts supplémentaires résistés par la Résilience.',
   },
   1892: { // Rechargement Pistolet
     cout: { PS: 1 },
@@ -1955,8 +2022,8 @@ const DETAILS = {
     cout: { Recharge: 1, Munitions: 1 },
     portee: '6 Tiles',
     cible: '1 cible',
-    degats: ['Perforants fixes'],
-    notes: "Dégâts fixes : pas influencés par l'arme ni par les Dégâts Physiques.",
+    degats: ['Perforants fixes', 'Adresse'],
+    notes: "Dégâts Perforants fixes (pas influencés par l'arme) + les Dégâts d'Adresse (Adresse × 2). Les Dégâts Physiques ne comptent pas.",
   },
   616: { // Coup de bouclier
     cout: { PA: 1, PS: 1 },
@@ -2026,6 +2093,15 @@ const DETAILS = {
     portee: '1 Tile',
     cible: '1 cible',
     degats: ['Tranchants'],
+  },
+  2409: { // Coup de Lame (Bottes Dagues)
+    type: 'Attaque',
+    cout: { PS: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    degats: ['Tranchants fixes', 'Physiques'],
+    conditions: ['Avoir le statut En Combat'],
+    notes: "Dégâts Tranchants fixes (pas influencés par l'arme) + les Dégâts Physiques.",
   },
   1988: { // Couper liens
     cout: { PM: 1 },
@@ -2204,7 +2280,7 @@ function indexSource(kind, entries){
 Object.entries(EQUIPMENT).forEach(([slot, items]) => {
   Object.entries(items).forEach(([item, data]) => {
     // perk principal de l'objet (ex. « Lames 1M »), hors perks génériques ; les perks d'armure ne sont pas des noms d'objet
-    const perk = slot !== 'armure' && (data.notes || []).map(n => /^Octroie le Perk\s*:\s*(.+)$/.exec(n)).filter(Boolean).map(m => m[1])
+    const perk = !['armure', 'autre'].includes(slot) && (data.notes || []).map(n => /^Octroie le Perk\s*:\s*(.+)$/.exec(n)).filter(Boolean).map(m => m[1])
       .find(p => !['Arme', 'Deux Mains'].includes(p));
     const label = perk && perk !== item ? `${item} (${perk})` : item;
     grantedAbilities(data.notes).forEach(a => addGrant(a, SLOT_LABELS[slot] || slot, label));
@@ -2323,6 +2399,7 @@ const COSTS = {
   'Hygiène': { label: 'Hygiène', color: '#7cc7b8' },
   'Santé mentale': { label: 'Santé mentale', color: '#d79ad0' },
   Corruption: { label: 'Corruption', color: '#9c6fc4' },
+  Foi: { label: 'Foi', color: '#e6d27a' },
 };
 // Coûts filtrables (les ressources d'action uniquement)
 const COST_FILTER_KEYS = ['PA', 'PS', 'PM', 'AT', 'PP'];
@@ -2331,6 +2408,7 @@ const DAMAGE_COLORS = [
   [/^fixes$/i, '#d8c9a8'],
   [/magi/i, 'var(--magie-bright)'],
   [/physi/i, 'var(--combat-bright)'],
+  [/adresse/i, '#5fc9a0'],
   [/contond/i, 'var(--dmg-contondant)'],
   [/tranch/i, 'var(--dmg-tranchant)'],
   [/per[cf]/i, 'var(--dmg-perforant)'],
@@ -2342,7 +2420,7 @@ const DAMAGE_COLORS = [
   [/sang/i, '#d84a5a'],
   [/arcane/i, '#b88cf0'],
 ];
-const DMG_ORDER = ['Physiques', 'Tranchants', 'Perforants', 'Contondants', 'Magiques', 'Terre', 'Feu', 'Eau', 'Air', 'Lumière', 'Sang', 'Arcane', 'Fixes'];
+const DMG_ORDER = ['Physiques', 'Adresse', 'Tranchants', 'Perforants', 'Contondants', 'Magiques', 'Terre', 'Feu', 'Eau', 'Air', 'Lumière', 'Sang', 'Arcane', 'Fixes'];
 // Types de dégâts filtrables d'une étiquette : « Tranchants fixes » -> Tranchants + Fixes
 function damageTypes(t){
   const base = t.replace(/\s*fixes?\s*$/i, '').trim();
@@ -2423,7 +2501,7 @@ function buildModel([id, name, opts = {}], cat, group){
 
   const applies = statuts.map(t => nameKey(statusBase(t)));
   const removes = retire.map(t => nameKey(statusBase(t)));
-  const search = norm([name, id, d.desc, d.type, ...degats, ...statuts, ...retire, ...grants, ...effets,
+  const search = norm([name, id, d.desc, d.type, ...degats, ...statuts, ...retire, ...grants, ...effets.flat(2),
     ...cout.map(([k]) => k), ...sources.map(x => x.kind + ' ' + x.label)].filter(Boolean).join(' '));
 
   // Clés de tri du tableau
@@ -2472,7 +2550,9 @@ const H = {
   octroie: m => m.grants.map(abilityLink).join(''),
   jet: m => m.d.jet ? esc(m.d.jet) : '',
   resist: m => m.resist.map(([st, attr]) => `<div class="resist">${esc(st)} : la cible lance <b>3d6 + ${esc(attr)}</b> contre <b>15</b></div>`).join(''),
-  effets: m => m.effets.length ? `<ul class="bullets">${m.effets.map(e => `<li>${esc(e)}</li>`).join('')}</ul>` : '',
+  effets: m => m.effets.length ? `<ul class="bullets">${m.effets.map(e => Array.isArray(e)
+    ? `<li>${esc(e[0])}<ul class="bullets">${e[1].map(s => `<li>${esc(s)}</li>`).join('')}</ul></li>`
+    : `<li>${esc(e)}</li>`).join('')}</ul>` : '',
   conditions: m => m.conditions.length ? `<ul class="bullets cond">${m.conditions.map(c => `<li>${esc(c)}</li>`).join('')}</ul>` : '',
   sources: m => m.sources.map(x => `<span class="tag">${x.kind ? `<b>${esc(x.kind)}</b>` : ''}${esc(x.label)}</span>`).join(''),
   desc: m => m.d.desc ? esc(m.d.desc) : '',

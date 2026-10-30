@@ -275,6 +275,7 @@ const STATUSES = {
   "En mouvement": { flatStats: { capTir: -5 }, elemental: {}, notes: ['Octroie : Désarçonner'] },
   "Flamboiement": { flatStats: { deplacement: 2, esquive: 2, parade: 2 }, elemental: {}, notes: [] },
   "Bio-Electricite": { flatStats: { deplacement: 2, esquive: 2, parade: 2 }, elemental: {}, notes: [] },
+  "Benediction": { flatStats: { defenseMagique: 2, forceMentale: 1 }, elemental: {}, notes: [] },
   "Controle": { flatStats: { pointsAction: -2, pointsMouvement: -2, actionSpeciale: -2, esquive: -10, parade: -10 }, elemental: {}, notes: ['Octroie : Terminer tour (Controle)'] },
 };
 
@@ -327,7 +328,7 @@ const OTHER_STATS = {
 // ---- Équipement : un seul objet équipable par emplacement ----
 const SLOT_LABELS = {
   troupe: 'Troupe', amulette: 'Amulette', armure: 'Armure', cape: 'Cape',
-  gants: 'Gants', ceinture: 'Ceinture', bottes: 'Bottes', arme: 'Arme', deuxH: '2H',
+  gants: 'Gants', ceinture: 'Ceinture', bottes: 'Bottes', arme: 'Arme', deuxH: '2H', autre: 'Autres',
 };
 const EQUIPMENT = {
   troupe: {
@@ -365,6 +366,8 @@ const EQUIPMENT = {
   bottes: {
     "Bottes de rapidité": { flatStats: { deplacement: 1 }, extraStats: {}, notes: [] },
     "Bottes de vivacité": { flatStats: { esquive: 1 }, extraStats: {}, notes: [] },
+    "Talons-Dagues": { flatStats: { esquive: 1 }, extraStats: {}, notes: ['Octroie : Coup de Lame (Bottes Dagues)'] },
+    "Bottes-Dagues": { flatStats: { deplacement: 1 }, extraStats: {}, notes: ['Octroie : Coup de Lame (Bottes Dagues)'] },
   },
   arme: {
     "Lame de Qualité": { flatStats: {}, extraStats: { degContondant: 10, degPerforant: 15, degTranchant: 20 }, notes: ['Octroie le Perk : Lames 1M de Bonne Facture', 'Octroie : Coup de Lame', 'Octroie : Faire Saigner', 'Octroie : Coup de Pommeau', 'Octroie le Perk : Arme'] },
@@ -426,6 +429,22 @@ const EQUIPMENT = {
       elemental: {},
       notes: ['Octroie : Tir de Pistolet', 'Octroie : Rechargement Pistolet', 'Octroie le Perk : Main Gauche'],
     },
+  },
+  autre: {
+    "Talisman de prière": { flatStats: { forceMentale: 1 }, extraStats: {}, notes: ['Octroie le Perk : Talisman de Foi', 'Octroie : Prier'] },
+    "Lames de jet": { flatStats: {}, extraStats: {}, notes: ['Octroie : Lancer de couteau'] },
+    "Lames de jet empoisonnés (Toxique)": { flatStats: {}, extraStats: {}, notes: ['Octroie : Lancer de couteau (Toxique)'] },
+    "Lames de jet empoisonnés (Poison de Mana)": { flatStats: {}, extraStats: {}, notes: ['Octroie : Lancer de couteau (Poison de Mana)'] },
+    "Pierre d'éclat": { flatStats: {}, extraStats: {}, notes: ["Octroie : Pierre d'éclat"] },
+    "Bombe Incendiaire": { flatStats: {}, extraStats: {}, notes: ['Octroie : Bombe incendiaire'] },
+    "Filet de capture": { flatStats: {}, extraStats: {}, notes: ['Octroie : Lancer filet'] },
+    "Tome Feu": { flatStats: {}, extraStats: {}, notes: ['Octroie le Perk : Tome Feu'] },
+    "Tome Eau": { flatStats: {}, extraStats: {}, notes: ['Octroie le Perk : Tome Eau'] },
+    "Tome Air": { flatStats: {}, extraStats: {}, notes: ['Octroie le Perk : Tome Air'] },
+    "Tome Terre": { flatStats: {}, extraStats: {}, notes: ['Octroie le Perk : Tome Terre'] },
+    "Tome Sang": { flatStats: {}, extraStats: {}, notes: ['Octroie le Perk : Tome Sang'] },
+    "Tome Lumière": { flatStats: {}, extraStats: {}, notes: ['Octroie le Perk : Tome Lumière'] },
+    "Tome Arcane": { flatStats: {}, extraStats: {}, notes: ['Octroie le Perk : Tome Arcane'] },
   },
 };
 

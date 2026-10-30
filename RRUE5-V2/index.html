@@ -874,6 +874,26 @@
     justify-content: center;
     margin: 0 auto;
   }
+  .paperdoll-layout{ display:flex; justify-content:center; align-items:flex-start; gap: 20px; }
+  .paperdoll-layout .paperdoll-grid{ margin: 0; flex: 0 1 auto; min-width: 0; }
+  .paperdoll-autres{
+    display:flex; flex-direction:column; gap: 10px;
+    flex: 0 0 92px;
+    padding-left: 16px;
+    border-left: 1px dashed var(--border);
+  }
+  .paperdoll-autres .equip-tile{ gap: 4px; }
+  .paperdoll-autres .equip-tile-box{ width: 56px; }
+  .paperdoll-autres .equip-tile-itemname{ font-size: 11px; }
+  @media (max-width: 560px){
+    .paperdoll-layout{ flex-direction: column; align-items: center; }
+    .paperdoll-autres{
+      flex: none; flex-direction: row; flex-wrap: wrap; justify-content: center;
+      width: 100%; padding: 14px 0 0;
+      border-left: 0; border-top: 1px dashed var(--border);
+    }
+    .paperdoll-autres .equip-tile{ width: 62px; }
+  }
   .equip-tile{ display:flex; flex-direction:column; align-items:center; gap:6px; }
   .equip-tile-box{
     position:relative;
@@ -1408,7 +1428,9 @@ Object.keys(ELEMENTAL_STATS).forEach(k => elementalBonus[k] = 0);
 const selectedTalents = new Set();
 const selectedStatuses = new Set();
 const selectedEnvironments = new Set();
-const equippedItems = { troupe: null, amulette: null, armure: null, cape: null, gants: null, ceinture: null, bottes: null, arme: null, deuxH: null };
+const equippedItems = { troupe: null, amulette: null, armure: null, cape: null, gants: null, ceinture: null, bottes: null, arme: null, deuxH: null, autre1: null, autre2: null, autre3: null, autre4: null, autre5: null };
+// Les 5 cases « Autres » partagent le même catalogue d'objets
+const equipKind = slot => slot.startsWith('autre') ? 'autre' : slot;
 let equipmentFlatStats = {}; // bonus fixes combinés de tout l'équipement porté
 let consumablesExtraStats = {}; // stats supplémentaires (dégâts/défenses spécifiques) des consommables
 let equipmentExtraStats = {}; // stats supplémentaires (Puissance de Troupe, défenses spécifiques) de l'équipement
@@ -1644,7 +1666,7 @@ function recalcEquipment(){
   const elem = {};
   Object.entries(equippedItems).forEach(([slot, itemName]) => {
     if (!itemName) return;
-    const item = EQUIPMENT[slot] && EQUIPMENT[slot][itemName];
+    const item = EQUIPMENT[equipKind(slot)] && EQUIPMENT[equipKind(slot)][itemName];
     if (!item) return;
     if (item.requiresOneHanded && isTwoHandedEquipped()) return; // effet neutralisé par une arme à deux mains
     Object.entries(item.flatStats).forEach(([k, v]) => { flat[k] = (flat[k] || 0) + v; });
@@ -2562,14 +2584,17 @@ const SLOT_ICONS = {
   gants: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M8 12V5.5a1.5 1.5 0 0 1 3 0V10M11 10V4.5a1.5 1.5 0 0 1 3 0V10M14 10V5.5a1.5 1.5 0 0 1 3 0V12"/><path d="M8 12v3c0 3 2 6 5.5 6S19 18 19 15v-3l-2-2v2"/><path d="M5 13.5 8 12v3l-3 1.5Z"/></svg>',
   ceinture: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M2 12h6M16 12h6"/><rect x="8" y="8" width="8" height="8" rx="1"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/></svg>',
   bottes: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M9 3v9l-5 4v3h16c0-3-2-4-4-5l-3-1.5V3Z"/></svg>',
+  autre: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M9 7h6l4 5-7 9-7-9Z"/><path d="M5 12h14M12 7v14"/><path d="M12 3v4"/></svg>',
 };
 
 // Disposition façon paperdoll MMO : arme / torse / bouclier au centre, accessoires autour
 const PAPERDOLL_LAYOUT = ['troupe', 'amulette', 'cape', 'arme', 'armure', 'deuxH', 'gants', 'ceinture', 'bottes'];
+// Colonne de droite : objets divers
+const PAPERDOLL_AUTRES = ['autre1', 'autre2', 'autre3', 'autre4', 'autre5'];
 
 // Résumé en texte brut (pour l'attribut title, infobulle native du navigateur sur les options du menu déroulant)
 function buildEquipPlainSummary(slot, itemName){
-  const item = EQUIPMENT[slot] && EQUIPMENT[slot][itemName];
+  const item = EQUIPMENT[equipKind(slot)] && EQUIPMENT[equipKind(slot)][itemName];
   if (!item) return '';
   const lines = [];
   Object.entries(item.flatStats || {}).forEach(([k, v]) => lines.push(`${TALENT_STAT_LABELS[k] || k} ${v > 0 ? '+' : ''}${v}`));
@@ -2584,28 +2609,33 @@ const equipmentSlots = document.createElement('div');
 equipmentSlots.className = 'paperdoll-panel';
 equipmentSlots.innerHTML = `
   <div class="paperdoll-header">Équipement</div>
-  <div class="paperdoll-grid" id="paperdollGrid"></div>
+  <div class="paperdoll-layout">
+    <div class="paperdoll-grid" id="paperdollGrid"></div>
+    <div class="paperdoll-autres" id="paperdollAutres"></div>
+  </div>
   <div class="paperdoll-descriptions" id="paperdollDescriptions"></div>
   <div class="erp-stats" id="erpStats" title="Stats ERP apportées par l'équipement (sans effet en combat)"></div>
 `;
 const paperdollGrid = equipmentSlots.querySelector('#paperdollGrid');
+const paperdollAutres = equipmentSlots.querySelector('#paperdollAutres');
 const paperdollDescriptions = equipmentSlots.querySelector('#paperdollDescriptions');
 const erpStatsEl = equipmentSlots.querySelector('#erpStats');
 const equipDescEls = {};
 const equipTileBoxEls = {};
 const equipTileNameEls = {};
 
-PAPERDOLL_LAYOUT.forEach(slot => {
+[...PAPERDOLL_LAYOUT, ...PAPERDOLL_AUTRES].forEach(slot => {
+  const label = SLOT_LABELS[equipKind(slot)];
   const tile = document.createElement('div');
   tile.className = 'equip-tile';
   tile.innerHTML = `
-    <div class="equip-tile-box" data-slot="${slot}" tabindex="0" role="button" aria-label="${SLOT_LABELS[slot]}">
-      <span class="equip-tile-icon">${SLOT_ICONS[slot] || ''}</span>
+    <div class="equip-tile-box" data-slot="${slot}" tabindex="0" role="button" aria-label="${label}">
+      <span class="equip-tile-icon">${SLOT_ICONS[equipKind(slot)] || ''}</span>
     </div>
-    <div class="equip-tile-slotname">${SLOT_LABELS[slot]}</div>
+    <div class="equip-tile-slotname">${label}</div>
     <div class="equip-tile-itemname" id="equiptilename-${slot}">Vide</div>
   `;
-  paperdollGrid.appendChild(tile);
+  (PAPERDOLL_AUTRES.includes(slot) ? paperdollAutres : paperdollGrid).appendChild(tile);
   const box = tile.querySelector('.equip-tile-box');
   equipTileBoxEls[slot] = box;
   equipTileNameEls[slot] = tile.querySelector(`#equiptilename-${slot}`);
@@ -2619,7 +2649,7 @@ PAPERDOLL_LAYOUT.forEach(slot => {
   descBlock.className = 'equip-desc-block';
   descBlock.id = `equipdesc-block-${slot}`;
   descBlock.innerHTML = `
-    <div class="equip-desc-name"><span id="equipdescname-${slot}"></span> <span class="slot-tag">${SLOT_LABELS[slot]}</span></div>
+    <div class="equip-desc-name"><span id="equipdescname-${slot}"></span> <span class="slot-tag">${label}</span></div>
     <div class="age-desc" id="equipdesc-${slot}"></div>
   `;
   paperdollDescriptions.appendChild(descBlock);
@@ -2643,7 +2673,9 @@ function openEquipDropdown(slot, anchorEl){
   const currentItem = equippedItems[slot];
 
   let html = `<div class="equip-dropdown-item none-option ${!currentItem ? 'active' : ''}" data-value="">Aucun</div>`;
-  Object.keys(EQUIPMENT[slot]).forEach(itemName => {
+  // un objet déjà porté dans une autre case « Autres » n'est pas proposé une seconde fois
+  const takenElsewhere = name => PAPERDOLL_AUTRES.some(s => s !== slot && equippedItems[s] === name);
+  Object.keys(EQUIPMENT[equipKind(slot)]).filter(name => !takenElsewhere(name)).forEach(itemName => {
     html += `<div class="equip-dropdown-item ${currentItem === itemName ? 'active' : ''}" data-value="${itemName}">${itemName}</div>`;
   });
   equipDropdown.innerHTML = html;
@@ -2697,7 +2729,7 @@ function handleEquipDropdownEscape(e){
 
 function buildEquipDescriptionHTML(slot, itemName){
   if (!itemName) return '';
-  const item = EQUIPMENT[slot] && EQUIPMENT[slot][itemName];
+  const item = EQUIPMENT[equipKind(slot)] && EQUIPMENT[equipKind(slot)][itemName];
   if (!item) return '';
 
   const blocked = item.requiresOneHanded && isTwoHandedEquipped();
@@ -2727,7 +2759,7 @@ function refreshErpStats(){
   const totals = {};
   Object.keys(ERP_STATS).forEach(k => totals[k] = 0);
   Object.entries(equippedItems).forEach(([slot, itemName]) => {
-    const item = itemName && EQUIPMENT[slot] && EQUIPMENT[slot][itemName];
+    const item = itemName && EQUIPMENT[equipKind(slot)] && EQUIPMENT[equipKind(slot)][itemName];
     if (!item) return;
     Object.entries(item.erpStats || {}).forEach(([k, v]) => { totals[k] = (totals[k] || 0) + v; });
   });
@@ -2738,7 +2770,7 @@ refreshErpStats();
 
 function refreshEquipmentDescriptions(){
   refreshErpStats();
-  Object.keys(SLOT_LABELS).forEach(slot => {
+  Object.keys(equippedItems).forEach(slot => {
     const itemName = equippedItems[slot];
     equipDescEls[slot].innerHTML = buildEquipDescriptionHTML(slot, itemName);
     const block = document.getElementById(`equipdesc-block-${slot}`);

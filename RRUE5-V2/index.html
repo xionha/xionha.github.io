@@ -874,21 +874,32 @@
     justify-content: center;
     margin: 0 auto;
   }
-  .paperdoll-layout{ display:flex; justify-content:center; align-items:flex-start; gap: 20px; }
-  .paperdoll-layout .paperdoll-grid{ margin: 0; flex: 0 1 auto; min-width: 0; }
+  .equip-count{ margin-left: 6px; color: var(--text-dim); letter-spacing: 1px; }
+  .equip-count.full{ color: var(--vitales); }
+  .equip-dropdown-full{ padding: 8px 10px; font-size: 12.5px; font-style: italic; color: var(--text-dim); }
+  /* grille principale centrée dans le panneau, cases « Autres » calées à droite */
+  .paperdoll-layout{ display:grid; grid-template-columns: minmax(177px, 1fr) minmax(0, 394px) minmax(177px, 1fr); align-items:start; gap: 20px; }
+  .paperdoll-layout .paperdoll-grid{ grid-column: 2; margin: 0; min-width: 0; }
+  .paperdoll-layout .paperdoll-autres{ grid-column: 3; justify-self: end; }
   .paperdoll-autres{
-    display:flex; flex-direction:column; gap: 10px;
-    flex: 0 0 92px;
+    display:grid; grid-auto-flow: column;
+    grid-template-rows: repeat(5, auto);
+    grid-template-columns: repeat(2, 76px);
+    gap: 10px 8px;
+    flex: 0 0 auto;
     padding-left: 16px;
     border-left: 1px dashed var(--border);
   }
   .paperdoll-autres .equip-tile{ gap: 4px; }
   .paperdoll-autres .equip-tile-box{ width: 56px; }
   .paperdoll-autres .equip-tile-itemname{ font-size: 11px; }
-  @media (max-width: 560px){
-    .paperdoll-layout{ flex-direction: column; align-items: center; }
+  /* panneau trop étroit pour les colonnes : les cases passent sous la grille */
+  .paperdoll-panel{ container-type: inline-size; }
+  @container (max-width: 704px){
+    .paperdoll-layout{ grid-template-columns: 1fr; justify-items: center; }
+    .paperdoll-layout .paperdoll-grid, .paperdoll-layout .paperdoll-autres{ grid-column: 1; justify-self: center; }
     .paperdoll-autres{
-      flex: none; flex-direction: row; flex-wrap: wrap; justify-content: center;
+      display:flex; flex-wrap: wrap; justify-content: center;
       width: 100%; padding: 14px 0 0;
       border-left: 0; border-top: 1px dashed var(--border);
     }
@@ -1428,7 +1439,7 @@ Object.keys(ELEMENTAL_STATS).forEach(k => elementalBonus[k] = 0);
 const selectedTalents = new Set();
 const selectedStatuses = new Set();
 const selectedEnvironments = new Set();
-const equippedItems = { troupe: null, amulette: null, armure: null, cape: null, gants: null, ceinture: null, bottes: null, arme: null, deuxH: null, autre1: null, autre2: null, autre3: null, autre4: null, autre5: null };
+const equippedItems = { troupe: null, amulette: null, armure: null, cape: null, gants: null, ceinture: null, bottes: null, arme: null, deuxH: null, autre1: null, autre2: null, autre3: null, autre4: null, autre5: null, autre6: null, autre7: null, autre8: null, autre9: null, autre10: null };
 // Les 5 cases « Autres » partagent le même catalogue d'objets
 const equipKind = slot => slot.startsWith('autre') ? 'autre' : slot;
 let equipmentFlatStats = {}; // bonus fixes combinés de tout l'équipement porté
@@ -2589,8 +2600,11 @@ const SLOT_ICONS = {
 
 // Disposition façon paperdoll MMO : arme / torse / bouclier au centre, accessoires autour
 const PAPERDOLL_LAYOUT = ['troupe', 'amulette', 'cape', 'arme', 'armure', 'deuxH', 'gants', 'ceinture', 'bottes'];
-// Colonne de droite : objets divers
-const PAPERDOLL_AUTRES = ['autre1', 'autre2', 'autre3', 'autre4', 'autre5'];
+// Colonnes de droite : objets divers
+const PAPERDOLL_AUTRES = ['autre1', 'autre2', 'autre3', 'autre4', 'autre5', 'autre6', 'autre7', 'autre8', 'autre9', 'autre10'];
+// Nombre maximum d'objets équipés en même temps, tous emplacements confondus
+const EQUIP_MAX = 12;
+const equippedCount = () => Object.values(equippedItems).filter(Boolean).length;
 
 // Résumé en texte brut (pour l'attribut title, infobulle native du navigateur sur les options du menu déroulant)
 function buildEquipPlainSummary(slot, itemName){
@@ -2608,7 +2622,7 @@ function buildEquipPlainSummary(slot, itemName){
 const equipmentSlots = document.createElement('div');
 equipmentSlots.className = 'paperdoll-panel';
 equipmentSlots.innerHTML = `
-  <div class="paperdoll-header">Équipement</div>
+  <div class="paperdoll-header">Équipement <span class="equip-count" id="equipCount">0/${EQUIP_MAX}</span></div>
   <div class="paperdoll-layout">
     <div class="paperdoll-grid" id="paperdollGrid"></div>
     <div class="paperdoll-autres" id="paperdollAutres"></div>
@@ -2618,6 +2632,7 @@ equipmentSlots.innerHTML = `
 `;
 const paperdollGrid = equipmentSlots.querySelector('#paperdollGrid');
 const paperdollAutres = equipmentSlots.querySelector('#paperdollAutres');
+const equipCountEl = equipmentSlots.querySelector('#equipCount');
 const paperdollDescriptions = equipmentSlots.querySelector('#paperdollDescriptions');
 const erpStatsEl = equipmentSlots.querySelector('#erpStats');
 const equipDescEls = {};
@@ -2675,9 +2690,14 @@ function openEquipDropdown(slot, anchorEl){
   let html = `<div class="equip-dropdown-item none-option ${!currentItem ? 'active' : ''}" data-value="">Aucun</div>`;
   // un objet déjà porté dans une autre case « Autres » n'est pas proposé une seconde fois
   const takenElsewhere = name => PAPERDOLL_AUTRES.some(s => s !== slot && equippedItems[s] === name);
-  Object.keys(EQUIPMENT[equipKind(slot)]).filter(name => !takenElsewhere(name)).forEach(itemName => {
-    html += `<div class="equip-dropdown-item ${currentItem === itemName ? 'active' : ''}" data-value="${itemName}">${itemName}</div>`;
-  });
+  // limite atteinte : une case vide ne peut plus recevoir d'objet (remplacer un objet porté reste possible)
+  if (!currentItem && equippedCount() >= EQUIP_MAX) {
+    html += `<div class="equip-dropdown-full">Limite de ${EQUIP_MAX} objets équipés atteinte : retirez-en un d'abord.</div>`;
+  } else {
+    Object.keys(EQUIPMENT[equipKind(slot)]).filter(name => !takenElsewhere(name)).forEach(itemName => {
+      html += `<div class="equip-dropdown-item ${currentItem === itemName ? 'active' : ''}" data-value="${itemName}">${itemName}</div>`;
+    });
+  }
   equipDropdown.innerHTML = html;
 
   const rect = anchorEl.getBoundingClientRect();
@@ -2770,6 +2790,9 @@ refreshErpStats();
 
 function refreshEquipmentDescriptions(){
   refreshErpStats();
+  const count = equippedCount();
+  equipCountEl.textContent = `${count}/${EQUIP_MAX}`;
+  equipCountEl.classList.toggle('full', count >= EQUIP_MAX);
   Object.keys(equippedItems).forEach(slot => {
     const itemName = equippedItems[slot];
     equipDescEls[slot].innerHTML = buildEquipDescriptionHTML(slot, itemName);

@@ -1607,12 +1607,12 @@ const DETAILS = {
     portee: '5 Tiles',
     cible: '1 cible',
     gain: { Foi: 20 },
-    statuts: ['Benediction (durée à remplir)'],
+    statuts: ['Benediction (40 h)'],
     conditions: ['Ne pas avoir le statut Priere', 'La cible doit être un Prêtre (le lanceur peut se cibler lui-même s\'il est Prêtre)'],
     notes: 'Le buff Benediction s\'applique au lanceur et à la cible.',
   },
   347: { // Apaisement
-    cout: { Foi: 10 },
+    cout: { Foi: 5 },
     portee: '3 Tiles',
     cible: '1 cible',
     gain: { 'Santé mentale': 10 },
@@ -1623,6 +1623,50 @@ const DETAILS = {
     cible: 'Tout le monde sauf le lanceur',
     effets: ['Donne +10 Puissance de Troupe pendant 20 h'],
     conditions: ['Avoir le statut Pretre'],
+  },
+  2244: { // Flétrissement de potions
+    cout: { Foi: 5 },
+    portee: '5 Tiles',
+    cible: '1 cible',
+    perte: { 'Ceinture de potion': 1 },
+  },
+  2225: { // Purification
+    cout: { Foi: 'X' },
+    portee: '5 Tiles',
+    cible: '1 cible',
+    perte: { Corruption: 'X' },
+    notes: 'Retire X Corruption à la cible en consommant X Foi.',
+  },
+  503: { // Charme-Personne
+    cooldown: '15 min',
+    portee: '5 Tiles',
+    cible: '1 cible',
+    jet: '3d6 + Force Mentale contre 3d6 + Force Mentale de la cible',
+    statuts: ['Charme Personne (30 min)'],
+    conditions: ['Avoir le statut C.Controle Mental', 'Hors combat'],
+    effets: ["La cible devient amicale envers le lanceur : il ne peut pas lui donner d'ordre, mais elle ne peut pas lui être hostile"],
+  },
+  2487: { // Commandement
+    cooldown: '15 min',
+    portee: '5 Tiles',
+    cible: '1 cible',
+    jet: '3d6 + Force Mentale contre 3d6 + Force Mentale de la cible',
+    conditions: ['Avoir le statut C.Controle Mental', 'Hors combat'],
+    effets: ['Permet de donner un ordre unique à la cible'],
+  },
+  2218: { // Rupture de contrôle mental
+    cout: { Foi: 20 },
+    portee: '5 Tiles',
+    retire: ['Domination', 'Charme Personne'],
+  },
+  2412: { // Domination
+    cooldown: '45 min',
+    portee: '5 Tiles',
+    cible: '1 cible',
+    jet: '3d6 + Force Mentale contre 3d6 + Force Mentale de la cible',
+    statuts: ['Domination (30 min)', 'Controle Mental (statut visible, 30 min)'],
+    conditions: ['Avoir le statut C.Controle Mental', 'Hors combat'],
+    effets: ['Permet de prendre le contrôle de la cible'],
   },
   9001: { // Cérémonies (n° provisoire : n° en jeu inconnu)
     cible: 'Soi',
@@ -2497,7 +2541,7 @@ function buildModel([id, name, opts = {}], cat, group){
   });
   // Règle du jeu : une aptitude qui applique Immobile ou Controle ne peut pas être lancée avec Premier Tour
   const conditions = [...(d.conditions || [])];
-  if ((d.statuts || []).some(st => /^(Immobile|Controle)\b/.test(st)) && !conditions.includes(PREMIER_TOUR_COND)) conditions.push(PREMIER_TOUR_COND);
+  if ((d.statuts || []).some(st => /^(Immobile|Controle(?! Mental))\b/.test(st)) && !conditions.includes(PREMIER_TOUR_COND)) conditions.push(PREMIER_TOUR_COND);
 
   // « Documentée » dès qu'il y a une description, un coût, un usage ou un effet connu
   const documented = !!(d.affiche || (d.menus && d.menus.length) || d.desc || d.type || d.portee || d.cible || d.cooldown

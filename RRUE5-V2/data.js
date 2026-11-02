@@ -199,7 +199,7 @@ const TRANSFORMATIONS_CHANGEFORME = {
   "Cervidé": { flatStats: { esquive: 1 }, elemental: {}, notes: ['Octroie : Bond', 'Octroie : Reprendre Forme Humaine', 'Octroie : Empaler'] },
   "Félin": { flatStats: { esquive: 1 }, elemental: {}, notes: ['Octroie : Coup de Griffes', 'Octroie : Bond', 'Octroie : Reprendre Forme Humaine'] },
   "Vulpes": { flatStats: { esquive: 1 }, elemental: {}, notes: ['Octroie : Bond', 'Octroie : Morsure', 'Octroie : Reprendre Forme Humaine'] },
-  "Lagomorphe": { flatStats: { initiative: 1 }, elemental: {}, notes: ['Octroie : Bond Puissant', 'Octroie : Reprendre Forme Humaine'] },
+  "Lagomorphe": { flatStats: { initiative: 1 }, elemental: {}, notes: ['Octroie : Bond', 'Octroie : Reprendre Forme Humaine'] },
   "Urside": { flatStats: { defense: 2 }, elemental: {}, notes: ['Octroie : Reprendre Forme Humaine', 'Octroie : Empaler', 'Octroie : Renverser'] },
   "Reptile": { flatStats: {}, elemental: {}, notes: ['Octroie : Coup de Caudale', 'Octroie : Reprendre Forme Humaine', 'Octroie : Produire Toxine'] },
 };
@@ -378,7 +378,7 @@ const EQUIPMENT = {
     "Matraque de Qualité": { flatStats: {}, extraStats: { degContondant: 20 }, notes: ['Octroie le Perk : Masse 1M de Bonne Facture', 'Octroie : Coup de Masse', 'Octroie : Fracassement (1M)', 'Octroie : Coup Tourbillonnant', 'Octroie le Perk : Arme'] },
     "Lance de Qualité": { flatStats: {}, extraStats: { degContondant: 15, degPerforant: 20 }, notes: ['Octroie le Perk : Lance 1M de Bonne Facture', 'Octroie : Coup de Lance', 'Octroie : Empaler', 'Octroie : Coup de Hampe', 'Octroie le Perk : Arme', 'Octroie : Lancer de Javelot', 'Octroie : Désarçonner'] },
     "Pieu Argent": { flatStats: {}, extraStats: { degPerforant: 30 }, notes: ['Octroie le Perk : Pieu 1M', 'Octroie : Enfoncer un Pieu en Argent'] },
-    "Dague de Qualité": { flatStats: {}, extraStats: { degPerforant: 20, degTranchant: 20 }, notes: ['Octroie le Perk : Dague de Bonne Facture', 'Octroie : Empaler', 'Octroie : Faire Saigner', 'Octroie : Coup de Lame', 'Octroie le Perk : Arme', 'Octroie : Coup Vicieux'] },
+    "Dague de Qualité": { flatStats: {}, extraStats: { degPerforant: 20, degTranchant: 20 }, notes: ['Octroie le Perk : Dague de Bonne Facture', 'Octroie : Empaler', 'Octroie : Faire Saigner', 'Octroie : Coup de lame (Dague)', 'Octroie le Perk : Arme', 'Octroie : Coup Vicieux'] },
     "Masse de Qualité": { flatStats: {}, extraStats: { degContondant: 35 }, notes: ['Octroie le Perk : Masse 2M de Bonne Facture', 'Octroie le Perk : Deux Mains', 'Octroie : Coup Tourbillonnant', 'Octroie : Fracassement (2M)', 'Octroie : Faucher les Jambes', 'Octroie le Perk : Arme', "Octroie : Charge d'interception (Contondante)", 'Octroie : Coup de Hampe (2M)'] },
     "Katana de Qualité": { flatStats: {}, extraStats: { degPerforant: 30, degTranchant: 30 }, notes: ['Octroie le Perk : Katana de Bonne Facture', 'Octroie le Perk : Deux Mains', 'Octroie : Balayage', 'Octroie : Empaler (2M)', 'Octroie : Faire Saigner (Katana)', 'Octroie le Perk : Arme', "Octroie : Charge d'interception (Tranchante)"] },
     "Arc de Qualité": { flatStats: {}, extraStats: { degTranchant: 25 }, notes: ['Octroie le Perk : Arc de Bonne Facture', 'Octroie le Perk : Deux Mains', 'Octroie : Tir (Court)', 'Octroie : Tir Handicapant', 'Octroie : Triple Flèche', 'Octroie le Perk : Arme', 'Débloque : Carquois', 'Octroie : Tir (Long)', 'Octroie : Tir Empoisonné (Toxique)', 'Octroie : Tir Empoisonné (Mana)', 'Octroie : Tir Pointe Barbelée', 'Octroie : Viser'] },
@@ -395,7 +395,7 @@ const EQUIPMENT = {
     "Masse": { flatStats: {}, extraStats: { degContondant: 20 }, notes: ['Octroie le Perk : Masse 2M', 'Octroie le Perk : Deux Mains', 'Octroie : Coup Tourbillonnant', 'Octroie : Fracassement (2M)', 'Octroie : Faucher les Jambes', 'Octroie le Perk : Arme', "Octroie : Charge d'interception (Contondante)", 'Octroie : Coup de Hampe (2M)'] },
     "Hache à deux mains": { flatStats: {}, extraStats: { degContondant: 10, degTranchant: 20 }, notes: ['Octroie le Perk : Haches 2M', 'Octroie le Perk : Deux Mains', 'Octroie : Balayage', 'Octroie : Fracassement (2M)', 'Octroie : Faucher les Jambes', 'Octroie le Perk : Arme', "Octroie : Charge d'interception (Tranchante)", 'Octroie : Mordhau'] },
     "Katana": { flatStats: {}, extraStats: { degPerforant: 25, degTranchant: 25 }, notes: ['Octroie le Perk : Katana', 'Octroie le Perk : Deux Mains', 'Octroie : Balayage', 'Octroie : Empaler (2M)', 'Octroie : Faire Saigner (Katana)', 'Octroie le Perk : Arme', "Octroie : Charge d'interception (Tranchante)"] },
-    "Dague": { flatStats: {}, extraStats: { degPerforant: 15, degTranchant: 15 }, notes: ['Octroie le Perk : Dague', 'Octroie : Empaler', 'Octroie : Faire Saigner', 'Octroie : Coup de Lame', 'Octroie le Perk : Arme', 'Octroie : Coup Vicieux'] },
+    "Dague": { flatStats: {}, extraStats: { degPerforant: 15, degTranchant: 15 }, notes: ['Octroie le Perk : Dague', 'Octroie : Empaler', 'Octroie : Faire Saigner', 'Octroie : Coup de lame (Dague)', 'Octroie le Perk : Arme', 'Octroie : Coup Vicieux'] },
     "Focus": { flatStats: { degatsMagique: 15, incantation: 1 }, extraStats: {}, notes: ['Octroie le Perk : Deux Mains'] },
   },
   deuxH: {

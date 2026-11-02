@@ -709,15 +709,15 @@ const CATEGORIES = [
       ]},
       { label: 'Frappes de base', desc: "L'attaque standard de chaque type d'arme.", abilities: [
         [1725, 'Coup de tête'], [596, 'Coup de Lame'], [2409, 'Coup de Lame (Bottes Dagues)'],
-        [2291, 'Coup de lame (Hache)'], [2295, 'Coup de lame (Dague)'], [709, 'Transpercer'],
-        [1785, 'Coup de Lance'], [710, 'Coup de masse'], [2299, 'Coup de masse (2M)'],
+        [2291, 'Coup de lame (Hache)'], [2295, 'Coup de lame (Dague)'],
+        [1785, 'Coup de Lance'], [710, 'Coup de masse'],
         [720, 'Coup de hampe'], [2003, 'Coup de hampe (2M)'], [721, 'Coup de pommeau'],
         [616, 'Coup de bouclier'],
       ]},
       { label: 'Techniques de mêlée', abilities: [
-        [711, 'Balayage'], [712, 'Coup Tourbillonnant'], [713, 'Empaler'], [2305, 'Empaler (2M)'],
+        [711, 'Balayage'], [712, 'Coup Tourbillonnant'], [713, 'Empaler'],
         [716, 'Fracassement (1M)'], [2292, 'Fracassement (2M)'], [1817, 'Coup Vicieux'],
-        [717, 'Faire Saigner'], [2293, 'Faire Saigner (Hache)'], [2294, 'Faire saigner (Katana)'],
+        [717, 'Faire Saigner'], [2293, 'Faire Saigner (Hache)'],
         [718, 'Renverser'], [1984, 'Désarçonner'], [719, 'Faucher les jambes'], [2004, 'Mordhau'],
         [2433, 'Fouettement'], [2434, 'Emprise'],
       ]},
@@ -864,7 +864,7 @@ const CATEGORIES = [
         [555, 'Sucer le sang'], [1069, "Boire sang de l'ainé"], [1096, 'Morsure Lycanthrope'],
         [1428, 'Prendre essence'], [1408, 'Pacte Demoniaque'], [1371, 'Sentir proie'],
       ]},
-      { label: 'Ténériffe', abilities: [
+      { label: 'Ténériffe', desc: 'En chantier.', abilities: [
         [1702, 'Choeur de Teneriffe'],
       ]},
     ],
@@ -1608,7 +1608,7 @@ const DETAILS = {
     portee: '1 Tile',
     cible: '3 cibles',
     statuts: ['Controle'],
-
+    effets: ['Pousse la cible de 1.3 Tiles'],
     notes: 'Ne fait pas de dégâts.',
   },
   349: { // Prier
@@ -2313,15 +2313,16 @@ const DETAILS = {
     degats: ['Contondants'],
     statuts: ['Confus'],
   },
+  1096: { // Morsure Lycanthrope
+    notes: 'En chantier.',
+  },
 };
 // Variantes qui fonctionnent exactement comme une autre aptitude
 DETAILS[2293] = DETAILS[717]; // Faire Saigner (Hache)
-DETAILS[2294] = DETAILS[717]; // Faire saigner (Katana)
 DETAILS[1885] = DETAILS[1602]; // Utiliser Cosmétiques = S'apprêter
 DETAILS[2003] = DETAILS[720]; // Coup de hampe (2M) = Coup de hampe
 DETAILS[2291] = DETAILS[596]; // Coup de lame (Hache) = Coup de Lame
 DETAILS[716] = DETAILS[2292]; // Fracassement (1M) = Fracassement (2M)
-DETAILS[2305] = DETAILS[713]; // Empaler (2M) = Empaler
 
 
 // ============================================================================

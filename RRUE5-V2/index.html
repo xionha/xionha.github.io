@@ -1323,9 +1323,12 @@
       <div class="age-selector" id="voieJumelleSelector"></div>
       <div class="age-desc" id="voieJumelleDesc"></div>
 
-      <div class="panel-title">Buff Ténériffe</div>
-      <div class="age-selector" id="teneriffeSelector"></div>
-      <div class="age-desc" id="teneriffeDesc"></div>
+      <!-- Buff Ténériffe : masqué, en chantier (réafficher en retirant l'attribut hidden) -->
+      <div id="teneriffePanel" hidden>
+        <div class="panel-title">Buff Ténériffe</div>
+        <div class="age-selector" id="teneriffeSelector"></div>
+        <div class="age-desc" id="teneriffeDesc"></div>
+      </div>
     </aside>
 
     <main class="stats-panel" id="statsPanel">
@@ -3657,7 +3660,7 @@ function loadBuildData(data){
   applyCorruption(data.currentCorruption || '');
   applyElementaire(data.currentElementaire || '');
   applyEsclave(data.isEsclave ? 'Oui' : 'Non');
-  applyTeneriffe(data.isTeneriffe ? 'Oui' : 'Non');
+  applyTeneriffe('Non'); // Buff Ténériffe masqué (en chantier) : jamais réactivé par une sauvegarde
   applyVoieJumelle(data.isVoieJumelle ? 'Oui' : 'Non');
 
   (data.selectedTalents || []).forEach(name => { if (TALENTS.find(t => t.name === name)) selectedTalents.add(name); });

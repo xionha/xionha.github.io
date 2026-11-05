@@ -272,6 +272,7 @@ const STATUSES = {
   "Diverti": { parentDelta: { esprit: 1 }, flatStats: {}, elemental: {}, notes: [] },
   "Visage Trouble": { attrDelta: { discretion: 3 }, flatStats: {}, elemental: {}, notes: [] },
   "Ému": { parentDelta: { presence: 1 }, flatStats: {}, elemental: {}, notes: [] },
+  "Monture": { flatStats: { esquive: -10 }, elemental: {}, notes: ['Octroie : Deplacement Monture'] },
   "En mouvement": { flatStats: { capTir: -5 }, elemental: {}, notes: ['Octroie : Désarçonner'] },
   "Flamboiement": { flatStats: { deplacement: 2, esquive: 2, parade: 2 }, elemental: {}, notes: [] },
   "Bio-Electricite": { flatStats: { deplacement: 2, esquive: 2, parade: 2 }, elemental: {}, notes: [] },
@@ -333,10 +334,13 @@ const SLOT_LABELS = {
 };
 const EQUIPMENT = {
   troupe: {
+    "Bête": { flatStats: { pv: 25 }, extraStats: { puissanceTroupe: 25 }, notes: ['Octroie : Morsure de Bête', 'Débloque : Action de Troupe', 'Octroie le statut : Bête', 'Débloque : Puissance de Troupe'] },
     "Bête Elite": { flatStats: { pv: 50 }, extraStats: { puissanceTroupe: 30 }, notes: ['Octroie : Morsure de Bête', 'Débloque : Action de Troupe', 'Octroie le statut : Bête', 'Débloque : Puissance de Troupe'] },
-    "Garde Elite": { flatStats: { pv: 100 }, extraStats: { puissanceTroupe: 25 }, notes: ['Octroie : Salve de Flèches', 'Octroie : Cache de Bien', 'Octroie : Sacrifice de Troupe', 'Débloque : Action de Troupe', 'Octroie le statut : Garde', 'Débloque : Puissance de Troupe'] },
-    "Armée d'Elite": { flatStats: {}, extraStats: {}, notes: ["Octroie : Mettre en Marche (Elite)"] },
-    "Invocation Occulte": { flatStats: { pv: 100 }, extraStats: {}, notes: ['Octroie le Perk : Invocation Occulte', 'Octroie : Salve de Flèches (Occulte)', 'Débloque : Action de Troupe', 'Octroie le statut : Invocation Occulte', 'Octroie : Sacrifice Invocation Occulte'] },
+    "Garde": { flatStats: { pv: 50 }, extraStats: { puissanceTroupe: 20 }, notes: ['Octroie : Salve de Flèches', 'Octroie : Cache de Bien', 'Octroie : Sacrifice de troupe', 'Débloque : Action de Troupe', 'Octroie le statut : Garde', 'Débloque : Puissance de Troupe'] },
+    "Garde Elite": { flatStats: { pv: 100 }, extraStats: { puissanceTroupe: 25 }, notes: ['Octroie : Salve de Flèches', 'Octroie : Cache de Bien', 'Octroie : Sacrifice de troupe (élite)', 'Débloque : Action de Troupe', 'Octroie le statut : Garde', 'Débloque : Puissance de Troupe'] },
+    "Escouade": { flatStats: {}, extraStats: {}, notes: ['Octroie : Mettre en marche'] },
+    "Escouade surentraînée": { flatStats: {}, extraStats: {}, notes: ['Octroie : Mettre en marche (Elite)'] },
+    "Invocation Occulte": { flatStats: { pv: 100 }, extraStats: {}, notes: ['Octroie le Perk : Invocation Occulte', 'Octroie : Salve de Flèches', 'Débloque : Action de Troupe', 'Octroie le statut : Invocation Occulte', 'Octroie : Sacrifice Invocation Occulte'] },
     "Golem Elite": { flatStats: { pv: 100 }, extraStats: { puissanceTroupe: 30 }, notes: ['Octroie : Salve de Flèches', 'Octroie : Cache de Bien', 'Débloque : Action de Troupe', 'Débloque : Puissance de Troupe', 'Octroie le statut : Golem'] },
   },
   amulette: {
@@ -445,7 +449,7 @@ const EQUIPMENT = {
     "Pierre d'éclat": { flatStats: {}, extraStats: {}, notes: ["Octroie : Pierre d'éclat"] },
     "Bombe Incendiaire": { flatStats: {}, extraStats: {}, notes: ['Octroie : Bombe incendiaire'] },
     "Filet de capture": { flatStats: {}, extraStats: {}, notes: ['Octroie : Lancer filet'] },
-    "Monture": { flatStats: {}, extraStats: {}, notes: ['Octroie le Perk : Monture', 'Octroie : Remonter à Cheval'] },
+    "Monture": { flatStats: {}, extraStats: {}, notes: ['Octroie le Perk : Monture', 'Octroie : Remonter à Cheval', 'Une fois réellement monté : statut Monture (Esquive -10, octroie Deplacement Monture), à cocher dans les Statuts'] },
     "Potion de mana": { flatStats: {}, extraStats: {}, notes: ['Octroie : Boire potion de Mana'] },
     "Potion de vie": { flatStats: {}, extraStats: {}, notes: ['Octroie : Boire Potion de vie'] },
     "Baume cicatrisant": { flatStats: {}, extraStats: {}, notes: ['Octroie : Utiliser baume cicatrisant'] },

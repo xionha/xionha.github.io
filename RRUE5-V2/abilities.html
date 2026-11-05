@@ -898,6 +898,7 @@ const CATEGORIES = [
       ]},
       { label: 'Projectiles & explosifs', abilities: [
         [634, 'Lancer filet'], [869, 'Bombe incendiaire'], [1459, "Pierre d'éclat"], [1821, "Lancer flasque d'acide"],
+        [9004, 'Lancer Fumigene'],
       ]},
       { label: 'Tomes & parchemins', abilities: [
         [1871, 'Tome de malédictions'], [2157, 'Parchemin de Commandement', { verify: true }],
@@ -913,7 +914,7 @@ const CATEGORIES = [
         [1848, 'Assaut Mêlée'], [382, 'Attaque bête'], [383, 'Salve de fleches'], [1981, 'Soin de troupe'],
       ]},
       { label: 'Logistique', abilities: [
-        [384, 'Cache de bien'], [1992, 'Poser Canon'], [1993, 'Retirer Canon'],
+        [384, 'Cache de bien'], [1992, 'Poser Canon'], [1993, 'Retirer Canon'], [9005, 'Tirer avec Canon'],
       ]},
       { label: 'Sacrifices', abilities: [
         [860, 'Sacrifice de troupe'], [1737, 'Sacrifice de troupe (élite)'],
@@ -993,9 +994,10 @@ const CATEGORIES = [
 //   menus   : ['Sous-menu 1', 'Sous-menu 2']          (catégories d'un menu)
 //   affiche : { 'Onglet': ['Info 1', 'Info 2'] }       (informations affichées, par onglet)
 //   notes   : 'Remarques diverses'
+//   premierTour: true                                  (utilisable au Premier Tour même si elle applique Immobile ou Controle)
 // ============================================================================
 const PREMIER_TOUR_COND = 'Ne pas avoir le statut Premier Tour';
-// Jets de résistance automatiques (3d6 + attribut contre 15), seulement si l'aptitude fait aussi des dégâts
+// Jets de résistance automatiques (3d6 + attribut contre 15), seulement si l'aptitude fait aussi des dégâts ou touche une zone
 const RESIST_RULES = [['Brûlure', 'Résilience'], ['Saignement', 'Résilience'], ['Poison', 'Métabolisme'], ['Poison de Mana', 'Métabolisme']];
 const DETAILS = {
   475: { // Menu Artisanat
@@ -1032,6 +1034,35 @@ const DETAILS = {
     cible: 'Soi',
     effets: ["Produit une Invocation Occulte (troupe) et la place dans l'inventaire"],
     conditions: ['Avoir Déchéance corruptrice'],
+  },
+  1632: { // Visions
+    cout: { Mana: 5 },
+    cooldown: '30 min',
+    cible: 'Un personnage (désigné dans le texte)',
+    desc: 'Permet d\'envoyer une vision à un personnage : le lanceur décrit par écrit la vision qu\'il souhaite envoyer.',
+    conditions: ['Ne pas avoir le statut Incantation Interdite (Arcane)'],
+    sources: ['Arcaniste'],
+    notes: 'Une vision reste une manifestation mentale et illusoire : elle ne peut provoquer aucune blessure, séquelle physique ou psychologique réelle, ni imposer de conséquences permanentes au personnage qui la reçoit.',
+  },
+  1961: { // Visions (Sorcier)
+    cout: { Corruption: 5 },
+    cooldown: '30 min',
+    cible: 'Un personnage (désigné dans le texte)',
+    desc: 'Permet d\'envoyer une vision à un personnage : le lanceur décrit par écrit la vision qu\'il souhaite envoyer.',
+    notes: 'Une vision reste une manifestation mentale et illusoire : elle ne peut provoquer aucune blessure, séquelle physique ou psychologique réelle, ni imposer de conséquences permanentes au personnage qui la reçoit.',
+  },
+  1477: { // Briser esprit
+    cooldown: '2 h',
+    portee: '1 Tile',
+    cible: '1 cible',
+    effets: ['Fait perdre de la Santé mentale à la cible'],
+    conditions: ['Hors combat'],
+  },
+  1693: { // Faire Esclave
+    portee: '1 Tile',
+    cible: '1 cible',
+    statuts: ['Esclave (si le jet réussit)'],
+    conditions: ['Hors combat', 'La cible doit avoir le statut C.Esclave (consentement esclave)'],
   },
   1643: { // Camoufler Corruption
     cout: { PV: 10 },
@@ -1195,7 +1226,6 @@ const DETAILS = {
     portee: '6 Tiles',
     cible: 'Zone · 1.5 Tiles de rayon autour du point choisi',
     statuts: ['Poison'],
-    resistance: [['Poison', 'Métabolisme']],
     conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Air)'],
     sources: ['Aéromancie'],
     notes: "Ne fait pas de dégâts, sauf si la cible est déjà empoisonnée : Poison aggravé, des dégâts supplémentaires résistés par le Métabolisme. Le lanceur peut être touché s'il est dans la zone.",
@@ -1457,6 +1487,15 @@ const DETAILS = {
     sources: ['Arcaniste'],
     notes: 'Ne fait pas de dégâts.',
   },
+  633: { // Activer Siphon de Mana
+    cout: { PA: 1, 'Siphon mécanique': 1 },
+    portee: '6 Tiles',
+    cible: 'Tout le monde (lanceur compris)',
+    statuts: ['Poison de Mana'],
+    effets: ['Divise par deux le Mana actuel de chaque cible touchée'],
+    conditions: ['Avoir le statut En Combat'],
+    notes: 'Le lanceur est lui aussi touché : son Mana est également divisé par deux. Si la cible a déjà le Poison de Mana : Poison de Mana aggravé, qui retire du Mana (pas des PV), résisté par le Métabolisme.',
+  },
   2310: { // Enduire Poison de Mana
     cout: { 'Flèches/Carreaux ou Lames de jet': 1, 'Poison de Mana': 1 },
     effets: ['Produit 1 Flèches/Carreaux (Poison de Mana) ou 1 Lames de jet empoisonnés (Poison de Mana), selon la munition consommée'],
@@ -1540,14 +1579,74 @@ const DETAILS = {
     cible: 'Soi',
     gain: { PV: 30 },
   },
+  1039: { // Consommer Antidote
+    cout: { PS: 1, 'Antidote poison toxique': 1 },
+    cible: 'Soi',
+    retire: ['Poison'],
+  },
+  1040: { // Consommer anti poison de mana
+    cout: { PS: 1, 'Antidote poison de mana': 1 },
+    cible: 'Soi',
+    retire: ['Poison de Mana'],
+  },
+  621: { // Utiliser Baume
+    cout: { PS: 1, 'Baume apaisant': 1 },
+    cible: 'Soi',
+    retire: ['Brûlure'],
+  },
+  1036: { // Utiliser baume cicatrisant
+    cout: { PS: 1, 'Baume cicatrisant': 1 },
+    cible: 'Soi',
+    retire: ['Saignement'],
+  },
+  626: { // Boire remede Brume Ecarlate
+    cout: { 'Remède brume écarlate': 1 },
+    cible: 'Soi',
+    retire: ['Brume Écarlate (maladie)'],
+  },
+  1644: { // Boire Langueur des Tombes
+    cout: { 'Remède langueur des tombes': 1 },
+    cible: 'Soi',
+    retire: ['Langueur des Tombes (maladie)'],
+  },
+  1645: { // Boire Lenteur du Sang
+    cout: { 'Remède lenteur du sang': 1 },
+    cible: 'Soi',
+    retire: ['Lenteur du Sang (maladie)'],
+  },
+  622: { // Consommer drogue récréative (effets : consommable Récréatif de data.js)
+    cout: { 'Drogue récréative': 1 },
+    cible: 'Soi',
+  },
+  623: { // Consommer drogue mystique (effets : consommable Dopant Psychique de data.js)
+    cout: { 'Dopant mystique': 1 },
+    cible: 'Soi',
+    conditions: ['Ne pas avoir le statut Mets-Cendre'],
+  },
+  624: { // Consommer drogue physique (effets : consommable Dopant Physique de data.js)
+    cout: { 'Dopant physique': 1 },
+    cible: 'Soi',
+    conditions: ['Ne pas avoir le statut Mets-Cendre'],
+  },
   1061: { // Boire Lait
     cout: { PA: 1, 'Lait': 1, 'Ceinture de potion': 1 },
     cible: 'Soi',
     gain: { PV: 40 },
     conditions: ['Ne pas avoir le statut Faim surnaturelle'],
   },
+  1044: { // Utiliser Parfum (statut Parfum et ses effets : consommable Parfum (Sent Bon) de data.js)
+    cout: { Parfum: 1 },
+    cible: 'Soi',
+    gain: { 'Santé mentale': 5 },
+  },
+  1885: { // Utiliser Cosmétiques (le statut Maquillé(e) et ses effets viennent du consommable lié)
+    cout: { 'Cosmétiques': 1 },
+    cible: 'Soi',
+    gain: { 'Santé mentale': 5 },
+  },
   1602: { // S'apprêter (le statut Maquillé(e) et ses effets viennent du consommable lié)
-    cout: { 'Cosmétique': 1 },
+    cout: { 'Cosmétiques': 1 },
+    cible: 'Soi',
     gain: { 'Santé mentale': 5 },
   },
   1601: { // Se laver
@@ -1583,6 +1682,98 @@ const DETAILS = {
     cible: '1 cible',
     gain: { Mana: 20 },
     notes: 'Le lanceur perd 20 Mana et la cible en gagne 20.',
+  },
+  869: { // Bombe incendiaire
+    cout: { PA: 1, 'Bombe Incendiaire': 1 },
+    portee: '6 Tiles',
+    cible: 'Zone · 1 Tile de rayon autour du point choisi',
+    statuts: ['Brûlure'],
+    notes: 'Le lanceur peut être touché s\'il est dans la zone. Ne fait pas de dégâts, sauf si la cible brûle déjà : Brûlure aggravée, des dégâts supplémentaires résistés par la Résilience.',
+  },
+  1821: { // Lancer flasque d'acide
+    cout: { PA: 1, "Flasque d'acide": 1 },
+    portee: '3 Tiles',
+    cible: '1 cible',
+    statuts: ['Vulnérable'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  9004: { // Lancer Fumigene (n° provisoire : n° en jeu inconnu)
+    cout: { PA: 1, 'Fumigène': 1 },
+    portee: '6 Tiles',
+    cible: 'Zone · 1.5 Tiles de rayon autour du point choisi',
+    statuts: ['Confus'],
+    notes: 'Ne fait pas de dégâts. Le lanceur n\'est pas touché, même s\'il est dans la zone.',
+  },
+  384: { // Cache de bien
+    cout: { AT: 1 },
+    cooldown: '20 h',
+    cible: 'Soi',
+    recharge: { 'Ceinture de potion': '5/5' },
+    conditions: ['Avoir le statut En Combat'],
+  },
+  1992: { // Poser Canon
+    cout: { 'Canon': 1 },
+    cible: 'Soi',
+    effets: ['Place un Canon sur la position actuelle du lanceur : il devient possible d\'y utiliser Tirer avec Canon'],
+    conditions: ['Être Ingénieur ou Chef de faction'],
+  },
+  1993: { // Retirer Canon
+    gain: { Canon: 1 },
+    effets: ['Retire un Canon posé par le personnage (voir Poser Canon) et le récupère dans son inventaire'],
+  },
+  9005: { // Tirer avec Canon (n° provisoire : n° en jeu inconnu)
+    type: 'Attaque',
+    cooldown: '30 min',
+    portee: '20 Tiles',
+    cible: 'Zone · 1 Tile de rayon autour du point choisi',
+    degats: ['Fixes'],
+    effets: ['Inflige 3d20 + 30 dégâts fixes à toutes les cibles dans la zone sauf au lanceur'],
+    sources: ['Être à l\'emplacement d\'un Canon posé (voir Poser Canon)'],
+    notes: 'Dégâts fixes : ne sont résistés par rien. En cas d\'échec critique sur le jet, c\'est le lanceur qui prend les dégâts.',
+  },
+  860: { // Sacrifice de troupe
+    cout: { 'Garde': 1 },
+    cooldown: '4 h',
+    cible: 'Soi',
+    effets: [
+      'Les troupes se battent jusqu\'à la mort pour couvrir la fuite du lanceur : la troupe Garde est perdue',
+      'Permet de fuir pendant 10 minutes sans que les adversaires puissent intervenir',
+    ],
+    conditions: ['Avoir le statut En Combat', 'Ne pas avoir le statut Controle'],
+    notes: 'Pendant la fuite, interdiction d\'utiliser le vol ou un téléporteur.',
+  },
+  2298: { // Sacrifice de troupe (Invocation Occulte)
+    cout: { 'Invocation occulte': 1 },
+    cooldown: '4 h',
+    cible: 'Soi',
+    effets: [
+      'Les troupes se battent jusqu\'à la mort pour couvrir la fuite du lanceur : la troupe Invocation occulte est perdue',
+      'Permet de fuir pendant 10 minutes sans que les adversaires puissent intervenir',
+    ],
+    conditions: ['Avoir le statut En Combat', 'Ne pas avoir le statut Controle'],
+    notes: 'Pendant la fuite, interdiction d\'utiliser le vol ou un téléporteur.',
+  },
+  1737: { // Sacrifice de troupe (élite)
+    cout: { 'Garde de qualité': 1 },
+    cooldown: '4 h',
+    cible: 'Soi',
+    effets: [
+      'Les troupes se battent jusqu\'à la mort pour couvrir la fuite du lanceur : la troupe Garde de qualité est perdue',
+      'Permet de fuir pendant 10 minutes sans que les adversaires puissent intervenir',
+    ],
+    conditions: ['Avoir le statut En Combat', 'Ne pas avoir le statut Controle'],
+    notes: 'Pendant la fuite, interdiction d\'utiliser le vol ou un téléporteur.',
+  },
+  1984: { // Désarçonner
+    cout: { PS: 1 },
+    portee: '1 Tile',
+    cible: '1 cible',
+    statuts: ['Controle (si la cible a le statut Monture)'],
+    retire: ['Monture'],
+    effets: ['Fait descendre la cible de sa monture'],
+    conditions: ['Avoir le statut En Combat'],
+    premierTour: true,
+    notes: 'Utilisable dès le Premier Tour. Sans effet si la cible n\'est pas montée.',
   },
   1459: { // Pierre d'éclat
     cout: { PA: 1, "Pierre d'éclat": 1 },
@@ -2285,8 +2476,7 @@ const DETAILS = {
     jet: '(1d2 + Déplacement) × 3',
     statuts: ['En mouvement'],
     desc: 'Le résultat du jet donne le nombre de Tiles dont le personnage peut se déplacer.',
-    conditions: ['Être à dos de monture'],
-    sources: ['Rune Monture (équipée)'],
+    conditions: ['Avoir le statut Monture (être réellement monté)'],
   },
   86: { // Fuir
     cout: { PM: 1 },
@@ -2587,6 +2777,7 @@ const DMG_ORDER = ['Physiques', 'Adresse', 'Tranchants', 'Perforants', 'Contonda
 // Types de dégâts filtrables d'une étiquette : « Tranchants fixes » -> Tranchants + Fixes
 function damageTypes(t){
   const base = t.replace(/\s*fixes?\s*$/i, '').trim();
+  if (!base) return ['Fixes']; // dégâts fixes sans type
   return /fixe/i.test(t) ? [base, 'Fixes'] : [base];
 }
 function damageColor(t){
@@ -2646,14 +2837,14 @@ function buildModel([id, name, opts = {}], cat, group){
   const perte = Object.entries(d.perte || {});
   const effets = [...(d.effets || [])];
 
-  // Règle du jeu : un statut posé par une aptitude qui fait aussi des dégâts se résiste (3d6 + attribut contre 15)
+  // Règle du jeu : un statut posé par une aptitude qui fait aussi des dégâts ou qui touche une zone se résiste (3d6 + attribut contre 15)
   const resist = [...(d.resistance || [])];
-  if (degats.length) RESIST_RULES.forEach(([st, attr]) => {
+  if (degats.length || /^zone\b/i.test(d.cible || '')) RESIST_RULES.forEach(([st, attr]) => {
     if ((d.statuts || []).some(x => nameKey(statusBase(x)) === nameKey(st)) && !resist.some(([r]) => nameKey(r) === nameKey(st))) resist.push([st, attr]);
   });
   // Règle du jeu : une aptitude qui applique Immobile ou Controle ne peut pas être lancée avec Premier Tour
   const conditions = [...(d.conditions || [])];
-  if ((d.statuts || []).some(st => /^(Immobile|Controle(?! Mental))\b/.test(st)) && !conditions.includes(PREMIER_TOUR_COND)) conditions.push(PREMIER_TOUR_COND);
+  if (!d.premierTour && (d.statuts || []).some(st => /^(Immobile|Controle(?! Mental))\b/.test(st)) && !conditions.includes(PREMIER_TOUR_COND)) conditions.push(PREMIER_TOUR_COND);
 
   // « Documentée » dès qu'il y a une description, un coût, un usage ou un effet connu
   const documented = !!(d.affiche || (d.menus && d.menus.length) || d.desc || d.type || d.portee || d.cible || d.cooldown

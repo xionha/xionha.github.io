@@ -446,6 +446,8 @@ const EQUIPMENT = {
     "Bombe Incendiaire": { flatStats: {}, extraStats: {}, notes: ['Octroie : Bombe incendiaire'] },
     "Filet de capture": { flatStats: {}, extraStats: {}, notes: ['Octroie : Lancer filet'] },
     "Monture": { flatStats: {}, extraStats: {}, notes: ['Octroie le Perk : Monture', 'Octroie : Remonter à Cheval', 'Une fois réellement monté : statut Monture (Esquive -10, octroie Deplacement Monture), à cocher dans les Statuts'] },
+    "Matériel de prélèvements": { flatStats: {}, extraStats: {}, notes: ['Octroie : Prélever du sang'] },
+    "Extracteur d'essence de désir": { flatStats: {}, extraStats: {}, notes: ['Octroie : Recolter Essence'] },
     "Potion de mana": { flatStats: {}, extraStats: {}, notes: ['Octroie : Boire potion de Mana'] },
     "Potion de vie": { flatStats: {}, extraStats: {}, notes: ['Octroie : Boire Potion de vie'] },
     "Baume cicatrisant": { flatStats: {}, extraStats: {}, notes: ['Octroie : Utiliser baume cicatrisant'] },

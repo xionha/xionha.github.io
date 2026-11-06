@@ -835,7 +835,7 @@ const CATEGORIES = [
         [1477, 'Briser esprit'], [1693, 'Faire Esclave'],
       ]},
       { label: 'Récolte', abilities: [
-        [2213, 'Recolter Essence', { verify: true }], [2267, 'Prélever du sang', { verify: true }],
+        [2213, 'Recolter Essence'], [2267, 'Prélever du sang'],
       ]},
     ],
   },
@@ -1248,6 +1248,14 @@ const DETAILS = {
     conditions: ['Ne pas être transformé', 'Ne pas avoir de Posture', 'Ne pas avoir le statut Incantation Interdite (Air)'],
     sources: ['Aéromancie'],
   },
+  504: { // Frappe Télékinetique
+    cout: { PA: 1, PS: 1, Mana: 5 },
+    portee: '3 Tiles',
+    cible: '1 cible',
+    statuts: ['Controle'],
+    conditions: ['Avoir le statut En Combat'],
+    effets: ['Fait tomber la cible en arrière'],
+  },
   1509: { // Eclair Paralysant
     cout: { PS: 1, Mana: 10 },
     portee: '6 Tiles',
@@ -1648,6 +1656,28 @@ const DETAILS = {
     statuts: ['Infusion Air', 'Infusion (7 jours)'],
     conditions: ["Ne pas avoir le statut Infusion"],
     notes: 'Le statut Infusion Air octroie les aptitudes Frappe Foudroyante et Lame d\'air. Le statut Infusion dure 7 jours : tant qu\'il est actif, Infusion de Tempête ne peut pas être réutilisée.',
+  },
+  2213: { // Recolter Essence
+    portee: '1 Tile',
+    cible: '1 cible',
+    statuts: ['Assouvissement Pris (3 h 20)'],
+    conditions: ['Ne pas avoir le statut Assouvissement Pris'],
+    effets: ['Récolte X Essences de désir, selon combien la cible en a'],
+  },
+  2267: { // Prélever du sang
+    portee: '1 Tile',
+    cible: '1 cible',
+    cooldown: '15 min',
+    conditions: ['La cible doit avoir mis elle-même le statut Transfusion'],
+    effets: ['Donne 1 Échantillon de sang au lanceur'],
+  },
+  1780: { // Concert
+    cible: 'Soi',
+    cooldown: '72 h',
+    statuts: ['Concert Fait'],
+    conditions: ['Ne pas avoir le statut Concert Fait'],
+    effets: ['Donne des pièces de bronze si 6 cibles ou plus autour'],
+    sources: ['Artiste'],
   },
   479: { // Divertir son auditoire
     cout: { Projet: 2 },

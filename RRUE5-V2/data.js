@@ -247,7 +247,6 @@ const CONSUMABLES = {
   "Dopant Psychique": { parentDelta: {}, attrDelta: {}, flatStats: { mana: 25, degatsMagique: 10, defenseMagique: 10 }, notes: [], category: null },
   "Arme Entretenue": { parentDelta: {}, attrDelta: {}, flatStats: {}, extraStats: { degContondant: 10, degPerforant: 10, degTranchant: 10 }, notes: [], category: null },
   "Armure Entretenue": { parentDelta: {}, attrDelta: {}, flatStats: {}, extraStats: { defTranchante: 10, defPerforante: 10, defContondante: 10 }, notes: [], category: null },
-  "Récréatif": { parentDelta: {}, attrDelta: { metabolisme: -2, resilience: 2, analyse: -2, perceptionMagique: 2, perception: 2, vitesse: -2, volonte: -2 }, flatStats: {}, notes: [] },
 };
 
 const VOIE_JUMELLE = {
@@ -266,7 +265,6 @@ const STATUSES = {
   "Bouclier Magique (M)": { flatStats: { defenseMagique: 10, defense: 10 }, elemental: {}, notes: [] },
   "Bouclier Magique (P)": { flatStats: { defenseMagique: 10, defense: 10 }, elemental: {}, notes: [] },
   "Vulnérable": { flatStats: { defenseMagique: -6, defense: -10 }, elemental: {}, notes: [] },
-  "Diverti": { parentDelta: { esprit: 1 }, flatStats: {}, elemental: {}, notes: [] },
   "Visage Trouble": { attrDelta: { discretion: 3 }, flatStats: {}, elemental: {}, notes: [] },
   "Ému": { parentDelta: { presence: 1 }, flatStats: {}, elemental: {}, notes: [] },
   "Monture": { flatStats: { esquive: -10 }, elemental: {}, notes: ['Octroie : Deplacement Monture'] },
@@ -274,6 +272,7 @@ const STATUSES = {
   "Flamboiement": { flatStats: { deplacement: 2, esquive: 2, parade: 2 }, elemental: {}, notes: [] },
   "Bio-Electricite": { flatStats: { deplacement: 2, esquive: 2, parade: 2 }, elemental: {}, notes: [] },
   "Benediction": { flatStats: { defenseMagique: 2, forceMentale: 1 }, elemental: {}, notes: [] },
+  "Humiliation publique": { flatStats: { forceMentale: -1 }, elemental: {}, notes: [] },
   "Ferveur guerrière": { flatStats: {}, extraStats: { puissanceTroupe: 10 }, elemental: {}, notes: [] },
   "Controle": { flatStats: { pointsAction: -2, pointsMouvement: -2, actionSpeciale: -2, esquive: -10, parade: -10 }, elemental: {}, notes: ['Octroie : Terminer tour (Controle)'] },
 };

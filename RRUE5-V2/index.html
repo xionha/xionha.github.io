@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Simulateur d'Attributs</title>
+<script src="page-turn.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Cinzel+Decorative:wght@700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
@@ -245,6 +246,12 @@
     transition: all 0.2s ease;
   }
   .page-link:hover{ color: var(--bronze-bright); border-color: var(--bronze-bright); background: rgba(189,125,63,0.12); }
+  .page-links{ display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+  .page-link.erp-link{ color: var(--erp-pos); border-color: #a8507a; background: rgba(168,80,122,0.14); }
+  .page-link.erp-link:hover{ color: #ffd0e6; border-color: var(--erp-pos); background: rgba(168,80,122,0.26); }
+  /* page actuelle : éclairée */
+  .page-link[aria-current="page"]{ color: var(--bronze-bright); border-color: var(--bronze-bright); background: rgba(189,125,63,0.2); box-shadow: 0 0 12px rgba(232,177,104,0.25); cursor: default; }
+  .page-link.erp-link[aria-current="page"]{ color: #ffd0e6; border-color: var(--erp-pos); background: rgba(168,80,122,0.32); box-shadow: 0 0 12px rgba(242,154,196,0.3); }
   header p{
     font-family: var(--font-body);
     color: var(--text-dim);
@@ -1152,7 +1159,11 @@
     <h1>Simulateur d'Attributs</h1>
     <p>Répartissez vos points et observez la fourchette de chaque caractéristique</p>
     <div class="hero-rule"><span class="diamond" id="hitcalcTrigger"></span></div>
-    <a class="page-link" href="abilities.html">Encyclopédie des Aptitudes →</a>
+    <nav class="page-links" aria-label="Pages">
+      <a class="page-link" href="index.html" aria-current="page">Simulateur d'Attributs</a>
+      <a class="page-link" href="abilities.html">Encyclopédie des Aptitudes</a>
+      <a class="page-link erp-link" href="abilities-erp.html">Aptitudes ERP</a>
+    </nav>
   </header>
 
   <div class="hitcalc-menu" id="hitcalcMenu">

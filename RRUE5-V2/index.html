@@ -434,6 +434,8 @@
     padding-right: 4px;
   }
   .talent-list::-webkit-scrollbar{ width: 6px; }
+  /* Maladies, Environnement : panneau large, liste en colonnes sans défilement */
+  .wide-list{ max-height: none; overflow: visible; padding-right: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(230px, 100%), 1fr)); column-gap: 18px; }
   .talent-list::-webkit-scrollbar-thumb{ background: var(--border-bright); }
   .talent-list::-webkit-scrollbar-track{ background: transparent; }
 
@@ -612,6 +614,13 @@
   .attr-row:last-child{ border-bottom: none; }
 
   .attr-label-wrap{ display:flex; flex-direction:column; min-width:0; cursor: help; }
+  /* Métier 2 : case « Aucun » */
+  .metier-none{ display: inline-flex; align-items: center; gap: 6px; margin-left: auto; margin-right: 10px; font-size: 13.5px; color: var(--text-dim); cursor: pointer; user-select: none; white-space: nowrap; }
+  .metier-none input{ width: 15px; height: 15px; margin: 0; accent-color: var(--bronze-bright); cursor: pointer; }
+  .metier-none:has(input:checked){ color: var(--bronze-bright); }
+  .metier-off .attr-controls{ opacity: 0.4; }
+  .metier2-row .attr-label{ white-space: nowrap; }
+  .metier2-row .metier-none{ margin-right: 2px; }
 
   .attr-label{
     font-size: 15.5px;
@@ -828,6 +837,14 @@
     position:absolute; top:0; bottom:0;
     transition: all 0.25s ease;
   }
+  /* Éléments : chaque magie a sa couleur (pastille, nom, jauge) ; un malus est rayé */
+  .elem-card .elem-name{ display: inline-flex; align-items: center; gap: 8px; color: var(--elem); }
+  .elem-dot{ width: 9px; height: 9px; border-radius: 50%; background: var(--elem); box-shadow: 0 0 7px var(--elem); flex-shrink: 0; }
+  .elem-card .elemental-fill{ background: var(--elem); box-shadow: 0 0 6px var(--elem); }
+  .elem-card .elemental-fill.neg{
+    background: repeating-linear-gradient(135deg, var(--elem) 0 3px, transparent 3px 6px);
+    box-shadow: none; opacity: 0.85;
+  }
 
   .gauge{
     position: relative;
@@ -1032,7 +1049,21 @@
 
   .equip-desc-block .age-desc{ margin-bottom: 0; min-height: 0; }
 
-  .injury-selector .injury-btn{ flex: 1 1 0; min-width: 0; font-size: 11.5px; padding: 7px 4px; }
+  /* même taille que les boutons de Corruption ; un liseré coloré annonce la gravité */
+  .injury-selector .injury-btn{ flex: 1 1 0; min-width: 0; }
+  .injury-btn.sev-blessure{ border-bottom: 2px solid rgba(212,175,86,0.55); }
+  .injury-btn.sev-majeure{ border-bottom: 2px solid rgba(201,140,66,0.6); }
+  .injury-btn.sev-grave{ border-bottom: 2px solid rgba(192,103,47,0.7); }
+  .injury-btn.sev-critique{ border-bottom: 2px solid rgba(156,50,37,0.85); }
+
+  /* Corruption : liseré violet qui s'intensifie à chaque niveau */
+  .corr-btn{ border-bottom: 2px solid var(--corr); }
+  .corr-btn.active{ background: var(--corr-bg); border-color: var(--corr); color: var(--corr-text); }
+  .corr-lvl-1{ --corr: rgba(170,135,210,0.45); --corr-bg: rgba(150,110,200,0.12); --corr-text: #c9b3e6; }
+  .corr-lvl-2{ --corr: rgba(160,115,210,0.6);  --corr-bg: rgba(140,95,200,0.16);  --corr-text: #c2a3ea; }
+  .corr-lvl-3{ --corr: rgba(150,95,210,0.75);  --corr-bg: rgba(130,80,200,0.2);   --corr-text: #ba92ee; }
+  .corr-lvl-4{ --corr: rgba(140,75,210,0.88);  --corr-bg: rgba(120,60,200,0.25);  --corr-text: #b07ff2; }
+  .corr-lvl-5{ --corr: #8a3fe0;                --corr-bg: rgba(110,40,200,0.32);  --corr-text: #a66cf7; }
   .injury-btn.sev-blessure.active{
     background: rgba(212,175,86,0.16);
     border-color: var(--gold);
@@ -1341,14 +1372,8 @@
       <div class="panel-title">Statuts <span id="statusCounter" class="talent-counter"></span></div>
       <div class="talent-list" id="statusList"></div>
 
-      <div class="panel-title">Environnement <span id="environmentCounter" class="talent-counter"></span></div>
-      <div class="talent-list" id="environmentList"></div>
-
       <div class="panel-title">Buffs de Consommation <span id="consumableCounter" class="talent-counter"></span></div>
       <div class="talent-list" id="consumableList"></div>
-
-      <div class="panel-title">Maladies <span id="diseaseCounter" class="talent-counter"></span></div>
-      <div class="talent-list" id="diseaseList"></div>
     </aside>
   </div>
 
@@ -1496,6 +1521,8 @@ let currentCurse = null;
 let currentCorruption = null;
 let currentElementaire = null;
 let isEsclave = false;
+let noSecondJob = false; // case « Aucun » à côté de Métier 2 : +2 Savoir Faire
+const NO_SECOND_JOB_BONUS = 2;
 let isTeneriffe = false;
 let isVoieJumelle = false;
 let currentTransformation = null;
@@ -1509,6 +1536,7 @@ function parentNarrativeBonus(parentKey){
   if (currentMorphology && MORPHOLOGIES[currentMorphology][parentKey] !== undefined) v += MORPHOLOGIES[currentMorphology][parentKey];
   if (currentSpecies && SPECIES[currentSpecies].parents[parentKey] !== undefined) v += SPECIES[currentSpecies].parents[parentKey];
   if (isEsclave && ESCLAVE.parentDelta && ESCLAVE.parentDelta[parentKey] !== undefined) v += ESCLAVE.parentDelta[parentKey];
+  if (noSecondJob && parentKey === 'savoirFaire') v += NO_SECOND_JOB_BONUS;
   return v;
 }
 
@@ -2377,8 +2405,13 @@ talentList.addEventListener('click', e => {
 // ---- Construction de la liste de statuts (cumulables, sans limite) ----
 const statusList = document.getElementById('statusList');
 const statusCounter = document.getElementById('statusCounter');
-const diseaseList = document.getElementById('diseaseList');
-const diseaseCounter = document.getElementById('diseaseCounter');
+// Liste des maladies : placée sous les Blessures (voir plus bas)
+const diseaseList = document.createElement('div');
+diseaseList.className = 'talent-list wide-list';
+diseaseList.id = 'diseaseList';
+const diseaseCounter = document.createElement('span');
+diseaseCounter.className = 'talent-counter';
+diseaseCounter.id = 'diseaseCounter';
 const statusToggleEls = {};
 
 Object.keys(STATUSES).forEach(name => {
@@ -2432,8 +2465,13 @@ function toggleStatus(name){
 }));
 
 // ---- Construction de la liste d'environnements (cumulables, sans limite) ----
-const environmentList = document.getElementById('environmentList');
-const environmentCounter = document.getElementById('environmentCounter');
+// Liste des environnements : placée sous les Maladies (voir plus bas)
+const environmentList = document.createElement('div');
+environmentList.className = 'talent-list wide-list';
+environmentList.id = 'environmentList';
+const environmentCounter = document.createElement('span');
+environmentCounter.className = 'talent-counter';
+environmentCounter.id = 'environmentCounter';
 const environmentToggleEls = {};
 
 Object.keys(ENVIRONMENTS).forEach(name => {
@@ -2877,11 +2915,17 @@ function buildChildRow(a){
   const row = document.createElement('div');
   row.className = 'child-row';
   const star = a.rp ? '<span class="rp-star" title="Sans effet sur les caractéristiques calculées — jets de RP uniquement">*</span>' : '';
+  // Métier 2 : case « Aucun » (pas de second métier → +2 Savoir Faire)
+  const noneBox = a.key === 'metier2'
+    ? `<label class="metier-none" title="Pas de second métier : +${NO_SECOND_JOB_BONUS} Savoir Faire"><input type="checkbox" id="metier2None"> Aucun</label>`
+    : '';
+  if (a.key === 'metier2') row.classList.add('metier2-row');
   row.innerHTML = `
     <div class="attr-label-wrap">
       <span class="attr-label"><span class="child-marker">●</span>${a.label}${star}</span>
       <span class="attr-age-bonus" id="agebonus-${a.key}"></span>
     </div>
+    ${noneBox}
     <div class="attr-controls">
       <div class="stepper">
         <button data-key="${a.key}" data-dir="-1">−</button>
@@ -2933,6 +2977,22 @@ PARENT_GROUPS.forEach(group => {
     });
   }
 });
+
+const metier2NoneEl = document.getElementById('metier2None');
+function applyNoSecondJob(checked){
+  noSecondJob = !!checked;
+  metier2NoneEl.checked = noSecondJob;
+  // sans second métier, Métier 2 reste à 0 et ne peut pas être modifié
+  if (noSecondJob) {
+    state.metier2 = 0;
+    attrTree.querySelector('input[data-key="metier2"]').value = 0;
+  }
+  attrTree.querySelectorAll('[data-key="metier2"]').forEach(el => { el.disabled = noSecondJob; });
+  metier2NoneEl.closest('.child-row').classList.toggle('metier-off', noSecondJob);
+  renderParentRows();
+  compute();
+}
+metier2NoneEl.addEventListener('change', e => applyNoSecondJob(e.target.checked));
 
 function renderParentRows(){
   PARENT_GROUPS.forEach(group => {
@@ -3078,6 +3138,8 @@ GROUPS.forEach(g => {
 const elementalValueEls = {};
 const elementalFillEls = {};
 const ELEMENTAL_COLOR = 'var(--magie)';
+// Couleur de chaque magie (mêmes teintes que dans l'encyclopédie des aptitudes)
+const ELEMENT_COLORS = { lumiere: '#f3e08a', feu: '#f2793f', sang: '#d84a5a', air: '#b7e0ee', eau: '#5aaee8', terre: '#c4955a', arcane: '#b88cf0' };
 
 const elemGroup = document.createElement('div');
 elemGroup.className = 'group';
@@ -3091,10 +3153,11 @@ elemGroup.innerHTML = `
 const elemGrid = elemGroup.querySelector('.stat-grid');
 Object.keys(ELEMENTAL_STATS).forEach(k => {
   const card = document.createElement('div');
-  card.className = 'stat-card';
+  card.className = 'stat-card elem-card';
+  card.style.setProperty('--elem', ELEMENT_COLORS[k] || 'var(--bronze-bright)');
   card.innerHTML = `
     <div class="stat-top">
-      <span class="stat-name">${ELEMENTAL_STATS[k]}</span>
+      <span class="stat-name elem-name"><span class="elem-dot" aria-hidden="true"></span>${ELEMENTAL_STATS[k]}</span>
       <span class="stat-value zero" id="elemval-${k}">0</span>
     </div>
     <div class="elemental-gauge">
@@ -3205,21 +3268,38 @@ injuryPanel.innerHTML = `<div class="paperdoll-header">Blessures</div>`;
 injuryPanel.appendChild(injuryList);
 statsPanel.appendChild(injuryPanel);
 
+// ---- Maladies : sous les Blessures — cumulables ----
+const diseasePanel = document.createElement('div');
+diseasePanel.className = 'paperdoll-panel';
+diseasePanel.innerHTML = `<div class="paperdoll-header">Maladies </div>`;
+diseasePanel.querySelector('.paperdoll-header').appendChild(diseaseCounter);
+diseasePanel.appendChild(diseaseList);
+statsPanel.appendChild(diseasePanel);
+
+// ---- Environnement : sous les Maladies — cumulables ----
+const environmentPanel = document.createElement('div');
+environmentPanel.className = 'paperdoll-panel';
+environmentPanel.innerHTML = `<div class="paperdoll-header">Environnement </div>`;
+environmentPanel.querySelector('.paperdoll-header').appendChild(environmentCounter);
+environmentPanel.appendChild(environmentList);
+statsPanel.appendChild(environmentPanel);
+
 const corruptionSelector = corruptionPanel.querySelector('#corruptionSelector');
 const corruptionDesc = corruptionPanel.querySelector('#corruptionDesc');
 
-Object.keys(CORRUPTION).forEach(name => {
-  const btn = document.createElement('button');
-  btn.className = 'age-btn';
-  btn.textContent = name;
-  btn.dataset.corruption = name;
-  corruptionSelector.appendChild(btn);
-});
+// « Aucune » en premier, comme pour les Blessures
 const noneCorruptionBtn = document.createElement('button');
 noneCorruptionBtn.className = 'age-btn active';
 noneCorruptionBtn.textContent = 'Aucune';
 noneCorruptionBtn.dataset.corruption = '';
 corruptionSelector.appendChild(noneCorruptionBtn);
+Object.keys(CORRUPTION).forEach((name, i) => {
+  const btn = document.createElement('button');
+  btn.className = `age-btn corr-btn corr-lvl-${i + 1}`; // violet de plus en plus intense selon le niveau
+  btn.textContent = name;
+  btn.dataset.corruption = name;
+  corruptionSelector.appendChild(btn);
+});
 
 function applyCorruption(name){
   currentCorruption = name || null;
@@ -3514,11 +3594,11 @@ function compute(){
     if (v >= 0) {
       fillEl.style.left = '50%';
       fillEl.style.width = halfPct + '%';
-      fillEl.style.background = 'var(--bronze-bright)';
+      fillEl.classList.remove('neg');
     } else {
       fillEl.style.left = (50 - halfPct) + '%';
       fillEl.style.width = halfPct + '%';
-      fillEl.style.background = 'var(--vitales)';
+      fillEl.classList.add('neg');
     }
   });
 
@@ -3598,6 +3678,7 @@ function resetAllState(){
   applyEsclave('Non');
   applyTeneriffe('Non');
   applyVoieJumelle('Non');
+  applyNoSecondJob(false);
   transformSelect.value = '';
   applyTransformation('');
   transformChangeformeSelect.value = '';
@@ -3640,7 +3721,7 @@ function serializeBuild(){
     state: { ...state },
     parentState: { ...parentState },
     currentTemperament, currentMorphology, currentSpecies, currentCurse, currentCorruption, currentElementaire,
-    isEsclave, isTeneriffe, isVoieJumelle,
+    isEsclave, isTeneriffe, isVoieJumelle, noSecondJob,
     currentTransformation, currentTransformationChangeforme,
     currentPosture,
     selectedTalents: Array.from(selectedTalents),
@@ -3677,6 +3758,7 @@ function loadBuildData(data){
   applyEsclave(data.isEsclave ? 'Oui' : 'Non');
   applyTeneriffe('Non'); // Buff Ténériffe masqué (en chantier) : jamais réactivé par une sauvegarde
   applyVoieJumelle(data.isVoieJumelle ? 'Oui' : 'Non');
+  applyNoSecondJob(!!data.noSecondJob);
 
   (data.selectedTalents || []).forEach(name => { if (TALENTS.find(t => t.name === name)) selectedTalents.add(name); });
   renderTalentStates();

@@ -318,13 +318,6 @@ const EXTRA_STATS = {
   carquois: 'Carquois',
 };
 
-// ---- Stats ERP (jeu de rôle érotique) : sans effet sur le combat ----
-const ERP_STATS = {
-  stimulation: 'Stimulation',
-  dominance: 'Dominance',
-  inhibition: 'Inhibition',
-};
-
 // ---- Stats indépendantes, sans lien avec un attribut ou une stat parente ----
 const OTHER_STATS = {
   representationArtistique: 'Représentation Artistique',
@@ -357,7 +350,6 @@ const EQUIPMENT = {
     "Armure Intermédiaire": { flatStats: { esquive: -1, initiative: -1, defenseMagique: 15 }, extraStats: { defTranchante: 12, defPerforante: 15, defContondante: 15 }, notes: ['Octroie le Perk : Armure', 'Octroie le statut : Armure Intermédiaire'] },
     "Armure Lourde": { flatStats: { esquive: -3, deplacement: -1, initiative: -3, defenseMagique: 12 }, extraStats: { defTranchante: 19, defPerforante: 19, defContondante: 15 }, notes: ['Octroie le Perk : Armure', 'Octroie le statut : Armure Lourde'] },
     "Vêtement Renforcé": { flatStats: { defenseMagique: 17 }, extraStats: { defTranchante: 12, defPerforante: 12, defContondante: 12 }, notes: ['Octroie le Perk : Armure'] },
-    "Combinaison de la Dépravation Tentaculaire": { flatStats: { esquive: -1, initiative: -1, defenseMagique: 12 }, extraStats: { defTranchante: 12, defPerforante: 15, defContondante: 15 }, attrDelta: { convaincre: 3, discretion: -3 }, attrDeltaNote: 'Octroie le Perk : Tenue Obscene', erpStats: { stimulation: 10, dominance: 1, inhibition: 1 }, notes: ['Octroie le Perk : Chaos Entrave', 'Octroie : Ouvrir Tome de Conjuration Obscène', 'Octroie le Perk : Tenue Obscene', 'Octroie le statut : Tenue Obscène'] },
   },
   cape: {
     "Manteau Lourd": { flatStats: { defense: 5 }, extraStats: {}, notes: [] },

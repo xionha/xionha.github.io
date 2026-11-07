@@ -2121,7 +2121,7 @@ const DATA_COLLECTIONS = { POSTURES, TRANSFORMATIONS, TRANSFORMATIONS_CHANGEFORM
 const ATTR_LABELS = Object.fromEntries(ATTRIBUTES.map(a => [a.key, a.label]));
 function statLabel(k){
   return TALENT_STAT_LABELS[k] || STATS[k] || PARENT_LABELS_SHORT[k] || ATTR_LABELS[k]
-    || EXTRA_STATS[k] || OTHER_STATS[k] || ELEMENTAL_STATS[k] || ERP_STATS[k] || k;
+    || EXTRA_STATS[k] || OTHER_STATS[k] || ELEMENTAL_STATS[k] || k;
 }
 
 // Clé de comparaison des noms d'aptitude (accents, casse, ligatures et espaces ignorés)
@@ -2186,7 +2186,7 @@ if (UNMATCHED_GRANTS.size) console.warn('Aptitudes du simulateur introuvables da
 // Effets chiffrés d'une entrée du simulateur : [[libellé, valeur], …]
 function dataEffects(data){
   const entries = [];
-  ['parentDelta', 'attrDelta', 'flatStats', 'extraStats', 'otherStats', 'elemental', 'erpStats'].forEach(field => {
+  ['parentDelta', 'attrDelta', 'flatStats', 'extraStats', 'otherStats', 'elemental'].forEach(field => {
     Object.entries(data[field] || {}).forEach(([k, v]) => { if (v) entries.push([statLabel(k), v, field === 'erpStats']); });
   });
   return entries;

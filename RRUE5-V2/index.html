@@ -538,6 +538,13 @@
     color: var(--magie);
     margin-top: 2px;
   }
+  /* bonus rattachés à une ligne (ex. un perk) : sous-liste en retrait */
+  .age-desc .ability-sub{
+    display:block;
+    margin: 2px 0 2px 10px;
+    padding-left: 8px;
+    border-left: 1px solid var(--border-bright);
+  }
 
   .parent-row{
     display:flex;
@@ -1349,8 +1356,8 @@
       <div class="panel-title">Buffs de Consommation <span id="consumableCounter" class="talent-counter"></span></div>
       <div class="talent-list" id="consumableList"></div>
 
-      <div class="panel-title">Blessures</div>
-      <div id="injuryList"></div>
+      <div class="panel-title">Maladies <span id="diseaseCounter" class="talent-counter"></span></div>
+      <div class="talent-list" id="diseaseList"></div>
     </aside>
   </div>
 
@@ -1429,7 +1436,7 @@ const GROUP_ICONS = {
 
 // ---- État ----
 const state = {};          // points alloués manuellement par l'utilisateur
-const bonusSources = { temperament: {}, morphology: {}, species: {}, curse: {}, corruption: {}, esclave: {}, teneriffe: {}, parentAlloc: {}, consumables: {}, injuries: {}, environments: {}, statuses: {} }; // bonus/malus dérivés de chaque source
+const bonusSources = { temperament: {}, morphology: {}, species: {}, curse: {}, corruption: {}, esclave: {}, teneriffe: {}, parentAlloc: {}, consumables: {}, injuries: {}, environments: {}, statuses: {}, equipment: {} }; // bonus/malus dérivés de chaque source
 let flatStatBonus = {};    // bonus fixes combinés (espèce + malédiction + talents) directement sur les caractéristiques
 let speciesFlatStats = {}; // bonus fixes de l'espèce actuelle uniquement
 let curseFlatStats = {};   // bonus fixes de la malédiction actuelle uniquement
@@ -1483,6 +1490,7 @@ ATTRIBUTES.forEach(a => {
   bonusSources.injuries[a.key] = 0;
   bonusSources.environments[a.key] = 0;
   bonusSources.statuses[a.key] = 0;
+  bonusSources.equipment[a.key] = 0;
 });
 Object.keys(STATS).forEach(k => flatStatBonus[k] = 0);
 const selectedConsumables = new Set();
@@ -1683,11 +1691,15 @@ function recalcEquipment(){
   const flat = {};
   const extra = {};
   const elem = {};
+  ATTRIBUTES.forEach(a => bonusSources.equipment[a.key] = 0);
   Object.entries(equippedItems).forEach(([slot, itemName]) => {
     if (!itemName) return;
     const item = EQUIPMENT[equipKind(slot)] && EQUIPMENT[equipKind(slot)][itemName];
     if (!item) return;
     if (item.requiresOneHanded && isTwoHandedEquipped()) return; // effet neutralisé par une arme à deux mains
+    Object.entries(item.attrDelta || {}).forEach(([k, v]) => {
+      if (bonusSources.equipment[k] !== undefined) bonusSources.equipment[k] += v;
+    });
     Object.entries(item.flatStats).forEach(([k, v]) => { flat[k] = (flat[k] || 0) + v; });
     Object.entries(item.extraStats || {}).forEach(([k, v]) => { extra[k] = (extra[k] || 0) + v; });
     Object.entries(item.elemental || {}).forEach(([k, v]) => { elem[k] = (elem[k] || 0) + v; });
@@ -1707,7 +1719,7 @@ function totalBonusFor(attrKey){
        + (bonusSources.esclave[attrKey] || 0) + (bonusSources.teneriffe[attrKey] || 0)
        + (bonusSources.parentAlloc[attrKey] || 0) + (bonusSources.consumables[attrKey] || 0)
        + (bonusSources.injuries[attrKey] || 0) + (bonusSources.environments[attrKey] || 0)
-       + (bonusSources.statuses[attrKey] || 0);
+       + (bonusSources.statuses[attrKey] || 0) + (bonusSources.equipment[attrKey] || 0);
 }
 
 function applyParentBonuses(sourceName, parentValues){
@@ -2374,6 +2386,8 @@ talentList.addEventListener('click', e => {
 // ---- Construction de la liste de statuts (cumulables, sans limite) ----
 const statusList = document.getElementById('statusList');
 const statusCounter = document.getElementById('statusCounter');
+const diseaseList = document.getElementById('diseaseList');
+const diseaseCounter = document.getElementById('diseaseCounter');
 const statusToggleEls = {};
 
 Object.keys(STATUSES).forEach(name => {
@@ -2388,7 +2402,7 @@ Object.keys(STATUSES).forEach(name => {
     </div>
     <button class="talent-toggle" data-name="${name}">+</button>
   `;
-  statusList.appendChild(row);
+  (s.maladie ? diseaseList : statusList).appendChild(row);
   statusToggleEls[name] = row.querySelector('.talent-toggle');
 });
 
@@ -2399,7 +2413,10 @@ function renderStatusStates(){
     btn.classList.toggle('active', isSelected);
     btn.textContent = isSelected ? '✓' : '+';
   });
-  statusCounter.textContent = selectedStatuses.size ? `(${selectedStatuses.size} actif${selectedStatuses.size > 1 ? 's' : ''})` : '';
+  const activeCount = maladie => [...selectedStatuses].filter(n => STATUSES[n] && !!STATUSES[n].maladie === maladie).length;
+  const counterText = n => n ? `(${n} actif${n > 1 ? 's' : ''})` : '';
+  statusCounter.textContent = counterText(activeCount(false));
+  diseaseCounter.textContent = counterText(activeCount(true));
 }
 
 function toggleStatus(name){
@@ -2417,11 +2434,11 @@ function toggleStatus(name){
   compute();
 }
 
-statusList.addEventListener('click', e => {
+[statusList, diseaseList].forEach(list => list.addEventListener('click', e => {
   const btn = e.target.closest('.talent-toggle');
   if (!btn) return;
   toggleStatus(btn.dataset.name);
-});
+}));
 
 // ---- Construction de la liste d'environnements (cumulables, sans limite) ----
 const environmentList = document.getElementById('environmentList');
@@ -2560,7 +2577,9 @@ function injuryEffectHTML(key){
   return html;
 }
 
-const injuryList = document.getElementById('injuryList');
+// Liste des blessures : placée sous la Corruption (voir plus bas)
+const injuryList = document.createElement('div');
+injuryList.id = 'injuryList';
 const injuryBtnRow = document.createElement('div');
 injuryBtnRow.className = 'age-selector injury-selector';
 injuryBtnRow.innerHTML = `<button type="button" class="age-btn injury-btn active" data-severity="">Aucune</button>`
@@ -2619,11 +2638,17 @@ function buildEquipPlainSummary(slot, itemName){
   const item = EQUIPMENT[equipKind(slot)] && EQUIPMENT[equipKind(slot)][itemName];
   if (!item) return '';
   const lines = [];
+  const attrLines = Object.entries(item.attrDelta || {}).map(([k, v]) => `${ATTR_LABELS[k] || k} ${v > 0 ? '+' : ''}${v}`);
+  const attrUnder = item.attrDeltaNote && (item.notes || []).includes(item.attrDeltaNote);
+  if (!attrUnder) lines.push(...attrLines);
   Object.entries(item.flatStats || {}).forEach(([k, v]) => lines.push(`${TALENT_STAT_LABELS[k] || k} ${v > 0 ? '+' : ''}${v}`));
   Object.entries(item.extraStats || {}).forEach(([k, v]) => lines.push(`${EXTRA_STATS[k] || k} ${v > 0 ? '+' : ''}${v}`));
   Object.entries(item.elemental || {}).forEach(([k, v]) => lines.push(`${ELEMENTAL_STATS[k] || k} ${v > 0 ? '+' : ''}${v}`));
   Object.entries(item.erpStats || {}).forEach(([k, v]) => lines.push(`${ERP_STATS[k] || k} ${v > 0 ? '+' : ''}${v}`));
-  (item.notes || []).forEach(n => lines.push(n));
+  (item.notes || []).forEach(n => {
+    lines.push(n);
+    if (attrUnder && n === item.attrDeltaNote) attrLines.forEach(l => lines.push(`   ${l}`));
+  });
   return lines.length ? lines.join('\n') : 'Aucun effet particulier';
 }
 
@@ -2767,17 +2792,25 @@ function buildEquipDescriptionHTML(slot, itemName){
     html += `<span class="ability" style="color:var(--vitales);">⚠ Sans effet : nécessite une arme à une main (l'arme équipée est à deux mains)</span>`;
   }
 
+  // bonus d'attributs : affichés sous la ligne indiquée par attrDeltaNote (ex. le perk qui les donne), sinon en tête
+  const attrEntries = Object.entries(item.attrDelta || {}).map(([k, v]) => [ATTR_LABELS[k] || k, v]);
+  const attrUnder = item.attrDeltaNote && (item.notes || []).includes(item.attrDeltaNote);
   const flatEntries = Object.entries(item.flatStats || {}).map(([k, v]) => [TALENT_STAT_LABELS[k] || k, v]);
   const extraEntries = Object.entries(item.extraStats || {}).map(([k, v]) => [EXTRA_STATS[k] || k, v]);
   const elemEntries = Object.entries(item.elemental || {}).map(([k, v]) => [ELEMENTAL_STATS[k] || k, v]);
-  [...flatEntries, ...extraEntries, ...elemEntries].forEach(([label, v]) => {
+  [...(attrUnder ? [] : attrEntries), ...flatEntries, ...extraEntries, ...elemEntries].forEach(([label, v]) => {
     html += flatSpanHTML(label, v, blocked ? 'neg' : undefined);
   });
   Object.entries(item.erpStats || {}).forEach(([k, v]) => {
     html += flatSpanHTML(ERP_STATS[k] || k, v, v > 0 ? 'erp-pos' : 'erp-neg');
   });
 
-  (item.notes || []).forEach(n => { html += `<span class="ability">${n}</span>`; });
+  (item.notes || []).forEach(n => {
+    html += `<span class="ability">${n}</span>`;
+    if (attrUnder && n === item.attrDeltaNote) {
+      html += `<span class="ability-sub">${attrEntries.map(([label, v]) => flatSpanHTML(label, v, blocked ? 'neg' : undefined)).join('')}</span>`;
+    }
+  });
 
   return html;
 }
@@ -2819,6 +2852,12 @@ function refreshEquipmentDescriptions(){
     equipTileBoxEls[slot].title = itemName ? `${itemName}\n${buildEquipPlainSummary(slot, itemName)}` : '';
   });
 }
+
+// Anciens noms d'objets encore présents dans des fiches sauvegardées
+const RENAMED_ITEMS = {
+  'Combinaison de la Dépravation Tentaculai': 'Combinaison de la Dépravation Tentaculaire',
+  'Golem Elite': "Golem d'élite",
+};
 
 function applyEquipment(slot, itemName){
   equippedItems[slot] = itemName || null;
@@ -3189,6 +3228,13 @@ corruptionPanel.innerHTML = `
   <div class="age-desc" id="corruptionDesc"></div>
 `;
 statsPanel.appendChild(corruptionPanel);
+
+// ---- Blessures : sous la Corruption — une seule active à la fois ----
+const injuryPanel = document.createElement('div');
+injuryPanel.className = 'paperdoll-panel';
+injuryPanel.innerHTML = `<div class="paperdoll-header">Blessures</div>`;
+injuryPanel.appendChild(injuryList);
+statsPanel.appendChild(injuryPanel);
 
 const corruptionSelector = corruptionPanel.querySelector('#corruptionSelector');
 const corruptionDesc = corruptionPanel.querySelector('#corruptionDesc');
@@ -3688,7 +3734,8 @@ function loadBuildData(data){
   recalcInjuries();
 
   Object.keys(equippedItems).forEach(slot => {
-    const itemName = data.equippedItems && data.equippedItems[slot];
+    const savedName = data.equippedItems && data.equippedItems[slot];
+    const itemName = RENAMED_ITEMS[savedName] || savedName;
     equippedItems[slot] = itemName || null;
   });
   refreshEquipmentDescriptions();

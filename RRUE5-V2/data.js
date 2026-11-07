@@ -254,6 +254,7 @@ const VOIE_JUMELLE = {
 };
 
 // ---- Statuts : effets cumulables (plusieurs actifs en même temps), sans limite de sélection ----
+// (maladie: true -> affiché dans la section « Maladies » du simulateur)
 const STATUSES = {
   "Ralenti": { flatStats: { deplacement: -2, esquive: -3 }, elemental: {}, notes: ['Octroie : Couper les Liens'] },
   "Immobile": { flatStats: { deplacement: -1, esquive: -10 }, elemental: {}, notes: [] },
@@ -273,6 +274,12 @@ const STATUSES = {
   "Bio-Electricite": { flatStats: { deplacement: 2, esquive: 2, parade: 2 }, elemental: {}, notes: [] },
   "Benediction": { flatStats: { defenseMagique: 2, forceMentale: 1 }, elemental: {}, notes: [] },
   "Humiliation publique": { flatStats: { forceMentale: -1 }, elemental: {}, notes: [] },
+  "Fatigue": { maladie: true, parentDelta: { conditionPhysique: -1 }, flatStats: {}, elemental: {}, notes: [] },
+  "Courbatures": { maladie: true, parentDelta: { reflexes: -1 }, flatStats: {}, elemental: {}, notes: [] },
+  "Fièvre": { maladie: true, parentDelta: { esprit: -1 }, flatStats: {}, elemental: {}, notes: [] },
+  "Teint livide": { maladie: true, parentDelta: { presence: -1 }, flatStats: {}, elemental: {}, notes: [] },
+  "Respiration sifflante": { maladie: true, parentDelta: { conditionPhysique: -1 }, flatStats: {}, elemental: {}, notes: [] },
+  "Pied-Bot": { flatStats: { esquive: -6, deplacement: -1, defense: -10 }, elemental: {}, notes: ['Malédiction (Mot de "Pas incertain")'] },
   "Ferveur guerrière": { flatStats: {}, extraStats: { puissanceTroupe: 10 }, elemental: {}, notes: [] },
   "Controle": { flatStats: { pointsAction: -2, pointsMouvement: -2, actionSpeciale: -2, esquive: -10, parade: -10 }, elemental: {}, notes: ['Octroie : Terminer tour (Controle)'] },
 };
@@ -337,7 +344,8 @@ const EQUIPMENT = {
     "Escouade": { flatStats: {}, extraStats: {}, notes: ['Octroie : Mettre en marche'] },
     "Escouade surentraînée": { flatStats: {}, extraStats: {}, notes: ['Octroie : Mettre en marche (Elite)'] },
     "Invocation Occulte": { flatStats: { pv: 100 }, extraStats: {}, notes: ['Octroie le Perk : Invocation Occulte', 'Octroie : Salve de Flèches', 'Débloque : Action de Troupe', 'Octroie le statut : Invocation Occulte', 'Octroie : Sacrifice Invocation Occulte'] },
-    "Golem Elite": { flatStats: { pv: 100 }, extraStats: { puissanceTroupe: 30 }, notes: ['Octroie : Salve de Flèches', 'Octroie : Cache de Bien', 'Débloque : Action de Troupe', 'Débloque : Puissance de Troupe', 'Octroie le statut : Golem'] },
+    "Golem": { flatStats: { pv: 50 }, extraStats: { puissanceTroupe: 25 }, notes: ['Octroie le Perk : Golem', 'Octroie : Salve de Flèches', 'Octroie : Cache de Bien', 'Débloque : Action de Troupe', 'Débloque : Puissance de Troupe', 'Octroie le statut : Golem'] },
+    "Golem d'élite": { flatStats: { pv: 100 }, extraStats: { puissanceTroupe: 30 }, notes: ['Octroie le Perk : Golem Elite', 'Octroie : Salve de Flèches', 'Octroie : Cache de Bien', 'Débloque : Action de Troupe', 'Débloque : Puissance de Troupe', 'Octroie le statut : Golem'] },
   },
   amulette: {
     "Amulette de Vigueur": { flatStats: { pv: 20 }, extraStats: {}, notes: [] },
@@ -349,7 +357,7 @@ const EQUIPMENT = {
     "Armure Intermédiaire": { flatStats: { esquive: -1, initiative: -1, defenseMagique: 15 }, extraStats: { defTranchante: 12, defPerforante: 15, defContondante: 15 }, notes: ['Octroie le Perk : Armure', 'Octroie le statut : Armure Intermédiaire'] },
     "Armure Lourde": { flatStats: { esquive: -3, deplacement: -1, initiative: -3, defenseMagique: 12 }, extraStats: { defTranchante: 19, defPerforante: 19, defContondante: 15 }, notes: ['Octroie le Perk : Armure', 'Octroie le statut : Armure Lourde'] },
     "Vêtement Renforcé": { flatStats: { defenseMagique: 17 }, extraStats: { defTranchante: 12, defPerforante: 12, defContondante: 12 }, notes: ['Octroie le Perk : Armure'] },
-    "Combinaison de la Dépravation Tentaculai": { flatStats: { esquive: -1, initiative: -1, defenseMagique: 12 }, extraStats: { defTranchante: 12, defPerforante: 15, defContondante: 15 }, erpStats: { stimulation: 10, dominance: 1, inhibition: 1 }, notes: ['Octroie le Perk : Chaos Entrave', 'Octroie : Ouvrir Tome de Conjuration Obscène', 'Octroie le Perk : Tenue Obscene'] },
+    "Combinaison de la Dépravation Tentaculaire": { flatStats: { esquive: -1, initiative: -1, defenseMagique: 12 }, extraStats: { defTranchante: 12, defPerforante: 15, defContondante: 15 }, attrDelta: { convaincre: 3, discretion: -3 }, attrDeltaNote: 'Octroie le Perk : Tenue Obscene', erpStats: { stimulation: 10, dominance: 1, inhibition: 1 }, notes: ['Octroie le Perk : Chaos Entrave', 'Octroie : Ouvrir Tome de Conjuration Obscène', 'Octroie le Perk : Tenue Obscene', 'Octroie le statut : Tenue Obscène'] },
   },
   cape: {
     "Manteau Lourd": { flatStats: { defense: 5 }, extraStats: {}, notes: [] },
@@ -461,6 +469,7 @@ const EQUIPMENT = {
     "Tome Sang": { flatStats: {}, extraStats: {}, notes: ['Octroie le Perk : Tome Sang'] },
     "Tome Lumière": { flatStats: {}, extraStats: {}, notes: ['Octroie le Perk : Tome Lumière'] },
     "Tome Arcane": { flatStats: {}, extraStats: {}, notes: ['Octroie le Perk : Tome Arcane'] },
+    "Tome de malédictions": { flatStats: {}, extraStats: {}, notes: ['Octroie : Tome de malédictions'] },
   },
 };
 

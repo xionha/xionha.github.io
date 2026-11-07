@@ -246,7 +246,6 @@
     display: grid; grid-template-columns: 110px 1fr; gap: 10px 14px; align-items: start;
     max-height: min(36vh, 320px); overflow-y: auto;
   }
-  .fp-hint{ grid-column: 1 / -1; margin: 0; }
   .fp-label{ font-family: var(--font-display); font-size: 12px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--text-faint); padding-top: 6px; }
   .fp-chips{ display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
   .fp-mode{ display: inline-flex; gap: 0; margin-right: 8px; }
@@ -608,7 +607,6 @@
     .toolbar{ position: static; padding: 10px 12px; }
     .counter{ margin-left: 0; }
     .filter-panel{ grid-template-columns: 1fr; gap: 4px 0; max-height: none; }
-    .fp-hint{ grid-column: 1 / -1; margin: 0; }
   .fp-label{ padding-top: 8px; }
     .group{ padding: 12px 12px 14px; }
     .rows{ grid-template-columns: 1fr; gap: 2px; }
@@ -647,7 +645,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9.5h18M3 15h18M9 4v16"/></svg><span>Tableau</span>
         </button>
       </div>
-      <label class="check"><input type="checkbox" id="hide-undoc"> Masquer les non documentées</label>
+      <label class="check"><input type="checkbox" id="only-undoc"> Seulement les non documentées</label>
       <div class="counter" id="counter" aria-live="polite"></div>
     </div>
     <div class="tb-row tb-nav">
@@ -730,7 +728,7 @@ const CATEGORIES = [
         [2001, "Charge d'interception (Contondante)"],
       ]},
       { label: 'Frappes élémentaires & spéciales', abilities: [
-        [2341, 'Frappe Flamboyante'], [876, 'Coup Flamboyant (1M)'], [2342, "Lame d'air"],
+        [2341, 'Frappe Flamboyante'], [2342, "Lame d'air"],
         [2345, 'Frappe Foudroyante'], [2346, 'Frappe Vampirique'], [1034, 'Enfoncer un pieu en argent'],
       ]},
       { label: 'Armes de lancer', abilities: [
@@ -861,10 +859,10 @@ const CATEGORIES = [
       ]},
       { label: 'Maudits — Vampire, Démon, Lycan', abilities: [
         [555, 'Sucer le sang'], [1069, "Boire sang de l'ainé"], [1096, 'Morsure Lycanthrope'],
-        [1428, 'Prendre essence'], [1408, 'Pacte Demoniaque'], [1371, 'Sentir proie'],
+        [1428, 'Prendre essence'], [1408, 'Pacte Demoniaque'],
       ]},
       { label: 'Ténériffe', desc: 'En chantier.', abilities: [
-        [1702, 'Choeur de Teneriffe'],
+        [1702, 'Choeur de Teneriffe'], [1371, 'Sentir proie'],
       ]},
     ],
   },
@@ -901,7 +899,7 @@ const CATEGORIES = [
         [9004, 'Lancer Fumigene'],
       ]},
       { label: 'Tomes & parchemins', abilities: [
-        [1871, 'Tome de malédictions'], [2157, 'Parchemin de Commandement', { verify: true }],
+        [1871, 'Tome de malédictions'], [9007, 'Mot de "La Peste"'], [9010, 'Mot de "Don ravi"'], [9006, 'Mot de "Pas incertain"'], [9008, 'Mot de "Vague Nacrée"'], [9009, 'Mot de "Puanteur de l\'Âme"'], [2157, 'Parchemin de Commandement', { verify: true }],
       ]},
     ],
   },
@@ -962,10 +960,6 @@ const CATEGORIES = [
       { label: 'Automatiques', desc: 'Déclenchées par le jeu, pas par le joueur.', abilities: [
         [750, 'Infliger Blessure'], [1379, 'Régénerer blessure'], [1462, 'Remplir ceinture de potion'],
       ]},
-      { label: 'Affinités élémentaires (auto)', abilities: [
-        [2449, 'autoafinfeu'], [2450, 'autoafineau'], [2451, 'autoafinair'], [2452, 'autoafinterre'],
-        [2453, 'autoafinsang'], [2454, 'autoafinlum'], [2455, 'autoafinarcane'],
-      ]},
     ],
   },
 ];
@@ -1017,6 +1011,63 @@ const DETAILS = {
       'Stats Générales': ['Luxure', 'XP Luxure', 'Inhibition', 'Stimulation', 'Essence de désir', 'Dominance', 'Douleur', 'Humiliation'],
       'Corps': ['Oral', 'Dilatation Anale', 'Gaping Anal'],
     },
+  },
+  1871: { // Tome de malédictions
+    desc: 'Ouvre un menu pour choisir un sort de malédiction à lancer.',
+    cible: 'Soi',
+    menus: ['Mot de "La Peste"', 'Mot de "Don ravi"', 'Mot de "Pas incertain"', 'Mot de "Vague Nacrée"', 'Mot de "Puanteur de l\'Âme"'],
+    conditions: ['Avoir Sorcier ou Pretre'],
+  },
+  9007: { // Mot de "La Peste" (n° provisoire : n° en jeu inconnu)
+    cout: { 'Échantillon de sang': 1 },
+    cible: "1 cible · le propriétaire de l'Échantillon de sang",
+    statuts: ['Fatigue (3 jours)', 'Courbatures (3 jours)', 'Fièvre (3 jours)', 'Teint livide (3 jours)', 'Respiration sifflante (3 jours)'],
+    effets: ['Inflige une maladie au hasard, qui applique une partie des statuts listés', 'Les statuts prennent effet 24 h après le lancement'],
+    notes: 'Les statuts peuvent être soignés avec des Remèdes.',
+    sources: ['Tome de malédictions (menu)'],
+  },
+  9006: { // Mot de "Pas incertain" (n° provisoire : n° en jeu inconnu)
+    cout: { 'Échantillon de sang': 1 },
+    cible: "1 cible · le propriétaire de l'Échantillon de sang",
+    statuts: ['Pied-Bot (7 jours)'],
+    effets: ['Applique le statut Malediction au propriétaire du sang, qui lui octroie le perk Pied-Bot pendant 7 jours'],
+    sources: ['Tome de malédictions (menu)'],
+  },
+  9008: { // Mot de "Vague Nacrée" (n° provisoire : n° en jeu inconnu)
+    cout: { 'Semence': 1 },
+    cible: '1 cible · le propriétaire de la Semence',
+    effets: ['Fait jouir en public le propriétaire de la Semence'],
+    sources: ['Tome de malédictions (menu)'],
+  },
+  9009: { // Mot de "Puanteur de l'Âme" (n° provisoire : n° en jeu inconnu)
+    cout: { 'Échantillon de sang': 1 },
+    cible: "1 cible · le propriétaire de l'Échantillon de sang",
+    statuts: ['Puanteur Surnaturelle (7 jours)'],
+    effets: ['Applique le statut Malediction, qui donne le statut visible Puanteur Surnaturelle pendant 7 jours'],
+    sources: ['Tome de malédictions (menu)'],
+  },
+  9010: { // Mot de "Don ravi" (n° provisoire : n° en jeu inconnu)
+    cout: { 'Échantillon de sang': 1 },
+    cible: "1 cible · le propriétaire de l'Échantillon de sang",
+    statuts: ['Incantation Interdite (Feu) (7 jours)', 'Incantation Interdite (Eau) (7 jours)', 'Incantation Interdite (Air) (7 jours)', 'Incantation Interdite (Terre) (7 jours)', 'Incantation Interdite (Lumière) (7 jours)', 'Incantation Interdite (Sang) (7 jours)', 'Incantation Interdite (Arcane) (7 jours)'],
+    effets: [
+      'Vole une Magie au propriétaire du sang',
+      'Crée des Cristaux de la magie volée',
+      "Le propriétaire reçoit l'Incantation Interdite correspondant à la magie volée pendant 7 jours",
+    ],
+    sources: ['Tome de malédictions (menu)'],
+  },
+  555: { // Sucer le sang
+    cooldown: '20 h',
+    portee: '1 Tile',
+    cible: '1 cible',
+    perte: { PV: 25 },
+    effets: ['Le lanceur récupère 50 PV'],
+    conditions: ['Ne pas avoir le statut En Combat'],
+    notes: 'En chantier.',
+  },
+  1069: { // Boire sang de l'ainé
+    notes: 'En chantier.',
   },
   1976: { // Menu ERP
     desc: 'Ouvre le menu des actions lubriques que le personnage peut effectuer.',
@@ -1257,7 +1308,7 @@ const DETAILS = {
     effets: ['Fait tomber la cible en arrière'],
   },
   1509: { // Eclair Paralysant
-    cout: { PS: 1, Mana: 10 },
+    cout: { PA: 1, PS: 1, Mana: 10 },
     portee: '6 Tiles',
     cible: '1 cible',
     statuts: ['Controle'],
@@ -1294,7 +1345,7 @@ const DETAILS = {
     sources: ['Aéromancie'],
   },
   1657: { // Terreur Diurne
-    cout: { PS: 1, Mana: 10 },
+    cout: { PA: 1, PS: 1, Mana: 20 },
     portee: '6 Tiles',
     cible: '3 cibles · Maudits uniquement',
     statuts: ['Controle'],
@@ -1667,9 +1718,10 @@ const DETAILS = {
   2267: { // Prélever du sang
     portee: '1 Tile',
     cible: '1 cible',
-    cooldown: '15 min',
-    conditions: ['La cible doit avoir mis elle-même le statut Transfusion'],
-    effets: ['Donne 1 Échantillon de sang au lanceur'],
+    cooldown: '14 jours',
+    statuts: ['Transfusion Faite (14 jours)'],
+    conditions: ['La cible doit avoir mis elle-même le statut Transfusion', 'La cible ne doit pas avoir le statut Transfusion Faite'],
+    effets: ['Donne 2 Échantillons de sang au lanceur'],
   },
   1780: { // Concert
     cible: 'Soi',
@@ -1786,6 +1838,67 @@ const DETAILS = {
     recharge: { 'Ceinture de potion': '5/5' },
     conditions: ['Avoir le statut En Combat'],
   },
+  1462: { // Remplir ceinture de potion
+    cible: 'Soi',
+    recharge: { 'Ceinture de potion': '5/5' },
+    conditions: ['Ne pas avoir le statut En Combat'],
+  },
+  2253: { // Consommer Crystal de Feu
+    cout: { 'Cristal élémentaire de feu': 1 },
+    cible: 'Soi',
+    statuts: ['Magie Contrefaite (1 h)'],
+    retire: ['Magie Contrefaite (autre élément)'],
+    effets: ['Octroie Pyromancie pendant 1 h'],
+    conditions: ['Avoir Déchéance corruptrice, Dégradation corruptrice ou Transcendance profane'],
+  },
+  2260: { // Consommer Crystal Eau
+    cout: { "Cristal élémentaire d'eau": 1 },
+    cible: 'Soi',
+    statuts: ['Magie Contrefaite (1 h)'],
+    retire: ['Magie Contrefaite (autre élément)'],
+    effets: ['Octroie Hydromancie pendant 1 h'],
+    conditions: ['Avoir Déchéance corruptrice, Dégradation corruptrice ou Transcendance profane'],
+  },
+  2261: { // Consommer Crystal Terre
+    cout: { "Cristal élémentaire de terre": 1 },
+    cible: 'Soi',
+    statuts: ['Magie Contrefaite (1 h)'],
+    retire: ['Magie Contrefaite (autre élément)'],
+    effets: ['Octroie Géomancie pendant 1 h'],
+    conditions: ['Avoir Déchéance corruptrice, Dégradation corruptrice ou Transcendance profane'],
+  },
+  2262: { // Consommer Crystal Air
+    cout: { "Cristal élémentaire d'air": 1 },
+    cible: 'Soi',
+    statuts: ['Magie Contrefaite (1 h)'],
+    retire: ['Magie Contrefaite (autre élément)'],
+    effets: ['Octroie Aéromancie pendant 1 h'],
+    conditions: ['Avoir Déchéance corruptrice, Dégradation corruptrice ou Transcendance profane'],
+  },
+  2263: { // Consommer Crystal Sang
+    cout: { "Cristal élémentaire de sang": 1 },
+    cible: 'Soi',
+    statuts: ['Magie Contrefaite (1 h)'],
+    retire: ['Magie Contrefaite (autre élément)'],
+    effets: ['Octroie Hématomancie pendant 1 h'],
+    conditions: ['Avoir Déchéance corruptrice, Dégradation corruptrice ou Transcendance profane'],
+  },
+  2264: { // Consommer Crystal  Lumiere
+    cout: { "Cristal élémentaire de lumière": 1 },
+    cible: 'Soi',
+    statuts: ['Magie Contrefaite (1 h)'],
+    retire: ['Magie Contrefaite (autre élément)'],
+    effets: ['Octroie Luminomancie pendant 1 h'],
+    conditions: ['Avoir Déchéance corruptrice, Dégradation corruptrice ou Transcendance profane'],
+  },
+  2265: { // Consommer Gemme Arcanique
+    cout: { "Cristal élémentaire d'arcane": 1 },
+    cible: 'Soi',
+    statuts: ['Magie Contrefaite (1 h)'],
+    retire: ['Magie Contrefaite (autre élément)'],
+    effets: ['Octroie Arcane pendant 1 h'],
+    conditions: ['Avoir Déchéance corruptrice, Dégradation corruptrice ou Transcendance profane'],
+  },
   1992: { // Poser Canon
     cout: { 'Canon': 1 },
     cible: 'Soi',
@@ -1851,11 +1964,10 @@ const DETAILS = {
     notes: 'Utilisable dès le Premier Tour. Sans effet si la cible n\'est pas montée.',
   },
   1459: { // Pierre d'éclat
-    cout: { PA: 1, "Pierre d'éclat": 1 },
+    cout: { PA: 1, PS: 1, "Pierre d'éclat": 1 },
     portee: '3 Tiles',
-    cible: '3 cibles',
+    cible: '1 cible',
     statuts: ['Controle'],
-    sources: ["Rune Pierre d'éclat (équipée)"],
   },
   717: { // Faire Saigner
     cout: { PS: 1 },
@@ -2018,7 +2130,7 @@ const DETAILS = {
     effets: ['Projette son personnage de 3 Tiles en avant vers la cible'],
   },
   718: { // Renverser
-    cout: { PS: 1 },
+    cout: { PA: 1, PS: 1 },
     portee: '1 Tile',
     cible: '1 cible',
     statuts: ['Controle'],
@@ -2033,11 +2145,12 @@ const DETAILS = {
     notes: 'Ne fait pas de dégâts.',
   },
   1946: { // Renversement (Deux armes)
-    cout: { PS: 1 },
+    cout: { PA: 1, PS: 1 },
     portee: '1 Tile',
     cible: '1 cible',
     statuts: ['Controle'],
     conditions: ['Ne pas avoir une arme à deux mains équipée'],
+    effets: ['Fait tomber la cible en arrière'],
     notes: 'Ne fait pas de dégâts.',
   },
   1939: { // Balayage (Deux armes)
@@ -2381,6 +2494,13 @@ const DETAILS = {
     portee: '1 Tile',
     cible: '3 cibles',
     degats: ['Tranchants'],
+  },
+  383: { // Salve de fleches
+    type: 'Attaque',
+    cout: { AT: 1 },
+    cible: 'Soi',
+    conditions: ['Avoir le statut En Combat'],
+    effets: ['Lance une attaque en ligne qui inflige des dégâts inesquivables, selon le Commandement du lanceur'],
   },
   1787: { // Morsure de Bête
     type: 'Attaque',
@@ -3196,8 +3316,8 @@ const state = {
   degat: null,
   cout: null,
   ciblage: null,
+  onlyUndoc: !!store.get('onlyUndoc', false),
   view: store.get('view', 'cards') === 'table' ? 'table' : 'cards',
-  hideUndoc: !!store.get('hideUndoc', false),
   filtersOpen: !!store.get('filtersOpen', false),
   compare: [],
   sort: { key: null, dir: 1 },
@@ -3265,7 +3385,6 @@ function buildFilterPanel(){
 
   const chip = (f, k, info, n) => `<button type="button" class="s-chip" data-f="${f}" data-v="${esc(k)}" aria-pressed="false" style="--c:${info.color}"${info.title ? ` title="${esc(info.title)}"` : ''}><span class="dot"></span>${esc(info.name)}<small>${n}</small></button>`;
   panelEl.innerHTML = `
-    <p class="hint fp-hint">Astuce : cliquez aussi sur un coût, un type de dégâts ou un statut directement dans une fiche pour filtrer.</p>
     <div class="fp-label">Coût</div>
     <div class="fp-chips">${COST_FILTER_KEYS.map(k => [k, MODELS.filter(m => m.couts.includes(k)).length]).filter(([, n]) => n).map(([k, n]) => chip('cout', k, FILTER_LABELS.cout[k], n)).join('')}</div>
     <div class="fp-label">Ciblage</div>
@@ -3286,8 +3405,8 @@ const FILTER_LABELS = { status: {}, degat: {}, cout: {}, ciblage: {} };
 
 function matches(m, ignoreCat){
   if (!ignoreCat && state.cat !== 'all' && m.cat.key !== state.cat) return false;
-  if (state.hideUndoc && !m.documented) return false;
   if (state.q && !m.search.includes(state.q)) return false;
+  if (state.onlyUndoc && m.hasInfo) return false;
   if (state.status) {
     const a = m.applies.includes(state.status), r = m.removes.includes(state.status);
     if (state.statusMode === 'applique' ? !a : state.statusMode === 'retire' ? !r : !(a || r)) return false;
@@ -3475,7 +3594,7 @@ function revealHash(){
 }
 function resetFilters(){
   state.cat = 'all'; state.q = ''; state.status = null; state.statusMode = 'any'; state.degat = null; state.cout = null; state.ciblage = null;
-  state.hideUndoc = false; $('hide-undoc').checked = false; store.set('hideUndoc', false);
+  state.onlyUndoc = false; $('only-undoc').checked = false; store.set('onlyUndoc', false);
   searchEl.value = '';
   applyFilters();
 }
@@ -3540,7 +3659,6 @@ document.querySelector('.seg[aria-label="Affichage"]').addEventListener('click',
   render();
   applyFilters();
 });
-$('hide-undoc').addEventListener('change', e => { state.hideUndoc = e.target.checked; store.set('hideUndoc', state.hideUndoc); applyFilters(); });
 tabsEl.addEventListener('click', e => {
   const b = e.target.closest('.tab');
   if (!b) return;
@@ -3618,6 +3736,8 @@ dialogEl.addEventListener('click', e => {
   }
 });
 $('cmp-diff').addEventListener('change', renderCompare);
+$('only-undoc').checked = state.onlyUndoc;
+$('only-undoc').addEventListener('change', e => { state.onlyUndoc = e.target.checked; store.set('onlyUndoc', state.onlyUndoc); applyFilters(); });
 $('cmp-close').addEventListener('click', () => dialogEl.close());
 $('cmp-clear').addEventListener('click', () => { state.compare = []; saveCompare(); syncCompare(); dialogEl.close(); });
 window.addEventListener('hashchange', revealHash);
@@ -3631,7 +3751,6 @@ $('legend').innerHTML = Object.entries(COSTS)
   + `<span><span class="pill dmg" style="--c:var(--combat-bright)">Dégâts</span>type de dégâts</span>`;
 
 // Initialisation
-$('hide-undoc').checked = state.hideUndoc;
 panelEl.hidden = !state.filtersOpen;
 $('filters-toggle').setAttribute('aria-expanded', String(state.filtersOpen));
 tabsEl.innerHTML = [{ key: 'all', label: 'Toutes', color: 'var(--bronze-bright)' }, ...CATEGORIES].map(c =>

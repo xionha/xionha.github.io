@@ -121,7 +121,8 @@ const ALL_CATEGORIES = [
     groups: [
       { label: 'Repos & hygiène', abilities: [
         [328, 'Repos long'], [329, 'Repos court'], [1601, 'Se laver'], [1893, 'Se laver sans savon'],
-        [1602, "S'apprêter"], [1604, 'Cracher'],
+        [1602, "S'apprêter"], [1604, 'Cracher'], [1462, 'Remplir ceinture de potion'],
+        [750, 'Infliger Blessure'], [1379, 'Régénerer blessure'],
       ]},
       { label: 'Discrétion & social', abilities: [
         [1889, 'Vol à la tire'], [1995, 'Se dissimuler'], [1786, 'Détecter le mensonge'],
@@ -188,12 +189,13 @@ const ALL_CATEGORIES = [
     groups: [
       { label: 'Nourriture & boissons', abilities: [
         [637, 'Manger casse-croute'], [638, 'Manger repas'], [639, 'Boire jus'], [640, 'Boire alcool doux'],
-        [642, 'Boire spiritueux'], [1061, 'Boire Lait'],
+        [642, 'Boire spiritueux'], [9011, 'Manger plat préparé'],
       ]},
       { label: 'Potions & soins', abilities: [
         [619, 'Boire Potion de vie'], [620, 'Boire potion de Mana'], [1039, 'Consommer Antidote'],
         [1040, 'Consommer anti poison de mana'], [621, 'Utiliser Baume'], [1036, 'Utiliser baume cicatrisant'],
         [626, 'Boire remede Brume Ecarlate'], [1644, 'Boire Langueur des Tombes'], [1645, 'Boire Lenteur du Sang'],
+        [1061, 'Boire Lait'],
       ]},
       { label: 'Drogues & infusions', abilities: [
         [622, 'Consommer drogue récréative'], [623, 'Consommer drogue mystique'], [624, 'Consommer drogue physique'],
@@ -225,7 +227,7 @@ const ALL_CATEGORIES = [
     groups: [
       { label: 'Ordres de troupe', abilities: [
         [1789, 'Mettre en marche'], [1790, 'Mettre en marche (Elite)'], [1847, 'Levée de bouclier'],
-        [1848, 'Assaut Mêlée'], [382, 'Attaque bête'], [383, 'Salve de fleches'], [1981, 'Soin de troupe'],
+        [1848, 'Assaut Mêlée'], [383, 'Salve de fleches'], [1981, 'Soin de troupe'],
       ]},
       { label: 'Logistique', abilities: [
         [384, 'Cache de bien'], [1992, 'Poser Canon'], [1993, 'Retirer Canon'], [9005, 'Tirer avec Canon'],
@@ -239,13 +241,10 @@ const ALL_CATEGORIES = [
   },
   {
     key: 'systeme', label: 'Système', color: 'var(--text-faint)',
-    desc: 'Menus, validation de fiche et aptitudes déclenchées automatiquement par le jeu.',
+    desc: 'Menus et validation de fiche.',
     groups: [
       { label: 'Fiche & menus', abilities: [
         [1739, 'Valider ma fiche !'], [475, 'Menu Artisanat'],
-      ]},
-      { label: 'Automatiques', desc: 'Déclenchées par le jeu, pas par le joueur.', abilities: [
-        [750, 'Infliger Blessure'], [1379, 'Régénerer blessure'], [1462, 'Remplir ceinture de potion'],
       ]},
     ],
   },
@@ -289,6 +288,15 @@ const abilityHref = id => ON_THIS_PAGE.has(id) ? `#a${id}` : `${OTHER_PAGE}#a${i
 const PREMIER_TOUR_COND = 'Ne pas avoir le statut Premier Tour';
 // Jets de résistance automatiques (3d6 + attribut contre 15), seulement si l'aptitude fait aussi des dégâts ou touche une zone
 const RESIST_RULES = [['Brûlure', 'Résilience'], ['Saignement', 'Résilience'], ['Poison', 'Métabolisme'], ['Poison de Mana', 'Métabolisme']];
+// Jets d'attaque par défaut (règle générale, valable dans la plupart des cas) : attaquant VS défenseur.
+// Référence seulement, NON affichée. Une aptitude peut avoir un jet différent (champ `jet` de DETAILS).
+const ATTACK_ROLL_RULES = {
+  physique:     { label: 'Attaque physique / mêlée',            attaque: '3d6 + Capacité de combat', defense: '3d6 + Esquive' },
+  elementaire:  { label: 'Magies élémentaires (Feu, Eau, Terre, Air)', attaque: '3d6 + Incantation', defense: '3d6 + Esquive' },
+  mentale:      { label: 'Magies Lumière, Arcane, Sang',        attaque: '3d6 + Incantation',        defense: '3d6 + Force Mentale' },
+  sortilege:    { label: 'Sorts de Sorcier et de Prêtre',       attaque: '3d6 + Force Mentale',      defense: '3d6 + Force Mentale' },
+  tir:          { label: 'Tirs (tireur)',                       attaque: '3d6 + Capacité de tir',    defense: '3d6 + Esquive' },
+};
 const DETAILS = {
   475: { // Menu Artisanat
     desc: "Ouvre le menu d'artisanat du personnage.",
@@ -980,10 +988,10 @@ const DETAILS = {
     notes: 'Le statut Infusion Feu octroie l\'aptitude Frappe Flamboyante. Le statut Infusion dure 7 jours : tant qu\'il est actif, Infusion Incandescente ne peut pas être réutilisée.',
   },
   2361: { // Infusion sanglante
-    cout: { "Rouleau d'infusion sanglant": 1 },
+    cout: { "Rouleau d'infusion sanguinolent": 1 },
     cible: 'Soi',
     statuts: ['Infusion Sang', 'Infusion (7 jours)'],
-    conditions: ["Ne pas avoir le statut Infusion"],
+    conditions: ["Ne pas avoir le statut Infusion", 'Ne pas être Céleste'],
     notes: 'Le statut Infusion Sang octroie l\'aptitude Frappe Vampirique. Le statut Infusion dure 7 jours : tant qu\'il est actif, Infusion sanglante ne peut pas être réutilisée.',
   },
   2360: { // Infusion de Tempête
@@ -1116,6 +1124,61 @@ const DETAILS = {
     statuts: ['Confus'],
     notes: 'Ne fait pas de dégâts. Le lanceur n\'est pas touché, même s\'il est dans la zone.',
   },
+  637: { // Manger casse-croute
+    cout: { 'Casse-Croute': 1 },
+    cible: 'Soi',
+    statuts: ['Nourriture'],
+    conditions: ['Ne pas avoir le statut Nourriture', 'Ne pas avoir le statut Mets-Cendre', 'Ne pas avoir le statut Faim surnaturelle'],
+    buffs: [['Casse-Croûte', '30 min après le lancement']],
+  },
+  638: { // Manger repas
+    cout: { Repas: 1 },
+    cible: 'Soi',
+    statuts: ['Nourriture'],
+    conditions: ['Ne pas avoir le statut Nourriture', 'Ne pas avoir le statut Mets-Cendre', 'Ne pas avoir le statut Faim surnaturelle'],
+    buffs: [['Repas', '30 min après le lancement']],
+  },
+  9011: { // Manger plat préparé
+    cout: { 'Plat Préparé': 1 },
+    cible: 'Soi',
+    statuts: ['Nourriture'],
+    conditions: ['Ne pas avoir le statut Nourriture', 'Ne pas avoir le statut Mets-Cendre', 'Ne pas avoir le statut Faim surnaturelle'],
+  },
+  639: { // Boire jus
+    cout: { Jus: 1 },
+    cible: 'Soi',
+    statuts: ['Boisson'],
+    conditions: ['Ne pas avoir le statut Boisson', 'Ne pas avoir le statut Mets-Cendre', 'Ne pas avoir le statut Faim surnaturelle'],
+    buffs: [['Jus', '30 min après le lancement']],
+  },
+  640: { // Boire alcool doux
+    cout: { 'Alcool doux': 1 },
+    cible: 'Soi',
+    statuts: ['Boisson'],
+    conditions: ['Ne pas avoir le statut Boisson', 'Ne pas avoir le statut Mets-Cendre', 'Ne pas avoir le statut Faim surnaturelle'],
+    buffs: [['Alcool doux', '30 min après le lancement']],
+  },
+  642: { // Boire spiritueux
+    cout: { 'Alcool Fort': 1 },
+    cible: 'Soi',
+    statuts: ['Boisson'],
+    conditions: ['Ne pas avoir le statut Boisson', 'Ne pas avoir le statut Mets-Cendre', 'Ne pas avoir le statut Faim surnaturelle'],
+    buffs: [['Spiritueux (Alcool Fort)', '30 min après le lancement']],
+  },
+  1789: { // Mettre en marche
+    cout: { "Pièce d'argent": 5, 'Rations de guerre': 1 },
+    cible: 'Soi',
+    conditions: ['Ne pas avoir le statut Troupe'],
+    // détail du buff : consommable Escouade de data.js
+    buffs: [['Escouade', '30 min après le lancement', '24 h']],
+  },
+  1790: { // Mettre en marche (Elite)
+    cout: { "Pièce d'argent": 8, 'Rations de guerre': 2 },
+    cible: 'Soi',
+    conditions: ['Ne pas avoir le statut Troupe'],
+    // détail du buff : consommable Escouade Elite de data.js
+    buffs: [['Escouade Elite', '30 min après le lancement', '24 h']],
+  },
   384: { // Cache de bien
     cout: { AT: 1 },
     cooldown: '20 h',
@@ -1237,6 +1300,30 @@ const DETAILS = {
     conditions: ['Avoir le statut En Combat', 'Ne pas avoir le statut Controle'],
     notes: 'Pendant la fuite, interdiction d\'utiliser le vol ou un téléporteur.',
   },
+  1990: { // Sacrifice Escouade
+    cout: { 'Escouade': 1 },
+    cooldown: '4 h',
+    cible: 'Soi',
+    effets: [
+      'Les troupes se battent jusqu\'à la mort pour couvrir la fuite du lanceur : l\'Escouade est perdue',
+      'Permet de fuir pendant 10 minutes sans que les adversaires puissent intervenir',
+      'Peut emporter des blessés (personnages à terre) avec soi',
+    ],
+    conditions: ['Avoir le statut En Combat', 'Ne pas avoir le statut Controle'],
+    notes: 'Pendant la fuite, interdiction d\'utiliser le vol ou un téléporteur.',
+  },
+  1738: { // Sacrifice Escouade (Elite)
+    cout: { 'Escouade surentraînée': 1 },
+    cooldown: '4 h',
+    cible: 'Soi',
+    effets: [
+      'Les troupes se battent jusqu\'à la mort pour couvrir la fuite du lanceur : l\'Escouade Elite est perdue',
+      'Permet de fuir pendant 10 minutes sans que les adversaires puissent intervenir',
+      'Peut emporter des blessés (personnages à terre) avec soi',
+    ],
+    conditions: ['Avoir le statut En Combat', 'Ne pas avoir le statut Controle'],
+    notes: 'Pendant la fuite, interdiction d\'utiliser le vol ou un téléporteur.',
+  },
   1984: { // Désarçonner
     cout: { PS: 1 },
     portee: '1 Tile',
@@ -1279,7 +1366,7 @@ const DETAILS = {
   719: { // Faucher les jambes
     cout: { PA: 1, PS: 1 },
     portee: '1 Tile',
-    cible: '3 cibles',
+    cible: '1 cible',
     statuts: ['Controle'],
     effets: ['Pousse la cible de 1.3 Tiles'],
     notes: 'Ne fait pas de dégâts.',
@@ -1442,7 +1529,7 @@ const DETAILS = {
     type: 'Attaque',
     cout: { PS: 1 },
     portee: '1 Tile',
-    cible: '3 cibles',
+    cible: '1 cible',
     degats: ['Tranchants fixes', 'Physiques'],
     conditions: ['Avoir Voie Jumelle', 'Ne pas avoir une arme à deux mains équipée'],
     notes: "Dégâts Tranchants fixes (pas influencés par l'arme) + les Dégâts Physiques.",
@@ -1458,7 +1545,7 @@ const DETAILS = {
   1941: { // Faucher les jambes (Deux armes)
     cout: { PA: 1, PS: 1 },
     portee: '1 Tile',
-    cible: '3 cibles',
+    cible: '1 cible',
     statuts: ['Controle'],
     conditions: ['Ne pas avoir une arme à deux mains équipée'],
     notes: 'Ne fait pas de dégâts.',
@@ -1777,15 +1864,34 @@ const DETAILS = {
     type: 'Attaque',
     cout: { PA: 1 },
     portee: '1 Tile',
-    cible: '3 cibles',
+    cible: '1 cible',
     degats: ['Tranchants'],
+  },
+  1981: { // Soin de troupe
+    type: 'Soin',
+    cible: 'Soi',
+    gain: { PV: 1000 },
+    conditions: ['Avoir Escouade ou Escouade Elite'],
+  },
+  1847: { // Levée de bouclier
+    cout: { AT: 2 },
+    cible: 'Soi',
+    statuts: ["Levée de bouclier (jusqu'au prochain Commencer le tour)"],
+    conditions: ['Ne pas avoir le statut Monture', 'Avoir le statut En Combat'],
+  },
+  1848: { // Assaut Mêlée
+    cout: { AT: 1 },
+    portee: '2 Tiles',
+    cible: '1 cible',
+    retire: ['Levée de bouclier'],
   },
   383: { // Salve de fleches
     type: 'Attaque',
     cout: { AT: 1 },
     cible: 'Soi',
+    jet: 'Dégâts : 3d6 + Puissance de Troupe',
     conditions: ['Avoir le statut En Combat'],
-    effets: ['Lance une attaque en ligne qui inflige des dégâts inesquivables, selon le Commandement du lanceur'],
+    effets: ['Lance une attaque en ligne qui inflige des dégâts inesquivables'],
   },
   1787: { // Morsure de Bête
     type: 'Attaque',
@@ -1850,7 +1956,7 @@ const DETAILS = {
     type: 'Attaque',
     cout: { PA: 1 },
     portee: '1 Tile',
-    cible: '3 cibles',
+    cible: '1 cible',
     degats: ['Contondants'],
   },
   1785: { // Coup de Lance
@@ -2110,8 +2216,6 @@ const DATA_LINKS = {
   572: ['TRANSFORMATIONS_CHANGEFORME', 'Aquatique'], 573: ['TRANSFORMATIONS_CHANGEFORME', 'Reptile'],
   575: ['TRANSFORMATIONS_CHANGEFORME', 'Dragon'],
   576: ['TRANSFORMATIONS', 'Lycanthrope I'], 577: ['TRANSFORMATIONS', 'Démoniaque'],
-  637: ['CONSUMABLES', 'Casse-Croûte'], 638: ['CONSUMABLES', 'Repas'], 639: ['CONSUMABLES', 'Jus'],
-  640: ['CONSUMABLES', 'Alcool doux'], 642: ['CONSUMABLES', 'Spiritueux (Alcool Fort)'],
   623: ['CONSUMABLES', 'Dopant Psychique'], 624: ['CONSUMABLES', 'Dopant Physique'],
   1044: ['CONSUMABLES', 'Parfum (Sent Bon)'], 1602: ['CONSUMABLES', 'Cosmétique (Maquillage)'], 1601: ['CONSUMABLES', 'Savon (Propre)'], 1885: ['CONSUMABLES', 'Cosmétique (Maquillage)'],
 };
@@ -2380,9 +2484,20 @@ function buildModel([id, name, opts = {}], cat, group){
   // Fiche complète dès qu'il y a la moindre information à afficher (sinon : ligne compacte)
   const hasInfo = documented || !!(d.jet || conditions.length || effets.length || d.notes || resist.length);
 
-  const applies = statuts.map(t => nameKey(statusBase(t)));
+  // Buffs octroyés (perk/buff décrit par un consommable de data.js) : [nom, délai]
+  const buffs = (d.buffs || []).map(([key, when, duree]) => {
+    const data = CONSUMABLES[key] || {};
+    const notes = data.notes || [];
+    return { key, when, duree, effects: dataEffects(data), statuts: grantedStatuses(notes), grants: grantedAbilities(notes),
+      notes: notes.filter(n => !/^Octroie(\s+le statut)?\s*:/i.test(n)) };
+  });
+  const buffStatuts = buffs.flatMap(b => b.statuts);
+  const buffGrants = buffs.flatMap(b => b.grants);
+
+  const applies = [...statuts, ...buffStatuts].map(t => nameKey(statusBase(t)));
   const removes = retire.map(t => nameKey(statusBase(t)));
   const search = norm([name, id, d.desc, d.type, ...degats, ...statuts, ...retire, ...grants, ...effets.flat(2),
+    ...buffs.map(b => b.key), ...buffStatuts, ...buffGrants,
     ...cout.map(([k]) => k), ...sources.map(x => x.kind + ' ' + x.label)].filter(Boolean).join(' '));
 
   // Clés de tri du tableau
@@ -2391,8 +2506,8 @@ function buildModel([id, name, opts = {}], cat, group){
 
   return {
     id, name, verify: !!opts.verify, cat, group, d,
-    degats, statuts, retire, grants, effects, sources, cout, recharge, gain, perte, effets, resist, conditions,
-    documented, hasInfo, applies, removes, search,
+    degats, statuts, retire, grants, effects, sources, cout, recharge, gain, perte, effets, resist, conditions, buffs,
+    documented: documented || buffs.length > 0, hasInfo: hasInfo || buffs.length > 0, applies, removes, search,
     couts: cout.map(([k]) => k).filter(k => COST_FILTER_KEYS.includes(k)),
     ciblage: ciblageOf(d.cible),
     degatKeys: [...new Set(degats.flatMap(damageTypes).map(nameKey))],
@@ -2429,6 +2544,19 @@ const H = {
   retire: m => m.retire.map(t => statusPill(t, true)).join(''),
   effects: m => effectPills(m.effects),
   octroie: m => m.grants.map(abilityLink).join(''),
+  // bloc par buff : nom (+ délai), puis ses effets, statuts, aptitudes et autres notes en dessous
+  buffs: m => m.buffs.map(b => {
+    const sub = [
+      ['Effets', effectPills(b.effects)],
+      ['Applique', b.statuts.map(s => statusPill(s, false)).join('')],
+      ['Octroie', b.grants.map(abilityLink).join('')],
+      ['Notes', b.notes.length ? `<ul class="bullets">${b.notes.map(n => `<li>${esc(n)}</li>`).join('')}</ul>` : ''],
+    ].filter(([, html]) => html);
+    return `${b.when ? `<div class="buff-when">${esc(b.when)} :</div>` : ''}<div class="buff-block">
+      <div class="buff-head"><span class="buff-name">${esc(b.key)}${b.duree ? ` (${esc(b.duree)})` : ''}</span></div>
+      ${sub.map(([l, html]) => `<div class="buff-row"><span class="buff-label">${l}</span><div>${html}</div></div>`).join('')}
+    </div>`;
+  }).join(''),
   jet: m => m.d.jet ? esc(m.d.jet) : '',
   resist: m => m.resist.map(([st, attr]) => `<div class="resist">${esc(st)} : la cible lance <b>3d6 + ${esc(attr)}</b> contre <b>15</b></div>`).join(''),
   effets: m => m.effets.length ? `<ul class="bullets">${m.effets.map(e => Array.isArray(e)
@@ -2461,6 +2589,7 @@ function detailRows(m){
   push('Jet', H.jet(m));
   push('Résistance', H.resist(m));
   push('Octroie', H.octroie(m));
+  push('Buff', H.buffs(m));
   // effets en texte libre (« Autres effets » si des effets chiffrés sont déjà affichés)
   push(m.effects.length ? 'Autres effets' : 'Effets', H.effets(m));
   push('Conditions', H.conditions(m));

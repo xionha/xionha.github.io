@@ -451,6 +451,13 @@
   .pill.erp-neg{ --c: var(--erp-neg); }
   .st-line{ display: flex; flex-wrap: wrap; align-items: center; gap: 0; }
   .st-line + .st-line{ margin-top: 2px; }
+  .buff-block{ border: 1px solid color-mix(in srgb, var(--pos) 40%, var(--border)); background: color-mix(in srgb, var(--pos) 6%, transparent); border-radius: 4px; padding: 6px 10px 8px; }
+  .buff-block + .buff-block{ margin-top: 6px; }
+  .buff-head{ display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+  .buff-name{ font-family: 'Cinzel', serif; font-weight: 700; font-size: 16px; color: var(--pos); }
+  .buff-when{ font-size: 15px; font-style: italic; color: var(--text-dim); margin: 0 0 4px; }
+  .buff-row{ display: grid; grid-template-columns: 70px 1fr; gap: 8px; align-items: baseline; }
+  .buff-label{ font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--text-dim); }
   .st-line .eff-list{ display: inline-flex; flex-wrap: wrap; align-items: center; margin-left: 2px; padding-left: 8px; border-left: 1px solid var(--border); }
 
   .tag{

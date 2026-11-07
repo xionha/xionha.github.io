@@ -749,7 +749,7 @@ const DETAILS = {
   1492: { // Enchevetrement
     cout: { PS: 1, Mana: 10 },
     portee: '6 Tiles',
-    cible: '3 cibles',
+    cible: '1 cible',
     statuts: ['Immobile'],
     conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Terre)'],
     sources: ['Géomancie'],

@@ -33,8 +33,8 @@ const ATTRIBUTES = [
 // 0.062 vérifié en jeu : Force 1 + Endurance 1 + Adresse 1 → Parade = 16 × 0.062 = 0.992 → 0 (0.0625 donnerait 1).
 // Exception : Capacité de Combat à 0.0625 (l'éditeur affiche 0,062) car Force 3 + Adresse 3 → 3 en jeu (48 × 0.062 donnerait 2).
 const STAT_FORMULAS = {
-  pv:             { base: 100, finalMultiplier: 0.06, sources: { endurance: 50, volonte: 10, resilience: 40 } },
-  mana:           { base: 50,  finalMultiplier: 0.05, sources: { perceptionMagique: 50, endurance: 50 } },
+  pv:             { base: 150, finalMultiplier: 0.06, sources: { endurance: 50, volonte: 10, resilience: 40 } },
+  mana:           { base: 75,  finalMultiplier: 0.05, sources: { perceptionMagique: 50, endurance: 50 } },
   corruption:     { base: 0, finalMultiplier: 5, sources: { volonte: 2, resilience: 1 } },
   initiative:     { base: 0, finalMultiplier: 0.062, sources: { vitesse: 14, volonte: 2 } },
   deplacement:    { base: 0, finalMultiplier: 0.36, sources: { vitesse: 0.7, endurance: 0.3 } },
@@ -247,8 +247,8 @@ const CONSUMABLES = {
   "Dopant Psychique": { parentDelta: {}, attrDelta: {}, flatStats: { mana: 25, degatsMagique: 10, defenseMagique: 10 }, notes: [], category: null },
   "Arme Entretenue": { parentDelta: {}, attrDelta: {}, flatStats: {}, extraStats: { degContondant: 10, degPerforant: 10, degTranchant: 10 }, notes: [], category: null },
   "Armure Entretenue": { parentDelta: {}, attrDelta: {}, flatStats: {}, extraStats: { defTranchante: 10, defPerforante: 10, defContondante: 10 }, notes: [], category: null },
-  "Escouade": { parentDelta: {}, attrDelta: {}, flatStats: { pv: 500, deplacement: -1 }, extraStats: { puissanceTroupe: 30 }, notes: ['Octroie le statut : Troupe', 'Donne le statut visible Armée', "Interdit de déséquiper la rune de troupe pour en mettre une autre (ex. Garde)", 'Débloque : Puissance de Troupe', 'Débloque : Action de Troupe', 'Action de Troupe +3', 'Octroie : Salve de Flèches', 'Octroie : Levée de bouclier', 'Octroie : Assaut Mêlée', 'Octroie : Soin de troupe', 'Octroie : Sacrifice Escouade', 'Octroie : Cache de Bien'], category: null },
-  "Escouade Elite": { parentDelta: {}, attrDelta: {}, flatStats: { pv: 750 }, extraStats: { puissanceTroupe: 40 }, notes: ['Octroie le statut : Troupe', 'Donne le statut visible Armée', "Interdit de déséquiper la rune de troupe pour en mettre une autre (ex. Garde)", 'Débloque : Puissance de Troupe', 'Débloque : Action de Troupe', 'Action de Troupe +3', 'Octroie : Salve de Flèches', 'Octroie : Cache de Bien', 'Octroie : Levée de bouclier', 'Octroie : Assaut Mêlée', 'Octroie : Sacrifice Escouade (Elite)', 'Octroie : Soin de troupe'], category: null },
+  "Escouade": { parentDelta: {}, attrDelta: {}, flatStats: { pv: 350, deplacement: -1 }, extraStats: { puissanceTroupe: 30 }, notes: ['Octroie le statut : Troupe', 'Donne le statut visible Armée', "Interdit de déséquiper la rune de troupe pour en mettre une autre (ex. Garde)", 'Débloque : Puissance de Troupe', 'Débloque : Action de Troupe', 'Action de Troupe +3', 'Octroie : Salve de Flèches', 'Octroie : Levée de bouclier', 'Octroie : Assaut Mêlée', 'Octroie : Soin de troupe', 'Octroie : Sacrifice Escouade', 'Octroie : Cache de Bien'], category: null },
+  "Escouade Elite": { parentDelta: {}, attrDelta: {}, flatStats: { pv: 550 }, extraStats: { puissanceTroupe: 40 }, notes: ['Octroie le statut : Troupe', 'Donne le statut visible Armée', "Interdit de déséquiper la rune de troupe pour en mettre une autre (ex. Garde)", 'Débloque : Puissance de Troupe', 'Débloque : Action de Troupe', 'Action de Troupe +3', 'Octroie : Salve de Flèches', 'Octroie : Cache de Bien', 'Octroie : Levée de bouclier', 'Octroie : Assaut Mêlée', 'Octroie : Sacrifice Escouade (Elite)', 'Octroie : Soin de troupe'], category: null },
 };
 
 const VOIE_JUMELLE = {
@@ -332,10 +332,10 @@ const SLOT_LABELS = {
 };
 const EQUIPMENT = {
   troupe: {
-    "Bête": { flatStats: { pv: 25 }, extraStats: { puissanceTroupe: 25 }, notes: ['Octroie : Morsure de Bête', 'Débloque : Action de Troupe', 'Octroie le statut : Bête', 'Débloque : Puissance de Troupe'] },
-    "Bête Elite": { flatStats: { pv: 50 }, extraStats: { puissanceTroupe: 30 }, notes: ['Octroie : Morsure de Bête', 'Débloque : Action de Troupe', 'Octroie le statut : Bête', 'Débloque : Puissance de Troupe'] },
-    "Garde": { flatStats: { pv: 50 }, extraStats: { puissanceTroupe: 20 }, notes: ['Octroie : Salve de Flèches', 'Octroie : Cache de Bien', 'Octroie : Sacrifice de troupe', 'Débloque : Action de Troupe', 'Octroie le statut : Garde', 'Débloque : Puissance de Troupe'] },
-    "Garde Elite": { flatStats: { pv: 100 }, extraStats: { puissanceTroupe: 25 }, notes: ['Octroie : Salve de Flèches', 'Octroie : Cache de Bien', 'Octroie : Sacrifice de troupe (élite)', 'Débloque : Action de Troupe', 'Octroie le statut : Garde', 'Débloque : Puissance de Troupe'] },
+    "Bête": { flatStats: {}, extraStats: { puissanceTroupe: 25 }, notes: ['Octroie : Morsure de Bête', 'Débloque : Action de Troupe', 'Octroie le statut : Bête', 'Débloque : Puissance de Troupe'] },
+    "Bête Elite": { flatStats: {}, extraStats: { puissanceTroupe: 30 }, notes: ['Octroie : Morsure de Bête', 'Débloque : Action de Troupe', 'Octroie le statut : Bête', 'Débloque : Puissance de Troupe'] },
+    "Garde": { flatStats: {}, extraStats: { puissanceTroupe: 20 }, notes: ['Octroie : Salve de Flèches', 'Octroie : Cache de Bien', 'Octroie : Sacrifice de troupe', 'Débloque : Action de Troupe', 'Octroie le statut : Garde', 'Débloque : Puissance de Troupe'] },
+    "Garde Elite": { flatStats: {}, extraStats: { puissanceTroupe: 25 }, notes: ['Octroie : Salve de Flèches', 'Octroie : Cache de Bien', 'Octroie : Sacrifice de troupe (élite)', 'Débloque : Action de Troupe', 'Octroie le statut : Garde', 'Débloque : Puissance de Troupe'] },
     "Escouade": { flatStats: {}, extraStats: {}, notes: ['Octroie : Mettre en marche'] },
     "Escouade surentraînée": { flatStats: {}, extraStats: {}, notes: ['Octroie : Mettre en marche (Elite)'] },
     "Invocation Occulte": { flatStats: { pv: 100 }, extraStats: {}, notes: ['Octroie le Perk : Invocation Occulte', 'Octroie : Salve de Flèches', 'Débloque : Action de Troupe', 'Octroie le statut : Invocation Occulte', 'Octroie : Sacrifice Invocation Occulte'] },

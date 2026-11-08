@@ -486,7 +486,7 @@ const DETAILS = {
     statuts: ["Flamboiement (jusqu'au prochain Commencer le tour)"],
     retire: ['En mêlée'],
     effets: ['Fait reculer le lanceur de 1.5 Tiles'],
-    conditions: ['Ne pas être transformé', 'Ne pas avoir de Posture', 'Ne pas avoir le statut Incantation Interdite (Feu)'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Feu)'],
     sources: ['Pyromancie'],
   },
   1451: { // Boule de Feu
@@ -589,7 +589,7 @@ const DETAILS = {
     statuts: ["Bio-Electricite (jusqu'au prochain Commencer le tour)"],
     retire: ['En mêlée'],
     effets: ['Fait reculer le lanceur de 1.5 Tiles'],
-    conditions: ['Ne pas être transformé', 'Ne pas avoir de Posture', 'Ne pas avoir le statut Incantation Interdite (Air)'],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Air)'],
     sources: ['Aéromancie'],
   },
   504: { // Frappe Télékinetique
@@ -843,9 +843,10 @@ const DETAILS = {
     cout: { PA: 1, 'Siphon mécanique': 1 },
     portee: '6 Tiles',
     cible: 'Tout le monde (lanceur compris)',
-    statuts: ['Poison de Mana'],
+    statuts: ['Poison de Mana', "OneByFight (lanceur, jusqu'à Terminer le combat)"],
+    jet: '3d6 + Capacité de Combat contre 15 pour réussir à l\'utiliser',
     effets: ['Divise par deux le Mana actuel de chaque cible touchée'],
-    conditions: ['Avoir le statut En Combat'],
+    conditions: ['Avoir le statut En Combat', 'Ne pas avoir le statut OneByFight'],
     notes: 'Le lanceur est lui aussi touché : son Mana est également divisé par deux. Si la cible a déjà le Poison de Mana : Poison de Mana aggravé, qui retire du Mana (pas des PV), résisté par le Métabolisme.',
   },
   2310: { // Enduire Poison de Mana
@@ -1570,22 +1571,18 @@ const DETAILS = {
   1919: { // Utiliser posture offensive
     cout: { PP: 1 },
     cible: 'Soi',
-    conditions: ['Ne pas avoir le statut Buff Magique'],
   },
   1920: { // Utiliser posture defensive
     cout: { PP: 1 },
     cible: 'Soi',
-    conditions: ['Ne pas avoir le statut Buff Magique'],
   },
   1921: { // Utiliser posture technique
     cout: { PP: 1 },
     cible: 'Soi',
-    conditions: ['Ne pas avoir le statut Buff Magique'],
   },
   1922: { // Utiliser posture mobile
     cout: { PP: 1 },
     cible: 'Soi',
-    conditions: ['Ne pas avoir le statut Buff Magique'],
   },
   471: { // Coup de caudale
     type: 'Attaque',
@@ -2037,7 +2034,7 @@ const DETAILS = {
     portee: '1 Tile',
     cible: '1 cible',
     degats: ['Meilleur type de dégâts d\'arme', 'Physiques ou Magiques (le plus élevé)', 'Sang'],
-    effets: ['Rend au lanceur la moitié des dégâts infligés en PV'],
+    effets: ['Rend au lanceur la moitié des dégâts infligés en PV, seulement si la cible a le statut Saignement et n\'a pas paré le coup'],
     conditions: ['Avoir le statut En Combat'],
     sources: ['Statut Infusion Sang (Infusion sanglante)'],
     notes: 'Dégâts du type le plus élevé du personnage parmi Tranchants, Perforants et Contondants + Dégâts Physiques ou Magiques (selon le plus élevé du personnage) + dégâts de Sang égaux à la stat Sang ÷ 2.',

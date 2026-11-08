@@ -46,6 +46,7 @@ const ALL_CATEGORIES = [
       { label: 'Frappes élémentaires & spéciales', abilities: [
         [2341, 'Frappe Flamboyante'], [2342, "Lame d'air"],
         [2345, 'Frappe Foudroyante'], [2346, 'Frappe Vampirique'], [1034, 'Enfoncer un pieu en argent'],
+        [2565, 'Frappe Etincelante'],
       ]},
       { label: 'Armes de lancer', abilities: [
         [1013, 'Lancer de couteau'], [1943, 'Lancer de couteau (Toxique)'],
@@ -86,7 +87,7 @@ const ALL_CATEGORIES = [
       ]},
       { label: 'Aéromancie', abilities: [
         [1503, 'Trait de Foudre'], [1548, 'Foudroiement'], [1765, 'Tornade'], [1509, 'Eclair Paralysant'],
-        [1507, 'Vent Toxique'], [1588, 'Bio-Electricite'], [1595, "Chaine d'éclairs"],
+        [1507, 'Vent Toxique'], [1588, 'Bio-Electricite'], [1595, "Chaine d'éclairs"], [2566, 'Bourrasque'],
       ]},
       { label: 'Géomancie', abilities: [
         [1492, 'Enchevetrement'], [1493, 'Peau de Pierre'], [1519, 'Toxines Etherique'], [1490, 'Ronce toxique'],
@@ -103,7 +104,7 @@ const ALL_CATEGORIES = [
       { label: 'Arcane', abilities: [
         [1665, 'Bouclier Arcanique'], [2363, 'Visage trouble'], [1554, 'Vision troublantes'],
         [2496, 'Disruption Toxique'], [1555, 'Vol Etherique'], [1556, 'Liens Magiques'], [1557, 'Poids Arcanique'],
-        [1632, 'Visions'], [9003, 'Désorientation Synaptique'],
+        [1632, 'Visions'], [2559, 'Désorientation Synaptique'],
       ]},
       { label: 'Sorcellerie', abilities: [
         [1624, 'Aura inquiétante'], [1630, 'Se mutiler'], [1631, 'Invocation'],
@@ -121,7 +122,7 @@ const ALL_CATEGORIES = [
     groups: [
       { label: 'Repos & hygiène', abilities: [
         [328, 'Repos long'], [329, 'Repos court'], [1601, 'Se laver'], [1893, 'Se laver sans savon'],
-        [1602, "S'apprêter"], [1604, 'Cracher'], [1462, 'Remplir ceinture de potion'],
+        [1602, "S'apprêter"], [1604, 'Cracher'], [1462, 'Remplir ceinture de potion'], [2539, 'Etudier au calme', { verify: true }],
         [750, 'Infliger Blessure'], [1379, 'Régénerer blessure'],
       ]},
       { label: 'Discrétion & social', abilities: [
@@ -129,18 +130,14 @@ const ALL_CATEGORIES = [
         [2437, 'Observer en coin'], [1998, 'Jeu à Boire'],
       ]},
       { label: 'Prêtre / Foi — Prières', abilities: [
-        [349, 'Prier'], [1784, 'Stimulation de soin'], [355, 'Malediction'], [347, 'Apaisement'],
-        [348, 'Rompre une malediction'], [1622, 'Ferveur guerrière'],
+        [349, 'Prier'], [1784, 'Stimulation de soin'], [347, 'Apaisement'], [1622, 'Ferveur guerrière'],
       ]},
       { label: 'Prêtre / Foi — Cérémonies', abilities: [
-        [9001, 'Cérémonies'], [9002, 'Rituels de grâces'], [2215,'Cérémonies de Grâces'], [2217, 'Cérémonies de châtiment'],
-        [2218, 'Rupture de contrôle mental'], [2219, 'Exorciser Maledictions'], [2222, 'Restauration Arcanique'],
-        [2227, 'Mets-Cendres'], [2244, 'Flétrissement de potions'], [2225, 'Purification'],
-        [2280, "Restauration d'âme"],
+        [2215, 'Cérémonies'], [2218, 'Rituels de grâces'], [2219, 'Rituels de Châtiment'],
+        [9012, 'Rupture de contrôle mental'], [9013, 'Purification'], [9014, 'Flétrissement de potions', { verify: true }],
       ]},
       { label: 'Médecine', abilities: [
-        [476, 'Chirurgie'], [1385, 'Premiers Secours'], [1386, 'Chercher maladies'],
-        [1545, "Stabilisation d'urgence", { verify: true }], [478, 'Avortement'], [1887, 'Accoucher'],
+        [1386, 'Menu Medecine'], [1545, "Stabilisation d'urgence", { verify: true }], [1887, 'Accoucher'],
       ]},
       { label: 'Artiste', abilities: [
         [1780, 'Concert'], [479, 'Divertir son auditoire'], [480, 'Emouvoir son auditoire'],
@@ -189,7 +186,7 @@ const ALL_CATEGORIES = [
     groups: [
       { label: 'Nourriture & boissons', abilities: [
         [637, 'Manger casse-croute'], [638, 'Manger repas'], [639, 'Boire jus'], [640, 'Boire alcool doux'],
-        [642, 'Boire spiritueux'], [9011, 'Manger plat préparé'],
+        [642, 'Boire spiritueux'], [2550, 'Manger plat préparé'], [2551, 'Boire boisson préparée'],
       ]},
       { label: 'Potions & soins', abilities: [
         [619, 'Boire Potion de vie'], [620, 'Boire potion de Mana'], [1039, 'Consommer Antidote'],
@@ -199,7 +196,7 @@ const ALL_CATEGORIES = [
       ]},
       { label: 'Drogues & infusions', abilities: [
         [622, 'Consommer drogue récréative'], [623, 'Consommer drogue mystique'], [624, 'Consommer drogue physique'],
-        [2359, 'Infusion Incandescente'], [2360, 'Infusion de Tempête'], [2361, 'Infusion sanglante'],
+        [2359, 'Infusion Incandescente'], [2360, 'Infusion de Tempête'], [2361, 'Infusion sanglante'], [2564, 'Infusion Lumiere'],
       ]},
       { label: 'Cristaux & gemmes', abilities: [
         [2253, 'Consommer Crystal de Feu'], [2260, 'Consommer Crystal Eau'], [2261, 'Consommer Crystal Terre'],
@@ -214,10 +211,10 @@ const ALL_CATEGORIES = [
       ]},
       { label: 'Projectiles & explosifs', abilities: [
         [634, 'Lancer filet'], [869, 'Bombe incendiaire'], [1459, "Pierre d'éclat"], [1821, "Lancer flasque d'acide"],
-        [9004, 'Lancer Fumigene'],
+        [2560, 'Lancer Fumigene'], [2516, "Pousser pierre d'inhbition", { verify: true }],
       ]},
       { label: 'Tomes & parchemins', abilities: [
-        [1871, 'Tome de malédictions'], [9007, 'Mot de "La Peste"'], [9010, 'Mot de "Don ravi"'], [9006, 'Mot de "Pas incertain"'], [9008, 'Mot de "Vague Nacrée"'], [9009, 'Mot de "Puanteur de l\'Âme"'], [2157, 'Parchemin de Commandement', { verify: true }],
+        [1871, 'Tome de malédictions'], [9007, 'Mot de "La Peste"'], [9010, 'Mot de "Don ravi"'], [9006, 'Mot de "Pas incertain"'], [9008, 'Mot de "Vague Nacrée"'], [9009, 'Mot de "Puanteur de l\'Âme"'],
       ]},
     ],
   },
@@ -227,7 +224,7 @@ const ALL_CATEGORIES = [
     groups: [
       { label: 'Ordres de troupe', abilities: [
         [1789, 'Mettre en marche'], [1790, 'Mettre en marche (Elite)'], [1847, 'Levée de bouclier'],
-        [1848, 'Assaut Mêlée'], [383, 'Salve de fleches'], [1981, 'Soin de troupe'],
+        [1848, 'Assaut Mêlée'], [383, 'Salve de fleches'], [1981, 'Soin de troupe'], [2569, 'Lance-Flamme'],
       ]},
       { label: 'Logistique', abilities: [
         [384, 'Cache de bien'], [1992, 'Poser Canon'], [1993, 'Retirer Canon'], [9005, 'Tirer avec Canon'],
@@ -244,7 +241,7 @@ const ALL_CATEGORIES = [
     desc: 'Menus et validation de fiche.',
     groups: [
       { label: 'Fiche & menus', abilities: [
-        [1739, 'Valider ma fiche !'], [475, 'Menu Artisanat'],
+        [1739, 'Valider ma fiche !'], [475, 'Menu Artisanat'], [2553, 'Poser Zone', { verify: true }],
       ]},
     ],
   },
@@ -857,7 +854,7 @@ const DETAILS = {
     cout: { 'Flèches/Carreaux ou Lames de jet': 1, 'Poison toxique': 1 },
     effets: ['Produit 1 Flèches/Carreaux (Toxique) ou 1 Lames de jet empoisonnés (Toxique), selon la munition consommée'],
   },
-  9003: { // Désorientation Synaptique
+  2559: { // Désorientation Synaptique
     cout: { PA: 1, PS: 1, Mana: 15 },
     portee: '6 Tiles',
     cible: '1 cible',
@@ -1118,7 +1115,7 @@ const DETAILS = {
     statuts: ['Vulnérable'],
     notes: 'Ne fait pas de dégâts.',
   },
-  9004: { // Lancer Fumigene (n° provisoire : n° en jeu inconnu)
+  2560: { // Lancer Fumigene
     cout: { PA: 1, 'Fumigène': 1 },
     portee: '6 Tiles',
     cible: 'Zone · 1.5 Tiles de rayon autour du point choisi',
@@ -1139,7 +1136,7 @@ const DETAILS = {
     conditions: ['Ne pas avoir le statut Nourriture', 'Ne pas avoir le statut Mets-Cendre', 'Ne pas avoir le statut Faim surnaturelle'],
     buffs: [['Repas', '30 min après le lancement']],
   },
-  9011: { // Manger plat préparé
+  2550: { // Manger plat préparé
     cout: { 'Plat Préparé': 1 },
     cible: 'Soi',
     statuts: ['Nourriture'],
@@ -1394,18 +1391,20 @@ const DETAILS = {
     effets: ['Donne +10 Puissance de Troupe pendant 20 h'],
     conditions: ['Avoir le statut Pretre'],
   },
-  2244: { // Flétrissement de potions
+  9014: { // Flétrissement de potions (entrée de menu de Prêtre, rattachement à confirmer)
     cout: { Foi: 5 },
     portee: '5 Tiles',
     cible: '1 cible',
     perte: { 'Ceinture de potion': 1 },
+    sources: ['Rituels de Châtiment (menu)'],
   },
-  2225: { // Purification
+  9013: { // Purification (entrée du menu Rituels de grâces)
     cout: { Foi: 'X' },
     portee: '5 Tiles',
     cible: '1 cible',
     perte: { Corruption: 'X' },
     notes: 'Retire X Corruption à la cible en consommant X Foi.',
+    sources: ['Rituels de grâces (menu)'],
   },
   503: { // Charme-Personne
     cooldown: '15 min',
@@ -1424,10 +1423,11 @@ const DETAILS = {
     conditions: ['Avoir le statut C.Controle Mental', 'Hors combat'],
     effets: ['Permet de donner un ordre unique à la cible'],
   },
-  2218: { // Rupture de contrôle mental
+  9012: { // Rupture de contrôle mental (entrée du menu Rituels de grâces)
     cout: { Foi: 20 },
     portee: '5 Tiles',
     retire: ['Domination', 'Charme Personne'],
+    sources: ['Rituels de grâces (menu)'],
   },
   2412: { // Domination
     cooldown: '45 min',
@@ -1438,7 +1438,7 @@ const DETAILS = {
     conditions: ['Avoir le statut C.Controle Mental', 'Hors combat'],
     effets: ['Permet de prendre le contrôle de la cible'],
   },
-  9001: { // Cérémonies (n° provisoire : n° en jeu inconnu)
+  2215: { // Cérémonies
     cible: 'Soi',
     statuts: ['Celebration Faite (20 h)'],
     conditions: ['Ne pas avoir le statut Celebration Faite', 'Avoir le statut Pretre'],
@@ -1448,13 +1448,22 @@ const DETAILS = {
       ['Célébrations de grâces : Grâces Divine, qui octroie :', ['Stimulation de soin', 'Apaisement', 'Ferveur guerrière', 'Rituels de grâces']],
     ],
   },
-  9002: { // Rituels de grâces (n° provisoire : n° en jeu inconnu)
+  2218: { // Rituels de grâces
+    desc: 'Ouvre un menu pour choisir un rituel de grâce à lancer.',
+    cible: 'Soi',
+    menus: ['Rupture de contrôle mental', 'Exorciser Malédictions', 'Restauration Arcanique', 'Purification', "Restauration d'âme"],
+    conditions: ['Avoir le statut Pretre'],
+    sources: ['Grâces Divine (Cérémonies)'],
+  },
+  2219: { // Rituels de Châtiment
+    desc: 'Ouvre un menu pour choisir un rituel de châtiment à lancer.',
     cible: 'Soi',
     conditions: ['Avoir le statut Pretre'],
-    effets: [
-      ['Permet de choisir de lancer un de ces sorts :', ['Rupture de Contrôle Mental', 'Exorciser Malédictions', 'Restauration Arcanique', 'Purification', "Restauration d'âme"]],
-    ],
-    sources: ['Grâces Divine (Cérémonies)'],
+    sources: ['Colère divine (Cérémonies)'],
+  },
+  1386: { // Menu Medecine
+    desc: 'Ouvre le menu de médecine.',
+    menus: ['Chirurgie', 'Premiers Secours', 'Chercher maladies', 'Avortement'],
   },
   1995: { // Se dissimuler
     portee: '10 Tiles',

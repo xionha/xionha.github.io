@@ -14,18 +14,18 @@ const CATEGORY_ERP = {
     ]},
     { label: 'Actions', abilities: [
       [1603, 'Orgasme (F)'], [1605, 'Orgasme (M)'], [2436, 'Pudeur Renversée'], [2411, 'Jeter culotte sale'],
-      [2167, 'Transformer en concubi'],
+      [2514, 'Traire', { verify: true }],
     ]},
     { label: 'Consommables ERP', abilities: [
       [1041, 'Consommer Aphrodisiaque'], [1042, 'Consommer Philtre de fertilité'],
-      [1043, "Consommer Philtre d'infertilité"], [1883, 'Boire Serum de lactation'], [2431, 'Boire Gokkun'],
+      [1043, "Consommer Philtre d'infertilité"], [1883, 'Boire Serum de lactation'], [2544, 'Boire Gokkun'],
     ]},
     { label: 'Accessoires', abilities: [
       [2130, 'Mettre Plug Vaginal S'], [2131, 'Mettre Plug Vaginal M'], [2132, 'Mettre Plug Vaginal L'],
       [2133, 'Mettre Plug Vaginal XL'], [2134, 'Mettre Plug Vaginal XXL'], [2143, 'Retirer Plug Vaginal'],
       [2135, 'Mettre Plug Anal S'], [2139, 'Mettre Plug Anal M'], [2138, 'Mettre Plug Anal L'],
       [2140, 'Mettre Plug Anal XL'], [2141, 'Mettre Plug Anal XXL'], [2142, 'Retirer Plug Anal'],
-      [2432, 'Enfiler perles anales'], [2424, 'Utiliser sac de bondage'], [2425, 'Utiliser sac de jouets'],
+      [2432, 'Enfiler perles anales'], [2518, 'Utiliser Dildo (A)'], [2519, 'Utiliser Dildo (V)'],
     ]},
     { label: 'Tomes', abilities: [
       [2422, 'Ouvrir Tome Succubique'], [2423, 'Ouvrir Tome de Métamorphose Charnelle'],

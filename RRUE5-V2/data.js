@@ -339,8 +339,8 @@ const EQUIPMENT = {
     "Escouade": { flatStats: {}, extraStats: {}, notes: ['Octroie : Mettre en marche'] },
     "Escouade surentraînée": { flatStats: {}, extraStats: {}, notes: ['Octroie : Mettre en marche (Elite)'] },
     "Invocation Occulte": { flatStats: { pv: 100 }, extraStats: {}, notes: ['Octroie le Perk : Invocation Occulte', 'Octroie : Salve de Flèches', 'Débloque : Action de Troupe', 'Octroie le statut : Invocation Occulte', 'Octroie : Sacrifice Invocation Occulte'] },
-    "Golem": { flatStats: { pv: 50 }, extraStats: { puissanceTroupe: 25 }, notes: ['Octroie le Perk : Golem', 'Octroie : Salve de Flèches', 'Octroie : Cache de Bien', 'Débloque : Action de Troupe', 'Débloque : Puissance de Troupe', 'Octroie le statut : Golem'] },
-    "Golem d'élite": { flatStats: { pv: 100 }, extraStats: { puissanceTroupe: 30 }, notes: ['Octroie le Perk : Golem Elite', 'Octroie : Salve de Flèches', 'Octroie : Cache de Bien', 'Débloque : Action de Troupe', 'Débloque : Puissance de Troupe', 'Octroie le statut : Golem'] },
+    "Golem": { flatStats: {}, extraStats: { puissanceTroupe: 25 }, notes: ['Octroie le Perk : Golem', 'Octroie : Lance-Flamme', 'Octroie : Cache de Bien', 'Débloque : Action de Troupe', 'Débloque : Puissance de Troupe', 'Octroie le statut : Golem'] },
+    "Golem d'élite": { flatStats: {}, extraStats: { puissanceTroupe: 30 }, notes: ['Octroie le Perk : Golem Elite', 'Octroie : Lance-Flamme', 'Octroie : Cache de Bien', 'Débloque : Action de Troupe', 'Débloque : Puissance de Troupe', 'Octroie le statut : Golem'] },
   },
   amulette: {
     "Amulette de Vigueur": { flatStats: { pv: 20 }, extraStats: {}, notes: [] },

@@ -39,7 +39,7 @@ const STAT_FORMULAS = {
   initiative:     { base: 0, finalMultiplier: 0.062, sources: { vitesse: 14, volonte: 2 } },
   deplacement:    { base: 0, finalMultiplier: 0.36, sources: { vitesse: 0.7, endurance: 0.3 } },
   capCombat:      { base: 0, finalMultiplier: 0.0625, sources: { force: 8, addresse: 8 } },
-  capTir:         { base: 0, finalMultiplier: 0.062, sources: { perception: 5, analyse: 3, addresse: 8 } },
+  capTir:         { base: 0, finalMultiplier: 0.062, sources: { perception: 1, addresse: 14 } },
   forceMentale:   { base: 0, finalMultiplier: 0.062, sources: { analyse: 3, volonte: 14, commandement: 1 } },
   incantation:    { base: 0, finalMultiplier: 0.062, sources: { volonte: 3, enseignement: 13, perceptionMagique: 1 } },
   esquive:        { base: 0, finalMultiplier: 0.062, sources: { vitesse: 14, addresse: 2 } },

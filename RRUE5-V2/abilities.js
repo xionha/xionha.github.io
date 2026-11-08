@@ -1895,7 +1895,7 @@ const DETAILS = {
     cout: { AT: 1 },
     portee: '3 Tiles',
     cible: '1 cible',
-    jet: '3d6 + (Commandement × 2) contre 3d6 + Esquive de la cible',
+    jet: '3d6 + la meilleure entre Capacité de Combat, Capacité de Tir et Incantation, contre 3d6 + Esquive de la cible',
     statuts: ['Immobile', 'Saignement'],
     resistance: [['Saignement', 'Résilience']],
     conditions: ['Avoir le statut En Combat'],

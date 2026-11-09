@@ -374,7 +374,7 @@ const DETAILS = {
     cooldown: '48 h',
     cible: 'Soi',
     effets: ["Produit une Invocation Occulte (troupe) et la place dans l'inventaire"],
-    conditions: ['Avoir Déchéance corruptrice'],
+    conditions: ['Avoir le statut Corruption Visible'],
   },
   1632: { // Visions
     cout: { Mana: 5 },
@@ -403,7 +403,7 @@ const DETAILS = {
     portee: '1 Tile',
     cible: '1 cible',
     statuts: ['Esclave (si le jet réussit)'],
-    conditions: ['Hors combat', 'La cible doit avoir le statut C.Esclave (consentement esclave)'],
+    conditions: ['Hors combat', "On ne peut faire esclave que des personnages consentants"],
   },
   1643: { // Camoufler Corruption
     cout: { PV: 10 },
@@ -548,7 +548,7 @@ const DETAILS = {
     type: 'Attaque',
     cout: { PS: 1, Mana: 10 },
     portee: '6 Tiles',
-    cible: '3 cibles',
+    cible: '1 cible',
     degats: ['Magiques', 'Eau'],
     conditions: ["Avoir le statut Dans l'eau", 'Ne pas être transformé', 'Ne pas avoir le statut En mouvement', 'Ne pas avoir le statut Incantation Interdite (Eau)'],
     sources: ['Hydromancie'],
@@ -647,10 +647,9 @@ const DETAILS = {
     cout: { PS: 1, Mana: 10 },
     portee: '6 Tiles',
     cible: 'Zone · 1.5 Tiles de rayon autour du point choisi',
-    statuts: ['Confus'],
     conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Lumière)'],
     sources: ['Luminomancie'],
-    notes: "Ne fait pas de dégâts. Le lanceur peut être touché s'il est dans la zone.",
+    notes: 'En chantier.',
   },
   1541: { // Lames du jugement
     type: 'Attaque',
@@ -720,7 +719,7 @@ const DETAILS = {
   1491: { // Chemin de lianes
     cout: { PS: 1, Mana: 10 },
     portee: '6 Tiles',
-    cible: '3 cibles',
+    cible: '1 cible',
     statuts: ['Ralenti'],
     conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Terre)'],
     sources: ['Géomancie'],
@@ -1002,16 +1001,16 @@ const DETAILS = {
   2213: { // Recolter Essence
     portee: '1 Tile',
     cible: '1 cible',
-    statuts: ['Assouvissement Pris (3 h 20)'],
-    conditions: ['Ne pas avoir le statut Assouvissement Pris'],
-    effets: ['Récolte X Essences de désir, selon combien la cible en a'],
+    statuts: ['Assouvissement Pris (cible, 3 h 20)'],
+    conditions: ['La cible ne doit pas avoir le statut Assouvissement Pris'],
+    effets: ['Récolte X Essences de désir, selon combien la cible en a', 'Un même personnage ne peut être récolté que toutes les 3 h 20'],
   },
   2267: { // Prélever du sang
     portee: '1 Tile',
     cible: '1 cible',
     cooldown: '14 jours',
     statuts: ['Transfusion Faite (14 jours)'],
-    conditions: ['La cible doit avoir mis elle-même le statut Transfusion', 'La cible ne doit pas avoir le statut Transfusion Faite'],
+    conditions: ["On ne peut prélever que le sang d'un personnage qui a mis lui-même le statut Transfusion", "On ne peut prendre le sang d'une même personne qu'une fois tous les 14 jours"],
     effets: ['Donne 2 Échantillons de sang au lanceur'],
   },
   1780: { // Concert
@@ -1195,7 +1194,7 @@ const DETAILS = {
     statuts: ['Magie Contrefaite (1 h)'],
     retire: ['Magie Contrefaite (autre élément)'],
     effets: ['Octroie Pyromancie pendant 1 h'],
-    conditions: ['Avoir Déchéance corruptrice, Dégradation corruptrice ou Transcendance profane'],
+    conditions: ['Avoir le statut Corruption Visible'],
   },
   2260: { // Consommer Crystal Eau
     cout: { "Cristal élémentaire d'eau": 1 },
@@ -1203,7 +1202,7 @@ const DETAILS = {
     statuts: ['Magie Contrefaite (1 h)'],
     retire: ['Magie Contrefaite (autre élément)'],
     effets: ['Octroie Hydromancie pendant 1 h'],
-    conditions: ['Avoir Déchéance corruptrice, Dégradation corruptrice ou Transcendance profane'],
+    conditions: ['Avoir le statut Corruption Visible'],
   },
   2261: { // Consommer Crystal Terre
     cout: { "Cristal élémentaire de terre": 1 },
@@ -1211,7 +1210,7 @@ const DETAILS = {
     statuts: ['Magie Contrefaite (1 h)'],
     retire: ['Magie Contrefaite (autre élément)'],
     effets: ['Octroie Géomancie pendant 1 h'],
-    conditions: ['Avoir Déchéance corruptrice, Dégradation corruptrice ou Transcendance profane'],
+    conditions: ['Avoir le statut Corruption Visible'],
   },
   2262: { // Consommer Crystal Air
     cout: { "Cristal élémentaire d'air": 1 },
@@ -1219,7 +1218,7 @@ const DETAILS = {
     statuts: ['Magie Contrefaite (1 h)'],
     retire: ['Magie Contrefaite (autre élément)'],
     effets: ['Octroie Aéromancie pendant 1 h'],
-    conditions: ['Avoir Déchéance corruptrice, Dégradation corruptrice ou Transcendance profane'],
+    conditions: ['Avoir le statut Corruption Visible'],
   },
   2263: { // Consommer Crystal Sang
     cout: { "Cristal élémentaire de sang": 1 },
@@ -1227,7 +1226,7 @@ const DETAILS = {
     statuts: ['Magie Contrefaite (1 h)'],
     retire: ['Magie Contrefaite (autre élément)'],
     effets: ['Octroie Hématomancie pendant 1 h'],
-    conditions: ['Avoir Déchéance corruptrice, Dégradation corruptrice ou Transcendance profane'],
+    conditions: ['Avoir le statut Corruption Visible'],
   },
   2264: { // Consommer Crystal  Lumiere
     cout: { "Cristal élémentaire de lumière": 1 },
@@ -1235,7 +1234,7 @@ const DETAILS = {
     statuts: ['Magie Contrefaite (1 h)'],
     retire: ['Magie Contrefaite (autre élément)'],
     effets: ['Octroie Luminomancie pendant 1 h'],
-    conditions: ['Avoir Déchéance corruptrice, Dégradation corruptrice ou Transcendance profane'],
+    conditions: ['Avoir le statut Corruption Visible'],
   },
   2265: { // Consommer Gemme Arcanique
     cout: { "Cristal élémentaire d'arcane": 1 },
@@ -1243,13 +1242,14 @@ const DETAILS = {
     statuts: ['Magie Contrefaite (1 h)'],
     retire: ['Magie Contrefaite (autre élément)'],
     effets: ['Octroie Arcane pendant 1 h'],
-    conditions: ['Avoir Déchéance corruptrice, Dégradation corruptrice ou Transcendance profane'],
+    conditions: ['Avoir le statut Corruption Visible'],
   },
   1992: { // Poser Canon
     cout: { 'Canon': 1 },
     cible: 'Soi',
     effets: ['Place un Canon sur la position actuelle du lanceur : il devient possible d\'y utiliser Tirer avec Canon'],
-    conditions: ['Être Ingénieur ou Chef de faction'],
+    conditions: ['Être Ingénieur'],
+    sources: ['Métier Ingénieur', 'Chef de faction (via le Coffre de faction)'],
   },
   1993: { // Retirer Canon
     gain: { Canon: 1 },
@@ -1375,7 +1375,7 @@ const DETAILS = {
     cible: '1 cible',
     gain: { Foi: 20 },
     statuts: ['Benediction (40 h)'],
-    conditions: ['Ne pas avoir le statut Priere', 'La cible doit être un Prêtre (le lanceur peut se cibler lui-même s\'il est Prêtre)'],
+    conditions: ['Ne pas avoir le statut Priere', "On ne peut prier qu'un Prêtre (soi-même compris)"],
     notes: 'Le buff Benediction s\'applique au lanceur et à la cible.',
   },
   347: { // Apaisement

@@ -37,7 +37,7 @@ const STAT_FORMULAS = {
   mana:           { base: 50,  finalMultiplier: 0.05, sources: { perceptionMagique: 50, endurance: 50 } },
   corruption:     { base: 0, finalMultiplier: 5, sources: { volonte: 2, resilience: 1 } },
   initiative:     { base: 0, finalMultiplier: 0.062, sources: { vitesse: 14, volonte: 2 } },
-  deplacement:    { base: 0, finalMultiplier: 0.36, sources: { vitesse: 0.7, endurance: 0.3 } },
+  deplacement:    { base: 0, finalMultiplier: 0.036, sources: { vitesse: 7, endurance: 3 } },
   capCombat:      { base: 0, finalMultiplier: 0.0625, sources: { force: 8, addresse: 8 } },
   capTir:         { base: 0, finalMultiplier: 0.062, sources: { perception: 1, addresse: 14 } },
   forceMentale:   { base: 0, finalMultiplier: 0.062, sources: { analyse: 3, volonte: 14, commandement: 1 } },

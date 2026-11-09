@@ -643,13 +643,24 @@ const DETAILS = {
     sources: ['Luminomancie'],
     notes: 'Ne fait pas de dégâts.',
   },
-  1659: { // Trou Noir
-    cout: { PS: 1, Mana: 10 },
+  2566: { // Bourrasque
+    cout: { PS: 1, Mana: 30 },
     portee: '6 Tiles',
-    cible: 'Zone · 1.5 Tiles de rayon autour du point choisi',
+    cible: 'Zone · 0.5 Tiles de rayon autour du point choisi',
+    statuts: ["Bourrasque (jusqu'au prochain Commencer le tour)"],
+    effets: ["Déplace les cibles d'environ 1.49 Tiles : une cible qui fait face au lanceur est repoussée, une cible qui lui tourne le dos est attirée vers lui"],
+    conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Air)'],
+    sources: ['Aéromancie'],
+    notes: 'Ne fait pas de dégâts.',
+  },
+  1659: { // Trou Noir
+    cout: { PS: 1, Mana: 30 },
+    portee: '6 Tiles',
+    cible: 'Zone · 3 Tiles de rayon autour du point choisi',
+    effets: ['Attire les personnages de la zone vers son centre'],
     conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Lumière)'],
     sources: ['Luminomancie'],
-    notes: 'En chantier.',
+    notes: "Ne fait pas de dégâts. Le lanceur n'est pas affecté, même s'il est dans la zone.",
   },
   1541: { // Lames du jugement
     type: 'Attaque',
@@ -883,10 +894,10 @@ const DETAILS = {
     cout: { PS: 1, Mana: 10 },
     portee: '6 Tiles',
     cible: '1 cible',
-    statuts: ['Poison'],
+    statuts: ['Poison de Mana'],
     conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Arcane)'],
     sources: ['Arcaniste'],
-    notes: 'Ne fait pas de dégâts, sauf si la cible est déjà empoisonnée : Poison aggravé, des dégâts supplémentaires résistés par le Métabolisme.',
+    notes: 'Ne fait pas de dégâts. Si la cible a déjà le Poison de Mana : Poison de Mana aggravé, qui retire du Mana (pas des PV), résisté par le Métabolisme.',
   },
   1554: { // Vision troublantes
     cout: { PS: 1, Mana: 10 },
@@ -1101,11 +1112,14 @@ const DETAILS = {
     notes: 'Le lanceur perd 20 Mana et la cible en gagne 20.',
   },
   869: { // Bombe incendiaire
+    type: 'Attaque',
+    degats: ['Fixes'],
     cout: { PA: 1, 'Bombe Incendiaire': 1 },
     portee: '6 Tiles',
     cible: 'Zone · 1 Tile de rayon autour du point choisi',
     statuts: ['Brûlure'],
-    notes: 'Le lanceur peut être touché s\'il est dans la zone. Ne fait pas de dégâts, sauf si la cible brûle déjà : Brûlure aggravée, des dégâts supplémentaires résistés par la Résilience.',
+    effets: ['Inflige 40 + 1d8 dégâts fixes, Physiques ou Magiques selon la Défense la plus haute de la cible', 'Les dégâts sont en partie réduits par la stat Feu de la cible'],
+    notes: 'Le lanceur peut être touché s\'il est dans la zone. Si la cible brûle déjà : Brûlure aggravée, des dégâts supplémentaires résistés par la Résilience.',
   },
   1821: { // Lancer flasque d'acide
     cout: { PA: 1, "Flasque d'acide": 1 },
@@ -1175,6 +1189,17 @@ const DETAILS = {
     conditions: ['Ne pas avoir le statut Troupe'],
     // détail du buff : consommable Escouade Elite de data.js
     buffs: [['Escouade Elite', '30 min après le lancement', '24 h']],
+  },
+  2569: { // Lance-Flamme
+    type: 'Attaque',
+    degats: ['Fixes'],
+    cout: { AT: 1 },
+    portee: '6 Tiles',
+    cible: "Zone en cône devant le lanceur · 6 Tiles de long, 6 Tiles de large au bout (angle d'environ 53°)",
+    statuts: ['Brûlure'],
+    effets: ['Inflige 40 + 1d8 dégâts fixes, Physiques ou Magiques selon la Défense la plus haute de la cible', 'Les dégâts sont en partie réduits par la stat Feu de la cible'],
+    conditions: ['Avoir le statut En Combat'],
+    notes: 'Si la cible brûle déjà : Brûlure aggravée, des dégâts supplémentaires résistés par la Résilience.',
   },
   384: { // Cache de bien
     cout: { AT: 1 },
@@ -2152,7 +2177,7 @@ const DETAILS = {
   76: { // Commencer le tour
     desc: 'Déclare le début du tour du personnage et lui rend tous ses points.',
     recharge: { PA: 1, PM: 1, PS: 1, AT: '1/1 · 3/3 avec armée', PP: 1 },
-    retire: ['Posture en cours', 'Flamboiement', 'Bio-Electricite', 'Bouclier Magique', 'Bouclier Magique (M)', 'Bouclier Magique (P)'],
+    retire: ['Posture en cours', 'Flamboiement', 'Bio-Electricite', 'Bouclier Magique', 'Bouclier Magique (M)', 'Bouclier Magique (P)', 'Bourrasque', 'Levée de bouclier'],
   },
   75: { // Initiative
     portee: '~16 Tiles',

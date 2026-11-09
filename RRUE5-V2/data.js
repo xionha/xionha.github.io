@@ -266,6 +266,7 @@ const STATUSES = {
   "En mouvement": { flatStats: { capTir: -5 }, elemental: {}, notes: ['Octroie : Désarçonner'] },
   "Flamboiement": { flatStats: { deplacement: 2, esquive: 2, parade: 2 }, elemental: {}, notes: [] },
   "Bio-Electricite": { flatStats: { deplacement: 2, esquive: 2, parade: 2 }, elemental: {}, notes: [] },
+  "Bourrasque": { flatStats: { esquive: -3 }, elemental: { air: -5 }, notes: [] },
   "Benediction": { flatStats: { defenseMagique: 2, forceMentale: 1 }, elemental: {}, notes: [] },
   "Humiliation publique": { flatStats: { forceMentale: -1 }, elemental: {}, notes: [] },
   "Fatigue": { maladie: true, parentDelta: { conditionPhysique: -1 }, flatStats: {}, elemental: {}, notes: [] },
@@ -331,7 +332,7 @@ const EQUIPMENT = {
     "Escouade": { flatStats: {}, extraStats: {}, notes: ['Octroie : Mettre en marche'] },
     "Escouade surentraînée": { flatStats: {}, extraStats: {}, notes: ['Octroie : Mettre en marche (Elite)'] },
     "Invocation Occulte": { flatStats: { pv: 100 }, extraStats: {}, notes: ['Octroie le Perk : Invocation Occulte', 'Octroie : Salve de Flèches', 'Débloque : Action de Troupe', 'Octroie le statut : Invocation Occulte', 'Octroie : Sacrifice Invocation Occulte'] },
-    "Golem": { flatStats: {}, extraStats: { puissanceTroupe: 25 }, notes: ['Octroie le Perk : Golem', 'Octroie : Lance-Flamme', 'Octroie : Cache de Bien', 'Débloque : Action de Troupe', 'Débloque : Puissance de Troupe', 'Octroie le statut : Golem'] },
+    "Golem": { flatStats: {}, extraStats: { puissanceTroupe: 25 }, notes: ['Octroie le Perk : Golem', 'Octroie : Salve de Flèches', 'Octroie : Cache de Bien', 'Débloque : Action de Troupe', 'Débloque : Puissance de Troupe', 'Octroie le statut : Golem'] },
     "Golem d'élite": { flatStats: {}, extraStats: { puissanceTroupe: 30 }, notes: ['Octroie le Perk : Golem Elite', 'Octroie : Lance-Flamme', 'Octroie : Cache de Bien', 'Débloque : Action de Troupe', 'Débloque : Puissance de Troupe', 'Octroie le statut : Golem'] },
   },
   amulette: {

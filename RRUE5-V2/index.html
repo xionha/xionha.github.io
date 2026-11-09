@@ -1342,13 +1342,8 @@
       <div class="age-desc" id="transformLocked" style="opacity:0.6; font-style: italic;"></div>
       <div class="age-desc" id="transformDesc"></div>
 
-      <div class="panel-title">Elementaires</div>
-      <div class="age-selector" id="elementaireSelector">
-        <!-- boutons d'élémentaire injectés ici -->
-      </div>
-      <div class="age-desc" id="elementaireDesc"></div>
-
       <div class="panel-title">Voie Jumelle</div>
+      <div class="age-desc" style="opacity:0.7; font-style: italic;">S'active uniquement avec une arme à une main et une arme « Main Gauche » équipées.</div>
       <div class="age-selector" id="voieJumelleSelector"></div>
       <div class="age-desc" id="voieJumelleDesc"></div>
 
@@ -1417,7 +1412,10 @@ function statusEffectText(data){
 }
 
 function talentEffectText(t){
-  let html = statChipsHTML(Object.entries(t.effects).map(([k, v]) => [TALENT_STAT_LABELS[k] || k, v]));
+  let html = statChipsHTML([
+    ...Object.entries(t.effects).map(([k, v]) => [TALENT_STAT_LABELS[k] || k, v]),
+    ...Object.entries(t.elemental || {}).map(([k, v]) => [ELEMENTAL_STATS[k] || k, v]),
+  ]);
   (t.notes || []).forEach(n => { html += `<span class="stat-chip neutral">${n}</span>`; });
   return html;
 }
@@ -1460,7 +1458,6 @@ let corruptionFlatStats = {}; // bonus fixes du niveau de corruption actuel uniq
 let speciesElemental = {}; // stats élémentaires de l'espèce actuelle
 let curseElemental = {};   // stats élémentaires de la malédiction actuelle
 let corruptionElemental = {}; // stats élémentaires du niveau de corruption actuel
-let elementaireElemental = {}; // stats élémentaires de l'élémentaire actuel
 let elementalBonus = {};   // stats élémentaires combinées (Lumière, Feu, Sang, Air, Eau)
 Object.keys(ELEMENTAL_STATS).forEach(k => elementalBonus[k] = 0);
 const selectedTalents = new Set();
@@ -1519,7 +1516,6 @@ let currentMorphology = null;
 let currentSpecies = null;
 let currentCurse = null;
 let currentCorruption = null;
-let currentElementaire = null;
 let isEsclave = false;
 let noSecondJob = false; // case « Aucun » à côté de Métier 2 : +2 Savoir Faire
 const NO_SECOND_JOB_BONUS = 2;
@@ -1663,7 +1659,10 @@ function recalcElementalStats(){
   Object.entries(speciesElemental).forEach(([k, v]) => { elementalBonus[k] = (elementalBonus[k] || 0) + v; });
   Object.entries(curseElemental).forEach(([k, v]) => { elementalBonus[k] = (elementalBonus[k] || 0) + v; });
   Object.entries(corruptionElemental).forEach(([k, v]) => { elementalBonus[k] = (elementalBonus[k] || 0) + v; });
-  Object.entries(elementaireElemental).forEach(([k, v]) => { elementalBonus[k] = (elementalBonus[k] || 0) + v; });
+  selectedTalents.forEach(name => {
+    const t = TALENTS.find(x => x.name === name);
+    Object.entries((t && t.elemental) || {}).forEach(([k, v]) => { elementalBonus[k] = (elementalBonus[k] || 0) + v; });
+  });
   if (currentTransformation && TRANSFORMATIONS[currentTransformation]) {
     Object.entries(TRANSFORMATIONS[currentTransformation].elemental).forEach(([k, v]) => { elementalBonus[k] = (elementalBonus[k] || 0) + v; });
   }
@@ -1915,55 +1914,6 @@ curseSelector.addEventListener('click', e => {
   const btn = e.target.closest('.age-btn');
   if (!btn) return;
   applyCurse(btn.dataset.curse);
-});
-
-// ---- Construction du sélecteur d'élémentaire ----
-const elementaireSelector = document.getElementById('elementaireSelector');
-const elementaireDesc = document.getElementById('elementaireDesc');
-
-Object.keys(ELEMENTAIRES).forEach(name => {
-  const btn = document.createElement('button');
-  btn.className = 'age-btn';
-  btn.textContent = name;
-  btn.dataset.elementaire = name;
-  elementaireSelector.appendChild(btn);
-});
-const noneElementaireBtn = document.createElement('button');
-noneElementaireBtn.className = 'age-btn active';
-noneElementaireBtn.textContent = 'Aucun';
-noneElementaireBtn.dataset.elementaire = '';
-elementaireSelector.appendChild(noneElementaireBtn);
-
-function applyElementaire(name){
-  currentElementaire = name || null;
-  const data = currentElementaire ? ELEMENTAIRES[currentElementaire] : null;
-
-  elementaireElemental = (data && data.elemental) ? data.elemental : {};
-  recalcElementalStats();
-
-  elementaireSelector.querySelectorAll('.age-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.elementaire === (currentElementaire || ''));
-  });
-
-  if (data) {
-    let html = '';
-    if (data.elemental && Object.keys(data.elemental).length) {
-      Object.entries(data.elemental).forEach(([k, v]) => {
-        html += flatSpanHTML(ELEMENTAL_STATS[k] || k, v);
-      });
-    }
-    elementaireDesc.innerHTML = html;
-  } else {
-    elementaireDesc.innerHTML = '';
-  }
-
-  compute();
-}
-
-elementaireSelector.addEventListener('click', e => {
-  const btn = e.target.closest('.age-btn');
-  if (!btn) return;
-  applyElementaire(btn.dataset.elementaire);
 });
 
 // ---- Construction du statut Esclave (Oui/Non) ----
@@ -2387,12 +2337,17 @@ function toggleTalent(name){
   if (selectedTalents.has(name)) {
     selectedTalents.delete(name);
   } else {
-    if (talentCostUsed() + talent.cost > MAX_TALENT_POINTS) return;
+    // talents d'un même groupe (ex. Élémentaires) : un seul à la fois, le nouveau remplace l'ancien
+    const rivals = talent.group ? TALENTS.filter(t => t.group === talent.group && t.name !== name && selectedTalents.has(t.name)) : [];
+    const freed = rivals.reduce((s, t) => s + t.cost, 0);
+    if (talentCostUsed() - freed + talent.cost > MAX_TALENT_POINTS) return;
+    rivals.forEach(t => selectedTalents.delete(t.name));
     selectedTalents.add(name);
   }
   renderTalentStates();
   updateChangeformeAvailability();
   recalcFlatStats();
+  recalcElementalStats();
   compute();
 }
 
@@ -3674,7 +3629,6 @@ function resetAllState(){
   applySpecies('');
   applyCurse('');
   applyCorruption('');
-  applyElementaire('');
   applyEsclave('Non');
   applyTeneriffe('Non');
   applyVoieJumelle('Non');
@@ -3720,7 +3674,7 @@ function serializeBuild(){
     v: 1,
     state: { ...state },
     parentState: { ...parentState },
-    currentTemperament, currentMorphology, currentSpecies, currentCurse, currentCorruption, currentElementaire,
+    currentTemperament, currentMorphology, currentSpecies, currentCurse, currentCorruption,
     isEsclave, isTeneriffe, isVoieJumelle, noSecondJob,
     currentTransformation, currentTransformationChangeforme,
     currentPosture,
@@ -3754,13 +3708,14 @@ function loadBuildData(data){
   applySpecies(data.currentSpecies || '');
   applyCurse(data.currentCurse || '');
   applyCorruption(data.currentCorruption || '');
-  applyElementaire(data.currentElementaire || '');
   applyEsclave(data.isEsclave ? 'Oui' : 'Non');
   applyTeneriffe('Non'); // Buff Ténériffe masqué (en chantier) : jamais réactivé par une sauvegarde
   applyVoieJumelle(data.isVoieJumelle ? 'Oui' : 'Non');
   applyNoSecondJob(!!data.noSecondJob);
 
   (data.selectedTalents || []).forEach(name => { if (TALENTS.find(t => t.name === name)) selectedTalents.add(name); });
+  // anciennes sauvegardes : l'Élémentaire était une bascule à part, c'est maintenant un talent
+  if (data.currentElementaire && TALENTS.find(t => t.name === data.currentElementaire) && talentCostUsed() + 1 <= MAX_TALENT_POINTS) selectedTalents.add(data.currentElementaire);
   renderTalentStates();
   updateChangeformeAvailability();
 
@@ -3867,7 +3822,6 @@ applyTemperament('');
 applyMorphology('');
 applySpecies('');
 applyCurse('');
-applyElementaire('');
 applyEsclave('Non');
 applyTeneriffe('Non');
 applyVoieJumelle('Non');

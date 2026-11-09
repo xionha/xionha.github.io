@@ -174,14 +174,6 @@ const CORRUPTION = {
   },
 };
 
-// ---- Élémentaires : bascule unique, effets directs sur les stats élémentaires ----
-const ELEMENTAIRES = {
-  "Elementaire de feu":  { elemental: { feu: 15, eau: -15 } },
-  "Elementaire d'eau":   { elemental: { eau: 15, air: -15 } },
-  "Elementaire de terre": { elemental: { terre: 15, feu: -15 } },
-  "Elementaire d'air":   { elemental: { air: 15, terre: -15 } },
-};
-
 // ---- Statut Esclave : bascule Oui/Non, effets directs sur les attributs ----
 // ---- Transformation : bascule unique parmi les formes disponibles (Démoniaque / Lycanthrope I) ----
 const TRANSFORMATIONS = {
@@ -496,4 +488,9 @@ const TALENTS = [
   { name: 'Vif', cost: 1, effects: { initiative: 2 } },
   { name: "Mental d'acier", cost: 1, effects: { forceMentale: 2 } },
   { name: 'Vol', cost: 1, effects: {}, notes: ['Octroie : Bond Ailé'] },
+  // Élémentaires : un seul à la fois (group), effets sur les stats élémentaires
+  { name: 'Elementaire de feu', cost: 1, effects: {}, elemental: { feu: 15, eau: -15 }, group: 'elementaire' },
+  { name: "Elementaire d'eau", cost: 1, effects: {}, elemental: { eau: 15, air: -15 }, group: 'elementaire' },
+  { name: 'Elementaire de terre', cost: 1, effects: {}, elemental: { terre: 15, feu: -15 }, group: 'elementaire' },
+  { name: "Elementaire d'air", cost: 1, effects: {}, elemental: { air: 15, terre: -15 }, group: 'elementaire' },
 ];

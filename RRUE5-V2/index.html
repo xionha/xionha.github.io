@@ -3713,7 +3713,8 @@ function loadBuildData(data){
   applyVoieJumelle(data.isVoieJumelle ? 'Oui' : 'Non');
   applyNoSecondJob(!!data.noSecondJob);
 
-  (data.selectedTalents || []).forEach(name => { if (TALENTS.find(t => t.name === name)) selectedTalents.add(name); });
+  const RENAMED_TALENTS = { 'Instinct de tueur': 'Combattant Arcanique' }; // anciennes sauvegardes
+  (data.selectedTalents || []).forEach(raw => { const name = RENAMED_TALENTS[raw] || raw; if (TALENTS.find(t => t.name === name)) selectedTalents.add(name); });
   // anciennes sauvegardes : l'Élémentaire était une bascule à part, c'est maintenant un talent
   if (data.currentElementaire && TALENTS.find(t => t.name === data.currentElementaire) && talentCostUsed() + 1 <= MAX_TALENT_POINTS) selectedTalents.add(data.currentElementaire);
   renderTalentStates();

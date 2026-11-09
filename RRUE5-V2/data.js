@@ -34,7 +34,7 @@ const ATTRIBUTES = [
 // Exception : Capacité de Combat à 0.0625 (l'éditeur affiche 0,062) car Force 3 + Adresse 3 → 3 en jeu (48 × 0.062 donnerait 2).
 const STAT_FORMULAS = {
   pv:             { base: 150, finalMultiplier: 0.06, sources: { endurance: 50, volonte: 10, resilience: 40 } },
-  mana:           { base: 50,  finalMultiplier: 0.05, sources: { perceptionMagique: 50, endurance: 50 } },
+  mana:           { base: 50,  finalMultiplier: 0.5, sources: { perceptionMagique: 10, endurance: 15 } },
   corruption:     { base: 0, finalMultiplier: 5, sources: { volonte: 2, resilience: 1 } },
   initiative:     { base: 0, finalMultiplier: 0.062, sources: { vitesse: 14, volonte: 2 } },
   deplacement:    { base: 0, finalMultiplier: 0.036, sources: { vitesse: 7, endurance: 3 } },
@@ -475,7 +475,7 @@ const TALENTS = [
   { name: 'Anomalie Magique', cost: 1, effects: { degatsMagique: 5 } },
   { name: 'Bagarreur', cost: 1, effects: { capCombat: 1, parade: 1 } },
   { name: "Œil d'aigle", cost: 1, effects: { capTir: 2 } },
-  { name: 'Instinct de tueur', cost: 1, effects: { capCombat: 2 } },
+  { name: 'Combattant Arcanique', cost: 1, effects: { capCombat: 1, incantation: 1 } },
   { name: 'Cascadeur', cost: 1, effects: { initiative: 1, esquive: 1 } },
   { name: 'Clairvoyant', cost: 1, effects: { incantation: 1, initiative: 1 } },
   { name: 'Destructeur', cost: 1, effects: { degatsPhysique: 5 } },

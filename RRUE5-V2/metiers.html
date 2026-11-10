@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Métiers et Crafts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Cinzel+Decorative:wght@700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="abilities.css">
+<style>
+  .metiers-wrap{ max-width: 1180px; margin: 0 auto; }
+  .metiers-tools{ display: flex; flex-direction: column; gap: 12px; margin-bottom: 18px; }
+  .metiers-tools .search-box{ display: block; flex: none; max-width: 520px; width: 100%; margin: 0 auto; }
+  .metiers-tabs{ display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+  .metiers-tabs button{ font-family: var(--font-display); font-size: 14px; color: var(--text-dim); border: 1px solid var(--border); border-radius: 999px; padding: 6px 14px; background: var(--surface-2); cursor: pointer; }
+  .metiers-tabs button:hover{ color: var(--bronze-bright); border-color: var(--bronze-bright); }
+  .metiers-tabs button span{ color: var(--text-faint); font-size: 12px; margin-left: 4px; }
+  .metiers-tabs button[aria-selected="true"]{ color: var(--bg); background: var(--bronze-bright); border-color: var(--bronze-bright); }
+  .metiers-tabs button[aria-selected="true"] span{ color: var(--surface-3); }
+  .search-status{ text-align: center; color: var(--text-faint); font-style: italic; margin: 0; }
+  .unit-hint{ text-align: center; color: var(--text-faint); font-size: 14px; margin: 0; }
+  .metier{ background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px 14px; margin-bottom: 16px; box-shadow: 0 8px 24px var(--shadow-deep); }
+  .metier h2{ font-family: var(--font-display); font-size: 22px; color: var(--bronze-bright); margin: 0 0 12px; letter-spacing: 0.04em; }
+  .metier-desc{ color: var(--text-dim); margin: -6px 0 12px; font-style: italic; }
+  .groups{ display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; align-items: start; }
+  .group{ background: var(--surface-2); border: 1px solid var(--border-soft); border-radius: 8px; padding: 10px 12px 6px; }
+  .group h3{ font-family: var(--font-display); font-size: 14px; letter-spacing: 0.06em; color: var(--bronze); margin: 0 0 6px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .crafts{ list-style: none; margin: 0; padding: 0; }
+  .crafts li{ display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 5px 4px; border-bottom: 1px solid var(--border-soft); break-inside: avoid; }
+  .crafts li:last-child{ border-bottom: 0; }
+  .crafts li:hover{ background: var(--surface-3); }
+  .obj{ display: flex; flex-direction: column; }
+  .craft-note{ color: var(--text-faint); font-size: 14px; font-style: italic; }
+  .pts{ color: var(--gold); font-weight: 700; font-size: 18px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pts.unknown{ color: var(--text-faint); font-weight: 400; }
+  /* Métier sans sous-catégorie : la liste s'étale sur plusieurs colonnes */
+  .metier.single .groups{ display: block; }
+  .metier.single .group{ background: none; border: 0; padding: 0; }
+  .metier.single .crafts{ columns: 3 260px; column-gap: 28px; }
+  .metier.single .crafts li:last-child{ border-bottom: 1px solid var(--border-soft); }
+  /* Recherche : tous les métiers correspondants s'affichent, en plus compact */
+  .searching .metier{ padding: 12px 16px 10px; }
+  .searching .metier h2{ font-size: 18px; margin-bottom: 8px; }
+  @media (max-width: 520px){ body{ padding: 20px 16px 80px; } .groups{ grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="hero">
+    <svg class="hero-glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M14.5 4.5 19.5 9.5 17 12 12 7Z"/><path d="M13.3 8.3 4.5 17.1a1.6 1.6 0 0 0 2.3 2.3l8.8-8.8"/><path d="M3.5 20.5h7"/>
+    </svg>
+    <h1>Métiers et Crafts</h1>
+    <p>Ce que chaque métier peut fabriquer, et son coût en points de projets</p>
+    <div class="hero-rule"><span class="diamond"></span></div>
+    <nav class="hero-links" aria-label="Pages">
+      <a class="back-link" href="index.html">Simulateur d'Attributs</a>
+      <a class="back-link" href="abilities.html">Encyclopédie des Aptitudes</a>
+      <a class="back-link erp-link" href="abilities-erp.html">Aptitudes ERP</a>
+      <a class="back-link" href="metiers.html" aria-current="page">Métiers et Crafts</a>
+    </nav>
+  </header>
+
+  <div class="metiers-wrap">
+    <div class="metiers-tools">
+      <label class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input class="search" id="search" type="search" placeholder="Rechercher un objet dans tous les métiers…" autocomplete="off" aria-label="Rechercher un objet">
+        <kbd>/</kbd>
+      </label>
+      <nav class="metiers-tabs" id="metiers-tabs" role="tablist" aria-label="Métiers"></nav>
+      <p class="unit-hint">Coûts en points de projets</p>
+      <p class="search-status" id="search-status" aria-live="polite" hidden></p>
+    </div>
+    <main id="metiers"></main>
+  </div>
+</div>
+<script src="metiers.js"></script>
+</body>
+</html>

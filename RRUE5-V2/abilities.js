@@ -287,6 +287,7 @@ const PREMIER_TOUR_COND = 'Ne pas avoir le statut Premier Tour';
 const RESIST_RULES = [['Brûlure', 'Résilience'], ['Saignement', 'Résilience'], ['Poison', 'Métabolisme'], ['Poison de Mana', 'Métabolisme']];
 // Jets d'attaque par défaut (règle générale, valable dans la plupart des cas) : attaquant VS défenseur.
 // Référence seulement, NON affichée. Une aptitude peut avoir un jet différent (champ `jet` de DETAILS).
+// Champ caché `inesquivable: true` dans DETAILS : les cibles ne font pas de jet d'Esquive (non affiché).
 const ATTACK_ROLL_RULES = {
   physique:     { label: 'Attaque physique / mêlée',            attaque: '3d6 + Capacité de combat', defense: '3d6 + Esquive' },
   elementaire:  { label: 'Magies élémentaires (Feu, Eau, Terre, Air)', attaque: '3d6 + Incantation', defense: '3d6 + Esquive' },
@@ -487,6 +488,7 @@ const DETAILS = {
     sources: ['Pyromancie'],
   },
   1451: { // Boule de Feu
+    inesquivable: true, // donnée cachée : jamais affichée (les cibles ne font pas de jet d'Esquive)
     type: 'Attaque',
     cout: { PS: 1, Mana: 10 },
     portee: '6 Tiles',
@@ -563,13 +565,14 @@ const DETAILS = {
     sources: ['Hydromancie'],
   },
   1507: { // Vent Toxique
+    inesquivable: true, // donnée cachée : jamais affichée (les cibles ne font pas de jet d'Esquive)
     cout: { PS: 1, Mana: 10 },
     portee: '6 Tiles',
     cible: 'Zone · 1.5 Tiles de rayon autour du point choisi',
     statuts: ['Poison'],
     conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Air)'],
     sources: ['Aéromancie'],
-    notes: "Ne fait pas de dégâts, sauf si la cible est déjà empoisonnée : Poison aggravé, des dégâts supplémentaires résistés par le Métabolisme. Le lanceur peut être touché s'il est dans la zone.",
+    notes: "Ne fait pas de dégâts, sauf si la cible est déjà empoisonnée : Poison aggravé, des dégâts supplémentaires résistés par le Métabolisme. Le lanceur n'est pas affecté, même s'il est dans la zone.",
   },
   1595: { // Chaine d'éclairs
     type: 'Attaque',
@@ -610,17 +613,20 @@ const DETAILS = {
     cout: { PS: 1, Mana: 10 },
     portee: '6 Tiles',
     cible: 'Zone · 2 Tiles de rayon autour du point choisi',
+    jet: "3d6 + Incantation contre 14 pour lancer le sort, puis chaque cible fait un jet d'Esquive pour l'éviter",
     statuts: ['Confus'],
     conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Air)'],
     sources: ['Aéromancie'],
     notes: "Ne fait pas de dégâts. Le lanceur peut être touché s'il est dans la zone.",
   },
   1548: { // Foudroiement
+    inesquivable: true, // donnée cachée : jamais affichée (les cibles ne font pas de jet d'Esquive)
     type: 'Attaque',
     cout: { PS: 1, Mana: 10 },
     portee: '6 Tiles',
     cible: 'Zone · 1.5 Tiles de rayon autour du point choisi',
     degats: ['Magiques', 'Air'],
+    jet: '3d6 + Incantation contre 18 pour lancer le sort',
     conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Air)'],
     sources: ['Aéromancie'],
     notes: "Le lanceur peut être touché s'il est dans la zone.",
@@ -651,7 +657,7 @@ const DETAILS = {
     effets: ["Déplace les cibles d'environ 1.49 Tiles : une cible qui fait face au lanceur est repoussée, une cible qui lui tourne le dos est attirée vers lui"],
     conditions: ['Ne pas être transformé', 'Ne pas avoir le statut Incantation Interdite (Air)'],
     sources: ['Aéromancie'],
-    notes: 'Ne fait pas de dégâts.',
+    notes: "Ne fait pas de dégâts. Le lanceur n'est pas affecté, même s'il est dans la zone.",
   },
   1659: { // Trou Noir
     cout: { PS: 1, Mana: 30 },
@@ -1112,6 +1118,7 @@ const DETAILS = {
     notes: 'Le lanceur perd 20 Mana et la cible en gagne 20.',
   },
   869: { // Bombe incendiaire
+    inesquivable: true, // donnée cachée : jamais affichée (les cibles ne font pas de jet d'Esquive)
     type: 'Attaque',
     degats: ['Fixes'],
     cout: { PA: 1, 'Bombe Incendiaire': 1 },
@@ -1119,7 +1126,7 @@ const DETAILS = {
     cible: 'Zone · 1 Tile de rayon autour du point choisi',
     statuts: ['Brûlure'],
     effets: ['Inflige 40 + 1d8 dégâts fixes, Physiques ou Magiques selon la Défense la plus haute de la cible', 'Les dégâts sont en partie réduits par la stat Feu de la cible'],
-    notes: 'Le lanceur peut être touché s\'il est dans la zone. Si la cible brûle déjà : Brûlure aggravée, des dégâts supplémentaires résistés par la Résilience.',
+    notes: 'Le lanceur est affecté s\'il est dans la zone. Si la cible brûle déjà : Brûlure aggravée, des dégâts supplémentaires résistés par la Résilience.',
   },
   1821: { // Lancer flasque d'acide
     cout: { PA: 1, "Flasque d'acide": 1 },
@@ -1129,11 +1136,12 @@ const DETAILS = {
     notes: 'Ne fait pas de dégâts.',
   },
   2560: { // Lancer Fumigene
+    inesquivable: true, // donnée cachée : jamais affichée (les cibles ne font pas de jet d'Esquive)
     cout: { PA: 1, 'Fumigène': 1 },
     portee: '6 Tiles',
     cible: 'Zone · 1.5 Tiles de rayon autour du point choisi',
     statuts: ['Confus'],
-    notes: 'Ne fait pas de dégâts. Le lanceur n\'est pas touché, même s\'il est dans la zone.',
+    notes: 'Ne fait pas de dégâts. Le lanceur n\'est pas affecté, même s\'il est dans la zone.',
   },
   637: { // Manger casse-croute
     cout: { 'Casse-Croute': 1 },
@@ -1947,6 +1955,50 @@ const DETAILS = {
     cible: 'Soi',
     effets: ['Produit un objet : 1x Poison toxique'],
   },
+  334: { // Transformation Araignee
+    cible: 'Soi',
+    conditions: ['Ne pas être transformé'],
+  },
+  565: { // Transformation Cervide
+    cible: 'Soi',
+    conditions: ['Ne pas être transformé'],
+  },
+  566: { // Transformation Lagomorphe
+    cible: 'Soi',
+    conditions: ['Ne pas être transformé'],
+  },
+  567: { // Transformation Felin
+    cible: 'Soi',
+    conditions: ['Ne pas être transformé'],
+  },
+  568: { // Transformation Canide
+    cible: 'Soi',
+    conditions: ['Ne pas être transformé'],
+  },
+  569: { // Transformation Aviaire
+    cible: 'Soi',
+    conditions: ['Ne pas être transformé'],
+  },
+  570: { // Transformation Vulpes
+    cible: 'Soi',
+    conditions: ['Ne pas être transformé'],
+  },
+  571: { // Transformation Urside
+    cible: 'Soi',
+    conditions: ['Ne pas être transformé'],
+  },
+  572: { // Transformation Aquatique
+    cible: 'Soi',
+    conditions: ['Ne pas être transformé'],
+  },
+  573: { // Transformation Reptile
+    cible: 'Soi',
+    conditions: ['Ne pas être transformé'],
+  },
+  575: { // Transformation Dragon
+    cible: 'Soi',
+    conditions: ['Ne pas être transformé'],
+  },
   576: { // Transformation Lycanthrope I
     cible: 'Soi',
     conditions: ["Ne pas avoir d'arme équipée", "Ne pas avoir d'armure équipée", 'Ne pas avoir de Monture', 'Ne pas être transformé', "Ne pas avoir d'objet en main gauche", 'Ne pas avoir de Bouclier', 'Ne pas avoir de Bouclier de qualité'],
@@ -1981,7 +2033,7 @@ const DETAILS = {
     degats: ['Tranchants fixes', 'Physiques'],
     statuts: ['Saignement'],
     conditions: ['Avoir le statut En Combat'],
-    notes: "Dégâts Tranchants fixes (pas influencés par l'arme) + les Dégâts Physiques. Si la cible saigne déjà : Saignement aggravé, des dégâts de Sang supplémentaires résistés par la Résilience.",
+    notes: "25 dégâts Tranchants fixes (pas influencés par l'arme ni par les bonus Tranchants) + les Dégâts Physiques. Si la cible saigne déjà : Saignement aggravé, des dégâts de Sang supplémentaires résistés par la Résilience.",
   },
   712: { // Coup Tourbillonnant
     type: 'Attaque',

@@ -104,11 +104,11 @@ const ALL_CATEGORIES = [
       { label: 'Arcane', abilities: [
         [1665, 'Bouclier Arcanique'], [2363, 'Visage trouble'], [1554, 'Vision troublantes'],
         [2496, 'Disruption Toxique'], [1555, 'Vol Etherique'], [1556, 'Liens Magiques'], [1557, 'Poids Arcanique'],
-        [1632, 'Visions'], [2559, 'Désorientation Synaptique'],
+        [2559, 'Désorientation Synaptique'],
       ]},
       { label: 'Sorcellerie', abilities: [
         [1624, 'Aura inquiétante'], [1630, 'Se mutiler'], [1631, 'Invocation'],
-        [1961, 'Visions (Sorcier)'], [1639, "Poids de l'âme"], [1642, 'Bouclier de corruption'],
+        [1639, "Poids de l'âme"], [1642, 'Bouclier de corruption'],
         [1643, 'Camoufler Corruption'],
       ]},
       { label: 'Magie utilitaire', abilities: [
@@ -213,9 +213,6 @@ const ALL_CATEGORIES = [
         [634, 'Lancer filet'], [869, 'Bombe incendiaire'], [1459, "Pierre d'éclat"], [1821, "Lancer flasque d'acide"],
         [2560, 'Lancer Fumigene'], [2516, "Pousser pierre d'inhbition", { verify: true }],
       ]},
-      { label: 'Tomes & parchemins', abilities: [
-        [1871, 'Tome de malédictions'], [9007, 'Mot de "La Peste"'], [9010, 'Mot de "Don ravi"'], [9006, 'Mot de "Pas incertain"'], [9008, 'Mot de "Vague Nacrée"'], [9009, 'Mot de "Puanteur de l\'Âme"'],
-      ]},
     ],
   },
   {
@@ -248,6 +245,19 @@ const ALL_CATEGORIES = [
 ];
 // Catégorie ERP : définie dans abilities-erp.js, affichée sur sa propre page (abilities-erp.html)
 if (typeof CATEGORY_ERP !== 'undefined') ALL_CATEGORIES.splice(ALL_CATEGORIES.findIndex(c => c.key === 'systeme'), 0, CATEGORY_ERP);
+// Contenu secret (anti-spoil) : fichier secret.js optionnel, non partagé. Absent = rien n'est ajouté.
+if (window.SECRET && window.SECRET.groups) window.SECRET.groups.forEach(({ category, group }) => {
+  const cat = ALL_CATEGORIES.find(c => c.key === category); if (cat) cat.groups.push(group);
+});
+// Aptitudes secrètes insérées dans un groupe existant : { group: 'label', ability: [id, nom], after: id }
+if (window.SECRET && window.SECRET.inserts) window.SECRET.inserts.forEach(({ group, ability, after }) => {
+  ALL_CATEGORIES.forEach(c => c.groups.forEach(g => {
+    if (g.label !== group) return;
+    const k = g.abilities.findIndex(a => a[0] === after);
+    g.abilities.splice(k < 0 ? g.abilities.length : k + 1, 0, ability);
+  }));
+});
+ALL_CATEGORIES.forEach(c => { c.groups = c.groups.filter(g => !g.hidden); });
 const PAGE_MODE = window.ENCYCLO_MODE === 'erp' ? 'erp' : 'main';
 const CATEGORIES = ALL_CATEGORIES.filter(c => (c.key === 'erp') === (PAGE_MODE === 'erp'));
 const OTHER_PAGE = PAGE_MODE === 'erp' ? 'abilities.html' : 'abilities-erp.html';
@@ -307,51 +317,6 @@ const DETAILS = {
   1739: { // Valider ma fiche !
     desc: 'Marque le personnage comme validé et lui débloque les menus d\'actions (quotidiennes et autres) ainsi que sa barre de Projet.',
   },
-  1871: { // Tome de malédictions
-    desc: 'Ouvre un menu pour choisir un sort de malédiction à lancer.',
-    cible: 'Soi',
-    menus: ['Mot de "La Peste"', 'Mot de "Don ravi"', 'Mot de "Pas incertain"', 'Mot de "Vague Nacrée"', 'Mot de "Puanteur de l\'Âme"'],
-    conditions: ['Avoir Sorcier ou Pretre'],
-  },
-  9007: { // Mot de "La Peste" (n° provisoire : n° en jeu inconnu)
-    cout: { 'Échantillon de sang': 1 },
-    cible: "1 cible · le propriétaire de l'Échantillon de sang",
-    statuts: ['Fatigue (3 jours)', 'Courbatures (3 jours)', 'Fièvre (3 jours)', 'Teint livide (3 jours)', 'Respiration sifflante (3 jours)'],
-    effets: ['Inflige une maladie au hasard, qui applique une partie des statuts listés', 'Les statuts prennent effet 24 h après le lancement'],
-    notes: 'Les statuts peuvent être soignés avec des Remèdes.',
-    sources: ['Tome de malédictions (menu)'],
-  },
-  9006: { // Mot de "Pas incertain" (n° provisoire : n° en jeu inconnu)
-    cout: { 'Échantillon de sang': 1 },
-    cible: "1 cible · le propriétaire de l'Échantillon de sang",
-    statuts: ['Pied-Bot (7 jours)'],
-    effets: ['Applique le statut Malediction au propriétaire du sang, qui lui octroie le perk Pied-Bot pendant 7 jours'],
-    sources: ['Tome de malédictions (menu)'],
-  },
-  9008: { // Mot de "Vague Nacrée" (n° provisoire : n° en jeu inconnu)
-    cout: { 'Semence': 1 },
-    cible: '1 cible · le propriétaire de la Semence',
-    effets: ['Fait jouir en public le propriétaire de la Semence'],
-    sources: ['Tome de malédictions (menu)'],
-  },
-  9009: { // Mot de "Puanteur de l'Âme" (n° provisoire : n° en jeu inconnu)
-    cout: { 'Échantillon de sang': 1 },
-    cible: "1 cible · le propriétaire de l'Échantillon de sang",
-    statuts: ['Puanteur Surnaturelle (7 jours)'],
-    effets: ['Applique le statut Malediction, qui donne le statut visible Puanteur Surnaturelle pendant 7 jours'],
-    sources: ['Tome de malédictions (menu)'],
-  },
-  9010: { // Mot de "Don ravi" (n° provisoire : n° en jeu inconnu)
-    cout: { 'Échantillon de sang': 1 },
-    cible: "1 cible · le propriétaire de l'Échantillon de sang",
-    statuts: ['Incantation Interdite (Feu) (7 jours)', 'Incantation Interdite (Eau) (7 jours)', 'Incantation Interdite (Air) (7 jours)', 'Incantation Interdite (Terre) (7 jours)', 'Incantation Interdite (Lumière) (7 jours)', 'Incantation Interdite (Sang) (7 jours)', 'Incantation Interdite (Arcane) (7 jours)'],
-    effets: [
-      'Vole une Magie au propriétaire du sang',
-      'Crée des Cristaux de la magie volée',
-      "Le propriétaire reçoit l'Incantation Interdite correspondant à la magie volée pendant 7 jours",
-    ],
-    sources: ['Tome de malédictions (menu)'],
-  },
   555: { // Sucer le sang
     cooldown: '20 h',
     portee: '1 Tile',
@@ -376,22 +341,6 @@ const DETAILS = {
     cible: 'Soi',
     effets: ["Produit une Invocation Occulte (troupe) et la place dans l'inventaire"],
     conditions: ['Avoir le statut Corruption Visible'],
-  },
-  1632: { // Visions
-    cout: { Mana: 5 },
-    cooldown: '30 min',
-    cible: 'Un personnage (désigné dans le texte)',
-    desc: 'Permet d\'envoyer une vision à un personnage : le lanceur décrit par écrit la vision qu\'il souhaite envoyer.',
-    conditions: ['Ne pas avoir le statut Incantation Interdite (Arcane)'],
-    sources: ['Arcaniste'],
-    notes: 'Une vision reste une manifestation mentale et illusoire : elle ne peut provoquer aucune blessure, séquelle physique ou psychologique réelle, ni imposer de conséquences permanentes au personnage qui la reçoit.',
-  },
-  1961: { // Visions (Sorcier)
-    cout: { Corruption: 5 },
-    cooldown: '30 min',
-    cible: 'Un personnage (désigné dans le texte)',
-    desc: 'Permet d\'envoyer une vision à un personnage : le lanceur décrit par écrit la vision qu\'il souhaite envoyer.',
-    notes: 'Une vision reste une manifestation mentale et illusoire : elle ne peut provoquer aucune blessure, séquelle physique ou psychologique réelle, ni imposer de conséquences permanentes au personnage qui la reçoit.',
   },
   1477: { // Briser esprit
     cooldown: '2 h',
@@ -2257,6 +2206,7 @@ const DETAILS = {
     notes: 'En chantier.',
   },
 };
+if (window.SECRET && window.SECRET.details) Object.assign(DETAILS, window.SECRET.details);
 // Variantes qui fonctionnent exactement comme une autre aptitude
 // fiches ERP documentées dans abilities-erp.js
 if (typeof DETAILS_ERP !== 'undefined') Object.assign(DETAILS, DETAILS_ERP);

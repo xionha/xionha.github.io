@@ -274,7 +274,6 @@ const STATUSES = {
   "Fièvre": { maladie: true, parentDelta: { esprit: -1 }, flatStats: {}, elemental: {}, notes: [] },
   "Teint livide": { maladie: true, parentDelta: { presence: -1 }, flatStats: {}, elemental: {}, notes: [] },
   "Respiration sifflante": { maladie: true, parentDelta: { conditionPhysique: -1 }, flatStats: {}, elemental: {}, notes: [] },
-  "Pied-Bot": { flatStats: { esquive: -6, deplacement: -1, defense: -10 }, elemental: {}, notes: ['Malédiction (Mot de "Pas incertain")'] },
   "Ferveur guerrière": { flatStats: {}, extraStats: { puissanceTroupe: 10 }, elemental: {}, notes: [] },
   "Controle": { flatStats: { pointsAction: -2, pointsMouvement: -2, actionSpeciale: -2, esquive: -10, parade: -10 }, elemental: {}, notes: ['Octroie : Terminer tour (Controle)'] },
 };
@@ -457,7 +456,6 @@ const EQUIPMENT = {
     "Tome Sang": { flatStats: {}, extraStats: {}, notes: ['Octroie le Perk : Tome Sang'] },
     "Tome Lumière": { flatStats: {}, extraStats: {}, notes: ['Octroie le Perk : Tome Lumière'] },
     "Tome Arcane": { flatStats: {}, extraStats: {}, notes: ['Octroie le Perk : Tome Arcane'] },
-    "Tome de malédictions": { flatStats: {}, extraStats: {}, notes: ['Octroie : Tome de malédictions'] },
   },
 };
 

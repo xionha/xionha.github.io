@@ -186,7 +186,7 @@ const TRANSFORMATIONS_CHANGEFORME = {
   "Aquatique": { flatStats: {}, elemental: { air: -5, eau: 5 }, notes: ['Octroie : Coup de Caudale', 'Octroie : Reprendre Forme Humaine', 'Octroie : Crachat Puissant'] },
   "Araignée": { flatStats: { deplacement: 1 }, elemental: {}, notes: ['Octroie : Reprendre Forme Humaine', 'Octroie : Produire Toxine', 'Octroie : Tisser Toile'] },
   "Aviaire": { flatStats: {}, elemental: {}, notes: ['Octroie : Coup de griffes', 'Octroie : Reprendre forme Humaine', 'Octroie : Bond Ailé'] },
-  "Dragon": { flatStats: {}, elemental: {}, notes: ['Octroie : Bond', 'Octroie : Reprendre Forme Humaine', 'Octroie : Souffle Enflammé'] },
+  "Dragon": { flatStats: {}, elemental: {}, notes: ['Octroie : Bond Ailé', 'Octroie : Reprendre Forme Humaine', 'Octroie : Souffle Enflammé'] },
   "Canidé": { flatStats: { capCombat: 1 }, elemental: {}, notes: ['Octroie : Bond', 'Octroie : Morsure', 'Octroie : Reprendre Forme Humaine'] },
   "Cervidé": { flatStats: { esquive: 1 }, elemental: {}, notes: ['Octroie : Bond', 'Octroie : Reprendre Forme Humaine', 'Octroie : Empaler'] },
   "Félin": { flatStats: { esquive: 1 }, elemental: {}, notes: ['Octroie : Coup de Griffes', 'Octroie : Bond', 'Octroie : Reprendre Forme Humaine'] },

@@ -128,10 +128,10 @@ const PARENT_LABELS_SHORT = { conditionPhysique: 'Condition Physique', esprit: '
 // ---- Malédiction : effets directs sur les attributs de base + bonus fixes sur certaines caractéristiques ----
 // attrDelta agit DIRECTEMENT sur les attributs (pas via les stats parentes, contrairement à Tempérament/Morphologie/Espèce)
 const CURSES = {
-  "Démon": { attrDelta: {}, flatStats: {}, elemental: { lumiere: -10 }, notes: ['Octroie : Charme-Personne', 'Octroie : Pacte Démoniaque', 'Octroie : Transformation Démoniaque'] },
-  "Vampire": { attrDelta: {}, flatStats: { forceMentale: 1, capCombat: 1 }, elemental: { sang: 10, lumiere: -10, feu: -20 }, notes: ['Octroie : Frappe Télékinétique', 'Octroie : Charme-Personne', 'Octroie : Sucer le Sang'] },
-  "Lycan": { attrDelta: {}, flatStats: {}, elemental: { lumiere: -20, sang: 10 }, notes: ['Octroie : Transformation Lycanthrope I'] },
-  "Mort Vivant": { attrDelta: {}, flatStats: {}, elemental: { lumiere: -30, feu: -30 }, notes: ['Immunisé au Saignement', 'Immunisé au Poison'] },
+  "Démon": { attrDelta: {}, flatStats: { corruption: 10 }, elemental: { lumiere: -10 }, notes: ['Octroie : Charme-Personne', 'Octroie : Pacte Démoniaque', 'Octroie : Transformation Démoniaque'] },
+  "Vampire": { attrDelta: {}, flatStats: { forceMentale: 1, capCombat: 1, corruption: 10 }, elemental: { sang: 10, lumiere: -10, feu: -20 }, notes: ['Octroie : Frappe Télékinétique', 'Octroie : Charme-Personne', 'Octroie : Sucer le Sang'] },
+  "Lycan": { attrDelta: {}, flatStats: { corruption: 10 }, elemental: { lumiere: -20, sang: 10 }, notes: ['Octroie : Transformation Lycanthrope I'] },
+  "Mort Vivant": { attrDelta: {}, flatStats: { corruption: 10 }, elemental: { lumiere: -30, feu: -30 }, notes: ['Immunisé au Saignement', 'Immunisé au Poison'] },
 };
 
 // ---- Corruption : un seul niveau actif à la fois (paliers non cumulables) ----

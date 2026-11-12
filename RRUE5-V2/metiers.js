@@ -78,7 +78,7 @@ const METIERS = [
         ['Poison de Mana', 10], ['Antidote Poison de Mana', 5], ['Poison Toxique', 10], ['Antidote Poison Toxique', 5],
       ] },
       { titre: 'Potions et remèdes', crafts: [
-        ['Potion de Mana', 4], ['Baume cicatrisant', 3], ['Baume anti brûlure', 3], ['Potion de vie', 4],
+        ['3× Potion de Mana', 4], ['Baume cicatrisant', 3], ['Baume anti brûlure', 3], ['3× Potion de vie', 4],
         ['Philtre de fertilité', 3], ["Philtre d'infertilité", 3], ['Remède Brume Ecarlate', 4],
         ['Remède Langueur des tombes', 4], ['Remède Lenteur du sang', 4],
       ] },
@@ -117,7 +117,7 @@ const METIERS = [
   {
     nom: 'Médecin',
     crafts: [
-      ['Baume cicatrisant', 3], ['Baume anti brûlure', 3], ['Potion de vie', 4],
+      ['Baume cicatrisant', 3], ['Baume anti brûlure', 3], ['3× Potion de vie', 4],
       ['Remède Brume Ecarlate', 4], ['Remède Langueur des tombes', 4], ['Remède Lenteur du sang', 4],
     ],
   },

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Accès restreint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Cinzel+Decorative:wght@700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style id="lockStyle">
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: #14110d; color: #e8dcc4; font-family: 'EB Garamond', Georgia, serif; }
+  .lock { width: min(360px, calc(100vw - 32px)); padding: 28px 24px; border: 1px solid #5a4a32; border-radius: 10px; background: #1e1913; box-shadow: 0 10px 40px rgba(0,0,0,.5); text-align: center; }
+  .lock h1 { font-family: 'Cinzel', Georgia, serif; font-size: 20px; margin: 0 0 18px; color: #d4b06f; letter-spacing: .04em; }
+  .lock input { width: 100%; box-sizing: border-box; padding: 10px 12px; font: inherit; font-size: 17px; background: #110e0a; color: inherit; border: 1px solid #5a4a32; border-radius: 6px; }
+  .lock input:focus { outline: 2px solid #d4b06f; outline-offset: 1px; }
+  .lock button { margin-top: 12px; width: 100%; padding: 10px; font-family: 'Cinzel', Georgia, serif; font-size: 15px; font-weight: 600; color: #14110d; background: #d4b06f; border: 0; border-radius: 6px; cursor: pointer; }
+  .lock button:disabled { opacity: .6; cursor: wait; }
+  .lock .err { min-height: 1.3em; margin-top: 10px; color: #e07a6a; font-size: 15px; }
+</style>
+</head>
+<body>
+<form class="lock" id="lockForm" autocomplete="off">
+  <h1>Accès restreint</h1>
+  <input type="password" id="lockPw" placeholder="Mot de passe" autofocus aria-label="Mot de passe">
+  <button type="submit" id="lockBtn">Entrer</button>
+  <div class="err" id="lockErr" role="alert"></div>
+</form>
+
+<script src="data.js"></script>
+<script src="prive/secret.js"></script><!-- optionnel, non partagé : contenu anti-spoil -->
+<script>window.ABILITIES_DATA_ONLY = true;</script>
+<script src="abilities.js"></script>
+<script src="combat.enc.js"></script>
+<script>
+// Déverrouillage : le simulateur (HTML, CSS, scripts) est chiffré dans combat.enc.js (voir build-combat.js).
+(() => {
+  const KEY_STORE = 'combat-sim:key';
+  const b64 = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+  const toB64 = buf => btoa(String.fromCharCode(...new Uint8Array(buf)));
+  const form = document.getElementById('lockForm');
+  const pw = document.getElementById('lockPw');
+  const btn = document.getElementById('lockBtn');
+  const err = document.getElementById('lockErr');
+  const E = window.COMBAT_ENC;
+
+  async function deriveKey(password) {
+    const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveKey']);
+    return crypto.subtle.deriveKey({ name: 'PBKDF2', salt: b64(E.salt), iterations: E.iter, hash: 'SHA-256' },
+      base, { name: 'AES-GCM', length: 256 }, true, ['decrypt']);
+  }
+
+  async function open(key) {
+    const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64(E.iv) }, key, b64(E.data));
+    const P = JSON.parse(new TextDecoder().decode(plain));
+    document.title = 'Simulateur de Combat';
+    document.getElementById('lockStyle').remove();
+    const style = document.createElement('style');
+    style.textContent = P.css;
+    document.head.appendChild(style);
+    document.body.innerHTML = P.html;
+    P.scripts.forEach(code => {
+      const s = document.createElement('script');
+      s.textContent = code;
+      document.body.appendChild(s);
+    });
+  }
+
+  async function tryStored() {
+    let raw = null;
+    try { raw = sessionStorage.getItem(KEY_STORE); } catch (e) {}
+    if (!raw) return false;
+    try {
+      const key = await crypto.subtle.importKey('raw', b64(raw), 'AES-GCM', false, ['decrypt']);
+      await open(key);
+      return true;
+    } catch (e) {
+      try { sessionStorage.removeItem(KEY_STORE); } catch (e2) {}
+      return false;
+    }
+  }
+
+  if (!E) { err.textContent = 'Fichier combat.enc.js introuvable.'; btn.disabled = true; return; }
+  if (!window.crypto || !crypto.subtle) { err.textContent = 'Ce navigateur ne permet pas le déchiffrement.'; btn.disabled = true; return; }
+
+  form.addEventListener('submit', async ev => {
+    ev.preventDefault();
+    if (!pw.value) return;
+    btn.disabled = true; err.textContent = ''; btn.textContent = 'Vérification…';
+    try {
+      const key = await deriveKey(pw.value);
+      await open(key);
+      try { sessionStorage.setItem(KEY_STORE, toB64(await crypto.subtle.exportKey('raw', key))); } catch (e) {}
+    } catch (e) {
+      // délai pour ralentir les essais à la main
+      await new Promise(r => setTimeout(r, 800));
+      err.textContent = 'Mot de passe incorrect.';
+      btn.disabled = false; btn.textContent = 'Entrer';
+      pw.select();
+    }
+  });
+
+  tryStored();
+})();
+</script>
+</body>
+</html>

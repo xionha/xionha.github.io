@@ -796,6 +796,7 @@ const DETAILS = {
     portee: '6 Tiles',
     cible: '1 cible',
     degats: ['Magiques', 'Sang'],
+    jet: '3d6 + Incantation contre 3d6 + Esquive de la cible',
     conditions: ['Ne pas être transformé en Lycan', 'Ne pas avoir le statut Incantation Interdite (Sang)'],
     sources: ['Hématomancie'],
     notes: 'Coût en Mana réduit par l\'élément : 15 − Sang/2. Il faut quand même avoir 15 Mana pour lancer le sort.',
@@ -1575,6 +1576,7 @@ const DETAILS = {
     portee: '1 Tile',
     cible: '1 cible',
     degats: ['Contondants'],
+    conditions: ["Ne pas avoir d'arme principale équipée"],
     notes: 'Les bonus de Dégâts Contondants (arme, consommables…) ne sont pas pris en compte.',
   },
   1919: { // Utiliser posture offensive
@@ -1625,6 +1627,7 @@ const DETAILS = {
     portee: '1 Tile',
     cible: '1 cible',
     statuts: ['Immobile'],
+    conditions: ["Ne pas avoir d'arme principale équipée"],
     notes: 'Ne fait pas de dégâts.',
   },
   1013: { // Lancer de couteau
@@ -1894,7 +1897,8 @@ const DETAILS = {
   383: { // Salve de fleches
     type: 'Attaque',
     cout: { AT: 1 },
-    cible: 'Soi',
+    cible: 'Ligne devant le lanceur · 10 Tiles de long, 1 Tile de large',
+    inesquivable: true, // donnée cachée : jamais affichée (les cibles ne font pas de jet d'Esquive)
     jet: 'Dégâts : 3d6 + Puissance de Troupe',
     conditions: ['Avoir le statut En Combat'],
     effets: ['Lance une attaque en ligne qui inflige des dégâts inesquivables'],
@@ -2475,6 +2479,7 @@ const CIBLAGES = [
   ['soi',   { name: 'Soi',            color: '#9fd07a', title: 'Le lanceur uniquement' }, c => /^soi\b/i.test(c)],
   ['mono',  { name: 'Monocible',      color: '#e0b07a', title: 'Une seule cible choisie' }, c => /^1 cible\b/i.test(c)],
   ['multi', { name: 'Multicible',     color: '#e08a4f', title: 'Plusieurs cibles choisies une à une (ex. 3 cibles)' }, c => /^\d+ cibles\b/i.test(c)],
+  ['ligne', { name: 'Ligne',          color: '#d4b06f', title: 'Toutes les cibles alignées dans la direction choisie' }, c => /^(zone en )?ligne\b/i.test(c)],
   ['zone',  { name: 'Zone',           color: '#6fb0d4', title: 'Toutes les cibles dans un rayon autour du point choisi' }, c => /^zone\b/i.test(c)],
   ['tous',  { name: 'Tous à portée',  color: '#b48ae0', title: 'Tout le monde à portée, sans choisir de cible' }, c => /^tou[ts]\b/i.test(c)],
 ];
@@ -2701,6 +2706,12 @@ function groupCardsHTML(g){
     ${compact.length ? `<div class="undoc"><p class="undoc-title">À documenter · <span class="undoc-n">${compact.length}</span></p>
       <ul class="undoc-list">${compact.map(undocItemHTML).join('')}</ul></div>` : ''}`;
 }
+
+// ============================================================================
+// Le simulateur de combat (combat.html) charge ce fichier pour ses données uniquement :
+// avec window.ABILITIES_DATA_ONLY, tout ce qui suit (affichage de l'encyclopédie) est ignoré.
+// ============================================================================
+if (!window.ABILITIES_DATA_ONLY) {
 
 // ============================================================================
 // VUE TABLEAU
@@ -3231,3 +3242,4 @@ buildFilterPanel();
 render();
 applyFilters();
 if (location.hash) requestAnimationFrame(revealHash);
+} // fin de if (!window.ABILITIES_DATA_ONLY)

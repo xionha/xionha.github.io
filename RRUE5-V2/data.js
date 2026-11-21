@@ -82,6 +82,7 @@ const TEMPERAMENTS = {
 // (Métabolisme, Discrétion, Convaincre, Commerce, Déguisement et Savoir Faire
 // n'affectent aucune caractéristique dérivée du tableau et ne sont donc pas calculés ici)
 const PARENT_TO_ATTR = {
+  savoirFaire: ['metier1', 'metier2'],
   conditionPhysique: ['endurance', 'force', 'metabolisme', 'resilience'],
   esprit: ['analyse', 'enseignement', 'perceptionMagique', 'volonte'],
   reflexes: ['addresse', 'discretion', 'perception', 'vitesse'],
@@ -494,3 +495,27 @@ const TALENTS = [
   { name: 'Elementaire de terre', cost: 1, effects: {}, elemental: { terre: 15, feu: -15 }, group: 'elementaire' },
   { name: "Elementaire d'air", cost: 1, effects: {}, elemental: { air: 15, terre: -15 }, group: 'elementaire' },
 ];
+
+// Arme « Main Gauche » (emplacement seconde main) : nécessaire pour activer Maîtrise : Voie Jumelle.
+// Une arme Main Gauche = nom en « (Main Gauche) », Perk Main Gauche, ou aptitudes « (Deux Armes) ». Bouclier et Fouet n'en sont pas.
+function isMainGaucheWeapon(name){
+  const item = name && EQUIPMENT.deuxH && EQUIPMENT.deuxH[name];
+  if (!item) return false;
+  return /main gauche/i.test(name) || (item.notes || []).some(n => /Perk : Main Gauche|\(Deux Armes\)/.test(n));
+}
+
+// Maîtrises (3 maximum dans le Simulateur d'Attributs) et leur couleur.
+// Maître d'arme débloque les Postures ; Voie Jumelle donne l'Ambidextrie (avec une arme Main Gauche).
+const MAITRISES = {
+  "Maître d'arme": '#d9a441',
+  'Voie Jumelle':  '#5fc9a0',
+  'Lumière': '#f3e08a',
+  'Feu':     '#f2793f',
+  'Sang':    '#d84a5a',
+  'Air':     '#b7e0ee',
+  'Eau':     '#5aaee8',
+  'Terre':   '#c4955a',
+  'Arcane':  '#b88cf0',
+  'Prêtre':  '#ece4cf',
+  'Sorcier': '#7cc47f',
+};

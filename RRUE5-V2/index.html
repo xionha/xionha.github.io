@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Simulateur d'Attributs</title>
-<script src="page-turn.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=Cinzel+Decorative:wght@700;900&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
@@ -382,6 +381,14 @@
     transition: all 0.18s ease;
     white-space: nowrap;
   }
+  #voieJumelleLocked:empty, #postureLocked:empty, #voieJumelleDesc:empty{ display: none; }
+  .maitrise-selector .age-btn{ flex: 1 1 28%; color: var(--c); border-color: color-mix(in srgb, var(--c) 30%, var(--border)); }
+  .maitrise-selector .age-btn:hover{ color: var(--c); border-color: var(--c); background: color-mix(in srgb, var(--c) 8%, var(--surface-3)); }
+  .maitrise-selector .age-btn.active{ color: var(--c); border-color: var(--c); background: color-mix(in srgb, var(--c) 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 30%, transparent); }
+  .maitrise-selector .age-btn:not(.active){ opacity: .6; }
+  .maitrise-selector .age-btn:not(.active):hover{ opacity: 1; }
+  .maitrise-selector .age-btn:disabled{ opacity: .25; }
+  .age-btn:disabled{ opacity: .35; cursor: not-allowed; pointer-events: none; }
   .age-btn:hover{ border-color: var(--border-bright); color: var(--text); background: var(--surface-3); }
   .age-btn.active{
     background: rgba(189,125,63,0.16);
@@ -584,6 +591,10 @@
     padding: 8px 0 8px 22px;
     border-bottom: 1px solid rgba(58,44,28,0.6);
   }
+  .child-row.has-subnote{ border-bottom: 0; padding-bottom: 2px; }
+  .attr-subnote{ padding: 0 0 8px 39px; font-size: 12.5px; font-style: italic; color: var(--text-dim); border-bottom: 1px solid rgba(58,44,28,0.6); }
+  .attr-subnote b{ font-style: normal; color: var(--bronze-bright); }
+  .attr-subnote .faint{ color: var(--text-faint); white-space: nowrap; }
   .child-marker{ color: var(--text-faint); font-size: 11px; margin-right: 6px; }
 
   .rp-star{
@@ -1343,11 +1354,6 @@
       <div class="age-desc" id="transformLocked" style="opacity:0.6; font-style: italic;"></div>
       <div class="age-desc" id="transformDesc"></div>
 
-      <div class="panel-title">Voie Jumelle</div>
-      <div class="age-desc" style="opacity:0.7; font-style: italic;">S'active uniquement avec une arme à une main et une arme « Main Gauche » équipées.</div>
-      <div class="age-selector" id="voieJumelleSelector"></div>
-      <div class="age-desc" id="voieJumelleDesc"></div>
-
       <!-- Buff Ténériffe : masqué, en chantier (réafficher en retirant l'attribut hidden) -->
       <div id="teneriffePanel" hidden>
         <div class="panel-title">Buff Ténériffe</div>
@@ -1361,9 +1367,19 @@
     </main>
 
     <aside class="panel status-col" id="statusPanel">
+      <div class="panel-title">Maîtrises <span id="maitriseCounter" class="talent-counter"></span></div>
+      <div class="age-selector maitrise-selector" id="maitriseSelector"></div>
+
       <div class="panel-title">Posture</div>
+      <div class="age-desc" id="postureLocked" style="opacity:0.6; font-style: italic;"></div>
       <div class="age-selector" id="postureSelector"></div>
       <div class="age-desc" id="postureDesc"></div>
+
+      <div id="ambidextriePanel">
+        <div class="panel-title">Ambidextrie</div>
+        <div class="age-desc" id="voieJumelleLocked" style="opacity:0.6; font-style: italic;"></div>
+        <div class="age-desc" id="voieJumelleDesc"></div>
+      </div>
 
       <div class="panel-title">Statuts <span id="statusCounter" class="talent-counter"></span></div>
       <div class="talent-list" id="statusList"></div>
@@ -1523,9 +1539,12 @@ let noSecondJob = false; // case « Aucun » à côté de Métier 2 : +2 Savoir 
 const NO_SECOND_JOB_BONUS = 2;
 let isTeneriffe = false;
 let isVoieJumelle = false;
+let isMaitreArme = false; // Maîtrise « Maître d'arme » : obligatoire pour choisir une Posture
 let currentTransformation = null;
 let currentTransformationChangeforme = null;
 let currentPosture = null;
+const selectedMaitrises = new Set(); // Maîtrises choisies (3 maximum) : Maître d'arme, Voie Jumelle, Lumière, Feu, … Prêtre, Sorcier
+const MAX_MAITRISES = 3;
 
 // Bonus "narratif" venant du Tempérament / la Morphologie / l'Espèce, affiché sur la ligne de la stat parente
 function parentNarrativeBonus(parentKey){
@@ -1538,6 +1557,10 @@ function parentNarrativeBonus(parentKey){
   return v;
 }
 
+// Voie Jumelle : choisie ET une arme Main Gauche équipée (sans arme à deux mains)
+function voieJumelleActive(){
+  return isVoieJumelle && isMainGaucheWeapon(equippedItems.deuxH) && !isTwoHandedEquipped();
+}
 function recalcFlatStats(){
   Object.keys(STATS).forEach(k => flatStatBonus[k] = 0);
   Object.entries(speciesFlatStats).forEach(([k, v]) => { flatStatBonus[k] = (flatStatBonus[k] || 0) + v; });
@@ -1549,7 +1572,7 @@ function recalcFlatStats(){
   if (isTeneriffe) {
     Object.entries(TENERIFFE.flatStats).forEach(([k, v]) => { flatStatBonus[k] = (flatStatBonus[k] || 0) + v; });
   }
-  if (isVoieJumelle) {
+  if (voieJumelleActive()) {
     Object.entries(VOIE_JUMELLE.flatStats).forEach(([k, v]) => { flatStatBonus[k] = (flatStatBonus[k] || 0) + v; });
   }
   if (currentTransformation && TRANSFORMATIONS[currentTransformation]) {
@@ -1733,7 +1756,11 @@ function recalcEquipment(){
 }
 
 function totalBonusFor(attrKey){
-  return (bonusSources.temperament[attrKey] || 0) + (bonusSources.morphology[attrKey] || 0)
+  // Métier 2 coché « Aucun » : pas de second métier, il reste à 0 ;
+  // le +2 Savoir Faire de cette case va alors sur Métier 1
+  if (attrKey === 'metier2' && noSecondJob) return 0;
+  return (attrKey === 'metier1' && noSecondJob ? NO_SECOND_JOB_BONUS : 0)
+       + (bonusSources.temperament[attrKey] || 0) + (bonusSources.morphology[attrKey] || 0)
        + (bonusSources.species[attrKey] || 0) + (bonusSources.curse[attrKey] || 0)
        + (bonusSources.corruption[attrKey] || 0)
        + (bonusSources.esclave[attrKey] || 0) + (bonusSources.teneriffe[attrKey] || 0)
@@ -1747,7 +1774,7 @@ function applyParentBonuses(sourceName, parentValues){
   if (parentValues) {
     Object.entries(parentValues).forEach(([parentKey, val]) => {
       const children = PARENT_TO_ATTR[parentKey];
-      if (!children) return; // ex: savoirFaire, sans effet dans ce simulateur
+      if (!children) return;
       children.forEach(attrKey => { bonusSources[sourceName][attrKey] += val; });
     });
   }
@@ -2010,44 +2037,27 @@ teneriffeSelector.addEventListener('click', e => {
   applyTeneriffe(btn.dataset.teneriffe);
 });
 
-// ---- Construction de Voie Jumelle (Oui/Non) ----
-const voieJumelleSelector = document.getElementById('voieJumelleSelector');
+// ---- Maîtrise Voie Jumelle : bonus d'Ambidextrie (avec une arme Main Gauche) ----
 const voieJumelleDesc = document.getElementById('voieJumelleDesc');
-
-['Non', 'Oui'].forEach(label => {
-  const btn = document.createElement('button');
-  btn.className = 'age-btn' + (label === 'Non' ? ' active' : '');
-  btn.textContent = label;
-  btn.dataset.voieJumelle = label;
-  voieJumelleSelector.appendChild(btn);
-});
 
 function applyVoieJumelle(value){
   isVoieJumelle = (value === 'Oui');
   recalcFlatStats();
-
-  voieJumelleSelector.querySelectorAll('.age-btn').forEach(b => {
-    b.classList.toggle('active', b.dataset.voieJumelle === (isVoieJumelle ? 'Oui' : 'Non'));
-  });
-
-  if (isVoieJumelle) {
-    let html = '';
-    Object.entries(VOIE_JUMELLE.flatStats).forEach(([k, v]) => {
-      html += flatSpanHTML(TALENT_STAT_LABELS[k] || k, v);
-    });
-    voieJumelleDesc.innerHTML = html;
-  } else {
-    voieJumelleDesc.innerHTML = '';
-  }
-
+  renderVoieJumelleDesc();
   compute();
 }
-
-voieJumelleSelector.addEventListener('click', e => {
-  const btn = e.target.closest('.age-btn');
-  if (!btn) return;
-  applyVoieJumelle(btn.dataset.voieJumelle);
-});
+function renderVoieJumelleDesc(){
+  const active = voieJumelleActive();
+  document.getElementById('voieJumelleLocked').textContent = active ? ''
+    : isVoieJumelle ? 'Nécessite une arme « Main Gauche » équipée.' : 'Nécessite la Maîtrise « Voie Jumelle ».';
+  // bonus toujours affichés, grisés tant que l'Ambidextrie n'est pas active
+  let html = '';
+  Object.entries(VOIE_JUMELLE.flatStats).forEach(([k, v]) => {
+    html += flatSpanHTML(TALENT_STAT_LABELS[k] || k, v);
+  });
+  voieJumelleDesc.innerHTML = html;
+  voieJumelleDesc.style.opacity = active ? '' : '0.4';
+}
 
 // ---- Construction du sélecteur de transformation ----
 const transformSelect = document.getElementById('transformSelect');
@@ -2202,7 +2212,60 @@ nonePostureBtn.textContent = 'Aucune';
 nonePostureBtn.dataset.posture = '';
 postureSelector.appendChild(nonePostureBtn);
 
+// ---- Maîtrises magiques (choix multiple, couleurs de MAITRISES dans data.js) ----
+const maitriseSelector = document.getElementById('maitriseSelector');
+Object.keys(MAITRISES).forEach(name => {
+  const btn = document.createElement('button');
+  btn.className = 'age-btn';
+  btn.textContent = name;
+  btn.dataset.maitrise = name;
+  btn.style.setProperty('--c', MAITRISES[name]);
+  maitriseSelector.appendChild(btn);
+});
+function renderMaitrises(){
+  const full = selectedMaitrises.size >= MAX_MAITRISES;
+  maitriseSelector.querySelectorAll('.age-btn').forEach(b => {
+    const on = selectedMaitrises.has(b.dataset.maitrise);
+    b.classList.toggle('active', on);
+    b.disabled = full && !on;
+  });
+  document.getElementById('maitriseCounter').textContent = `(${selectedMaitrises.size}/${MAX_MAITRISES})`;
+}
+// Maître d'arme et Voie Jumelle suivent la sélection
+function syncMaitriseEffects(){
+  const ma = selectedMaitrises.has("Maître d'arme"), vj = selectedMaitrises.has('Voie Jumelle');
+  if (ma !== isMaitreArme) applyMaitreArme(ma ? 'Oui' : 'Non');
+  if (vj !== isVoieJumelle) applyVoieJumelle(vj ? 'Oui' : 'Non');
+  renderVoieJumelleDesc();
+}
+// Remplace la sélection (liste de noms ; 3 maximum, les premiers sont gardés)
+function setMaitrises(names){
+  selectedMaitrises.clear();
+  (names || []).forEach(n => { if (MAITRISES[n] && selectedMaitrises.size < MAX_MAITRISES) selectedMaitrises.add(n); });
+  renderMaitrises();
+  syncMaitriseEffects();
+}
+maitriseSelector.addEventListener('click', e => {
+  const btn = e.target.closest('.age-btn');
+  if (!btn) return;
+  const name = btn.dataset.maitrise;
+  if (selectedMaitrises.has(name)) selectedMaitrises.delete(name);
+  else if (selectedMaitrises.size < MAX_MAITRISES) selectedMaitrises.add(name);
+  renderMaitrises();
+  syncMaitriseEffects();
+});
+
+// ---- Maîtrise Maître d'arme : débloque les Postures ----
+const postureLocked = document.getElementById('postureLocked');
+function applyMaitreArme(value){
+  isMaitreArme = (value === 'Oui');
+  postureSelector.querySelectorAll('.age-btn').forEach(b => { b.disabled = !isMaitreArme && b.dataset.posture !== ''; });
+  postureLocked.textContent = isMaitreArme ? '' : "Nécessite la Maîtrise « Maître d'arme ».";
+  if (!isMaitreArme && currentPosture) applyPosture('');
+}
+
 function applyPosture(name){
+  if (name && !isMaitreArme) name = '';
   currentPosture = name || null;
   const data = currentPosture ? POSTURES[currentPosture] : null;
 
@@ -2828,6 +2891,7 @@ function applyEquipment(slot, itemName){
   equippedItems[slot] = itemName || null;
   recalcEquipment();
   refreshEquipmentDescriptions();
+  renderVoieJumelleDesc();
   compute();
 }
 
@@ -2931,7 +2995,25 @@ PARENT_GROUPS.forEach(group => {
   } else {
     group.children.forEach(childKey => {
       const a = ATTRIBUTES.find(x => x.key === childKey);
-      if (a) attrTree.appendChild(buildChildRow(a));
+      if (!a) return;
+      const row = buildChildRow(a);
+      attrTree.appendChild(row);
+      // sous Commerce : échange de points de projet contre des pièces de bronze (en petit)
+      if (a.key === 'commerce') {
+        row.classList.add('has-subnote');
+        const sub = document.createElement('div');
+        sub.className = 'attr-subnote';
+        sub.innerHTML = `Échange de 5 points de projet : <b id="economyValue">50</b> pièces de bronze <span class="faint">(1 Commerce = +2 pièces)</span>`;
+        attrTree.appendChild(sub);
+      }
+      // sous les Métiers : points de projet par jour = meilleur Métier × 2
+      if (a.key === 'metier2') {
+        row.classList.add('has-subnote');
+        const sub = document.createElement('div');
+        sub.className = 'attr-subnote';
+        sub.innerHTML = `Points de projet par jour : <b id="projectPointsValue">0</b> <span class="faint">(meilleur Métier × 2)</span>`;
+        attrTree.appendChild(sub);
+      }
     });
   }
 });
@@ -3197,16 +3279,6 @@ Object.keys(OTHER_STATS).forEach(k => {
 });
 statsPanel.appendChild(otherGroup);
 
-// ---- Encart mis en avant : échange de points de projet contre des pièces de bronze ----
-const economyBox = document.createElement('div');
-economyBox.className = 'economy-box';
-economyBox.innerHTML = `
-  <span class="economy-label">Échange de 5 points de projet</span>
-  <span class="economy-value" id="economyValue">50</span>
-  <span class="economy-sub">pièces de bronze</span>
-  <span class="economy-note">(1 Commerce = +2 pièces)</span>
-`;
-statsPanel.appendChild(economyBox);
 statsPanel.appendChild(equipmentSlots);
 
 // ---- Corruption : sélecteur placé au centre, sous l'Équipement — un seul niveau actif à la fois ----
@@ -3468,6 +3540,8 @@ function compute(){
   // Échange de 5 points de projet contre des pièces de bronze : 50 + (Commerce * 2)
   const bronzeCoins = 50 + (commerceTotal * 2);
   document.getElementById('economyValue').textContent = bronzeCoins;
+  // Points de projet par jour : le Métier le plus haut × 2
+  document.getElementById('projectPointsValue').textContent = Math.max(attrTotals.metier1 || 0, attrTotals.metier2 || 0) * 2;
 
   attrExtraStatBonus = extraFromAttrs;
 
@@ -3634,7 +3708,7 @@ function resetAllState(){
   applyCorruption('');
   applyEsclave('Non');
   applyTeneriffe('Non');
-  applyVoieJumelle('Non');
+  setMaitrises([]);
   applyNoSecondJob(false);
   transformSelect.value = '';
   applyTransformation('');
@@ -3678,9 +3752,10 @@ function serializeBuild(){
     state: { ...state },
     parentState: { ...parentState },
     currentTemperament, currentMorphology, currentSpecies, currentCurse, currentCorruption,
-    isEsclave, isTeneriffe, isVoieJumelle, noSecondJob,
+    isEsclave, isTeneriffe, isVoieJumelle, isMaitreArme, noSecondJob,
     currentTransformation, currentTransformationChangeforme,
     currentPosture,
+    selectedMaitrises: Array.from(selectedMaitrises),
     selectedTalents: Array.from(selectedTalents),
     selectedStatuses: Array.from(selectedStatuses),
     selectedEnvironments: Array.from(selectedEnvironments),
@@ -3713,7 +3788,6 @@ function loadBuildData(data){
   applyCorruption(data.currentCorruption || '');
   applyEsclave(data.isEsclave ? 'Oui' : 'Non');
   applyTeneriffe('Non'); // Buff Ténériffe masqué (en chantier) : jamais réactivé par une sauvegarde
-  applyVoieJumelle(data.isVoieJumelle ? 'Oui' : 'Non');
   applyNoSecondJob(!!data.noSecondJob);
 
   const RENAMED_TALENTS = { 'Instinct de tueur': 'Combattant Arcanique' }; // anciennes sauvegardes
@@ -3727,6 +3801,12 @@ function loadBuildData(data){
   applyTransformation(data.currentTransformation || '');
   transformChangeformeSelect.value = data.currentTransformationChangeforme || '';
   applyTransformationChangeforme(data.currentTransformationChangeforme || '');
+  // anciennes sauvegardes (sans ce choix) : une posture enregistrée implique Maître d'arme
+  // anciens codes : Maître d'arme / Voie Jumelle étaient des Oui/Non à part, et une seule maîtrise magique
+  const maitrises = [...(data.selectedMaitrises || (data.currentMaitrise ? [data.currentMaitrise] : []))];
+  if ((data.isMaitreArme || (data.isMaitreArme === undefined && data.currentPosture)) && !maitrises.includes("Maître d'arme")) maitrises.unshift("Maître d'arme");
+  if (data.isVoieJumelle && !maitrises.includes('Voie Jumelle')) maitrises.unshift('Voie Jumelle');
+  setMaitrises(maitrises);
   applyPosture(data.currentPosture || '');
 
   (data.selectedStatuses || []).forEach(name => { if (STATUSES[name]) selectedStatuses.add(name); });
@@ -3750,6 +3830,7 @@ function loadBuildData(data){
   });
   refreshEquipmentDescriptions();
   recalcEquipment();
+  renderVoieJumelleDesc();
 
   renderParentRows();
   recalcFlatStats();
@@ -3828,9 +3909,10 @@ applySpecies('');
 applyCurse('');
 applyEsclave('Non');
 applyTeneriffe('Non');
-applyVoieJumelle('Non');
 applyTransformation('');
 applyTransformationChangeforme('');
+setMaitrises([]);
+applyMaitreArme('Non');
 applyPosture('');
 renderTalentStates();
 updateChangeformeAvailability();

@@ -31,7 +31,6 @@ const CHANGELOG = [
       ]},
       { titre: 'Personnages', items: [
         "<b>Sirène</b> : ne donne plus Air −5 / Eau +5.",
-        "Rappel des changements déjà intégrés : Mana (multiplicateur 0,5), Corruption +10 pour les malédictions, talent <b>Combattant Arcanique</b> (ex-Instinct de tueur : +1 Capacité de combat, +1 Incantation), le Golem donne Salve de flèches, la Transformation Dragon donne Bond Ailé.",
       ]},
     ],
   },

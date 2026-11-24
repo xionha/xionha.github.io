@@ -114,7 +114,7 @@ const SPECIES = {
   "Drow": { parents: { conditionPhysique: 2, reflexes: 1, esprit: 1, presence: 1 }, flatStats: {}, elemental: {}, notes: [] },
   "Céleste": { parents: { esprit: 2, reflexes: 1, presence: 1, conditionPhysique: 1 }, flatStats: {}, elemental: { sang: -10 }, notes: [] },
   "Esprit": { parents: { esprit: 2, presence: 2, savoirFaire: 1 }, flatStats: {}, elemental: {}, notes: [] },
-  "Sirène": { parents: { esprit: 1, reflexes: 1, presence: 2 }, flatStats: {}, elemental: { air: -5, eau: 5 }, notes: ['Octroie : Charme-Personne', 'Octroie : Frappe Télékinétique'] },
+  "Sirène": { parents: { esprit: 1, reflexes: 1, presence: 2 }, flatStats: {}, elemental: {}, notes: ['Octroie : Charme-Personne', 'Octroie : Frappe Télékinétique'] },
   "Nain": { parents: { savoirFaire: 2, conditionPhysique: 3 }, flatStats: {}, elemental: {}, notes: [] },
   "Gobelin": { parents: { savoirFaire: 3, reflexes: 2 }, flatStats: { pv: -25 }, elemental: {}, notes: [] },
   "Orc": { parents: { conditionPhysique: 3 }, flatStats: { defense: 5 }, elemental: {}, notes: [] },
@@ -391,6 +391,7 @@ const EQUIPMENT = {
     "Hache à deux mains": { flatStats: {}, extraStats: { degContondant: 10, degTranchant: 20 }, notes: ['Octroie le Perk : Haches 2M', 'Octroie le Perk : Deux Mains', 'Octroie : Balayage', 'Octroie : Fracassement (2M)', 'Octroie : Faucher les Jambes', 'Octroie le Perk : Arme', "Octroie : Charge d'interception (Tranchante)", 'Octroie : Mordhau'] },
     "Katana": { flatStats: {}, extraStats: { degPerforant: 25, degTranchant: 25 }, notes: ['Octroie le Perk : Katana', 'Octroie : Balayage', 'Octroie : Empaler', 'Octroie : Faire Saigner', 'Octroie le Perk : Arme', "Octroie : Charge d'interception (Tranchante)"] },
     "Dague": { flatStats: {}, extraStats: { degPerforant: 15, degTranchant: 15 }, notes: ['Octroie le Perk : Dague', 'Octroie : Empaler', 'Octroie : Faire Saigner', 'Octroie : Coup de Lame', 'Octroie le Perk : Arme', 'Octroie : Coup Vicieux'] },
+    "Ceste": { flatStats: {}, extraStats: { degContondant: 25 }, notes: ['Octroie le Perk : Ceste', 'Octroie le Perk : Arme', "Débloque : Croc du Dragon de l'Ombre et Paume des trois souffles (avec la Maîtrise Voie du Poing et du Pied)"] },
     "Focus": { flatStats: { degatsMagique: 15, incantation: 2 }, extraStats: {}, notes: ['Octroie le Perk : Deux Mains'] },
   },
   deuxH: {
@@ -424,6 +425,12 @@ const EQUIPMENT = {
       extraStats: {},
       elemental: {},
       notes: ['Octroie : Tir de Pistolet', 'Octroie : Rechargement Pistolet', 'Octroie le Perk : Main Gauche'],
+    },
+    "Prothèse": {
+      flatStats: {},
+      extraStats: {},
+      elemental: {},
+      notes: ['Octroie le Perk : Prothèse', 'Octroie : Coup de Lame (Prothese)', 'Octroie : Recharge Prothèse', 'Débloque : Recharge Prothèse (2 points)'],
     },
     "Fouet": {
       flatStats: {},
@@ -505,10 +512,12 @@ function isMainGaucheWeapon(name){
 }
 
 // Maîtrises (3 maximum dans le Simulateur d'Attributs) et leur couleur.
-// Maître d'arme débloque les Postures ; Voie Jumelle donne l'Ambidextrie (avec une arme Main Gauche).
+// Maître d'arme débloque les Postures ; Voie Jumelle donne l'Ambidextrie (avec une arme Main Gauche) ;
+// Voie du Poing et du Pied débloque les Arts martiaux (Artiste Martial).
 const MAITRISES = {
   "Maître d'arme": '#d9a441',
   'Voie Jumelle':  '#5fc9a0',
+  'Voie du Poing et du Pied': '#e0b98a',
   'Lumière': '#f3e08a',
   'Feu':     '#f2793f',
   'Sang':    '#d84a5a',
